@@ -15,6 +15,7 @@ Resultado en la celda "Activo":
     vacío         → sin handle o sin posts visibles
 """
 
+import json
 import os
 import re
 import sys
@@ -197,11 +198,27 @@ def main():
     wb = openpyxl.load_workbook(XLSX)
     ws = wb["Sheet1"]
 
-    if run_all or only_bs:
-        check_bluesky(ws, wb)
+    try:
+        if run_all or only_bs:
+            check_bluesky(ws, wb)
 
-    if run_all or only_md:
-        check_mastodon(ws, wb)
+        if run_all or only_md:
+            check_mastodon(ws, wb)
+    finally:
+        last_update_path = os.path.join(ROOT_DIR, "src", "data", "lastUpdate.json")
+        try:
+            with open(last_update_path, encoding="utf-8") as f:
+                data = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            data = {}
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        if run_all or only_bs:
+            data["bluesky"] = today
+        if run_all or only_md:
+            data["mastodon"] = today
+        with open(last_update_path, "w", encoding="utf-8") as f:
+            json.dump(data, f)
+        print(f"Fecha de última actualización guardada en {last_update_path}")
 
     print("Hecho.")
 

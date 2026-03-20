@@ -14,26 +14,40 @@ import senadoData from "@/data/senado.json";
 import partidosData from "@/data/partidos.json";
 import autonomiasData from "@/data/autonomias.json";
 import universidadesData from "@/data/universidades.json";
+import lastUpdateData from "@/data/lastUpdate.json";
 
+// Referencia temporal por plataforma: fecha del último check de cada red,
+// no "ahora". Así un tweet de Feb 13 sigue siendo "activo" si el check de
+// Twitter fue el Feb 14, aunque Bluesky se haya comprobado más tarde.
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
-function isActiveDate(val: unknown): boolean {
+function platformRef(d: string | undefined) {
+  return d ? new Date(d + "T00:00:00Z").getTime() : Date.now();
+}
+const lu = lastUpdateData as any;
+const TWITTER_REF  = platformRef(lu.twitter);
+const BLUESKY_REF  = platformRef(lu.bluesky);
+const MASTODON_REF = platformRef(lu.mastodon);
+
+function isActiveDate(val: unknown, ref: number): boolean {
   if (!val || typeof val !== 'string') return false;
   if (!/^\d{4}-\d{2}-\d{2}/.test(val)) return false;
-  return Date.now() - new Date(val).getTime() <= THIRTY_DAYS_MS;
+  return ref - new Date(val).getTime() <= THIRTY_DAYS_MS;
 }
 
 // Handle + sin fecha = asumir que siguen en X
 function twitterOnX(handle: unknown, activo: unknown): boolean {
   if (!handle) return false;
   if (activo == null) return true;
-  return isActiveDate(activo);
+  return isActiveDate(activo, TWITTER_REF);
 }
 
 function normalizeItem(item: any) {
   return {
     twitter_activo:  twitterOnX(item.twitter, item.twitter_activo),
-    bluesky_activo:  isActiveDate(item.bluesky_activo),
-    mastodon_activo: isActiveDate(item.mastodon_activo),
+    bluesky_activo:  isActiveDate(item.bluesky_activo,  BLUESKY_REF),
+    mastodon_activo: isActiveDate(item.mastodon_activo, MASTODON_REF),
+    mastodon:        item.mastodon || null,
+    bluesky:         item.bluesky  || null,
   };
 }
 
@@ -68,25 +82,13 @@ function calculateStats(data: any[]) {
   let sinAlternativa = 0;
 
   data.forEach(item => {
-    const twitterActivo = item.twitter_activo || false;
-    const mastodonActivo = item.mastodon_activo || false;
-    const blueskyActivo = item.bluesky_activo || false;
-
     // Barra 1: ¿Están en X?
-    if (twitterActivo) {
-      enX++;
-    } else {
-      fueraDeX++;
-    }
+    if (item.twitter_activo) enX++; else fueraDeX++;
 
     // Barra 2: ¿Qué alternativas federadas tienen?
-    if (mastodonActivo) {
-      mastodon++;
-    } else if (blueskyActivo) {
-      bluesky++;
-    } else {
-      sinAlternativa++;
-    }
+    if (item.mastodon)      mastodon++;
+    else if (item.bluesky)  bluesky++;
+    else                    sinAlternativa++;
   });
 
   return { enX, fueraDeX, mastodon, bluesky, sinAlternativa };
@@ -101,17 +103,17 @@ const stats = calculateStats(allData);
 >
   <div class="text-center px-4 sm:px-6">
     <h1 class="text-balance font-title tracking-tight
-               text-8xl sm:text-9xl md:text-9xl lg:text-9xl font-extralight">
+               text-6xl sm:text-7xl md:text-8xl font-extralight">
       <a href="/">sal de ahí</a>
     </h1>
 
-    <h2 id="hero-h2" class="mt-4 sm:mt-6 md:mt-10 text-balance font-sans tracking-tight
-               text-sm sm:text-base md:text-lg lg:text-xl max-w-4xl mx-auto px-2">
+    <h2 id="hero-h2" class="mt-3 sm:mt-4 text-balance font-sans tracking-tight
+               text-xs sm:text-sm md:text-base max-w-2xl mx-auto px-2 text-muted-foreground">
       Los gobiernos democráticos deberían habitar espacios democráticos.
-      <span class="block mt-2">Exige a tus representantes e instituciones públicas que abandonen redes sociales gobernadas por oligarcas.</span>
+      <span class="block mt-1">Exige a tus representantes e instituciones públicas que abandonen redes sociales gobernadas por oligarcas.</span>
     </h2>
 
-    <div class="mt-6 sm:mt-8 md:mt-10 w-full max-w-3xl mx-auto px-4">
+    <div class="mt-6 sm:mt-8 w-full max-w-2xl mx-auto px-4">
       <MainbarWrapper
         client:load
         initialStats={{
@@ -124,19 +126,17 @@ const stats = calculateStats(allData);
       />
     </div>
 
-    <div class="mt-6 sm:mt-8 md:mt-10 w-full max-w-2xl mx-auto px-4">
-      <SearchBar 
-        client:load 
-        className="mt-4" 
-        size="md" 
+    <div class="mt-5 sm:mt-6 w-full max-w-2xl mx-auto px-4">
+      <SearchBar
+        client:load
+        size="md"
         placeholder="Buscar entidad, ministerio, partido..."
       />
     </div>
-	
-    <div class="mt-6 sm:mt-8 md:mt-10 w-full px-4">
+
+    <div class="mt-5 sm:mt-6 w-full px-4">
       <FilterTabs
         client:load
-        className="mt-2"
         defaultValue="age"
         items={[
           { value: "total",         label: "Total"          },
@@ -152,12 +152,12 @@ const stats = calculateStats(allData);
     </div>
 
     <!-- Tabla de datos -->
-    <div class="mt-6 sm:mt-8 md:mt-10 w-full px-2 sm:px-4">
+    <div class="mt-5 sm:mt-6 w-full px-2 sm:px-4">
       <DataTable client:load />
     </div>
 
     <!-- Leyenda de iconos -->
-    <div class="mt-6 sm:mt-8 w-full max-w-4xl mx-auto px-4 mb-10">
+    <div class="mt-5 sm:mt-6 w-full max-w-4xl mx-auto px-4 mb-10">
       <IconLegend client:load />
     </div>
   </div>

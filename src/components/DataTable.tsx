@@ -18,6 +18,7 @@ import senadoData from "@/data/senado.json";
 import partidosData from "@/data/partidos.json";
 import autonomiasData from "@/data/autonomias.json";
 import universidadesData from "@/data/universidades.json";
+import lastUpdateData from "@/data/lastUpdate.json";
 
 const TwitterIcon = ({ handle, activo }: { handle?: string | null; activo?: boolean }) => {
   const hasAccount = !!handle;
@@ -74,19 +75,27 @@ const MastodonIcon = ({ handle, activo }: { handle?: string | null; activo?: boo
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
-function isActiveDate(val: unknown): boolean {
+function platformRef(dateStr: string | undefined): number {
+  return dateStr ? new Date(dateStr + "T00:00:00Z").getTime() : Date.now();
+}
+
+const TWITTER_REF  = platformRef((lastUpdateData as any).twitter);
+const BLUESKY_REF  = platformRef((lastUpdateData as any).bluesky);
+const MASTODON_REF = platformRef((lastUpdateData as any).mastodon);
+
+function isActiveDate(val: unknown, ref: number): boolean {
   if (!val || typeof val !== 'string') return false;
   if (!/^\d{4}-\d{2}-\d{2}/.test(val)) return false;
-  return Date.now() - new Date(val).getTime() <= THIRTY_DAYS_MS;
+  return ref - new Date(val).getTime() <= THIRTY_DAYS_MS;
 }
 
 // Para Twitter: tener handle sin fecha verificada = asumir que siguen en X (rojo).
 // Solo se considera "fuera de X" si: no hay handle, la cuenta da 404, o la última
 // publicación registrada es de hace más de 30 días.
 function twitterOnX(handle: unknown, activo: unknown): boolean {
-  if (!handle) return false;             // sin cuenta → no están en X
-  if (activo == null) return true;       // cuenta existe, sin fecha → asumir activos
-  return isActiveDate(activo);           // fecha → activo sólo si es reciente
+  if (!handle) return false;
+  if (activo == null) return true;
+  return isActiveDate(activo, TWITTER_REF);
 }
 
 function normalizeData(data: any[], categoria: string) {
@@ -107,9 +116,9 @@ function normalizeData(data: any[], categoria: string) {
       twitter:         item.twitter         || null,
       twitter_activo:  twitterOnX(item.twitter, item.twitter_activo),
       bluesky:         item.bluesky         || null,
-      bluesky_activo:  isActiveDate(item.bluesky_activo),
+      bluesky_activo:  isActiveDate(item.bluesky_activo,  BLUESKY_REF),
       mastodon:        item.mastodon        || null,
-      mastodon_activo: isActiveDate(item.mastodon_activo),
+      mastodon_activo: isActiveDate(item.mastodon_activo, MASTODON_REF),
       email: item.email || null,
       raw: item,
     };
@@ -507,10 +516,10 @@ export function calculateStats(data: any[]) {
   let enX = 0, fueraDeX = 0, mastodon = 0, bluesky = 0, sinAlternativa = 0;
 
   data.forEach(item => {
-    if (item.twitter_activo)       enX++;        else fueraDeX++;
-    if (item.mastodon_activo)      mastodon++;
-    else if (item.bluesky_activo)  bluesky++;
-    else                           sinAlternativa++;
+    if (item.twitter_activo)  enX++;       else fueraDeX++;
+    if (item.mastodon)        mastodon++;
+    else if (item.bluesky)    bluesky++;
+    else                      sinAlternativa++;
   });
 
   return { enX, fueraDeX, mastodon, bluesky, sinAlternativa };

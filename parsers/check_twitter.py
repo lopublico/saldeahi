@@ -32,7 +32,7 @@ import json
 import time
 import openpyxl
 import requests
-from datetime import datetime
+from datetime import datetime, timezone
 
 # ── Configuración ─────────────────────────────────────────────────────────────
 
@@ -236,33 +236,45 @@ def main():
 
     done = skipped = errors = no_data = 0
 
-    for row in range(2, ws.max_row + 1):
-        handle = ws.cell(row, COL_TW).value
-        nombre = ws.cell(row, COL_NOMBRE).value or f"fila {row}"
+    try:
+        for row in range(2, ws.max_row + 1):
+            handle = ws.cell(row, COL_TW).value
+            nombre = ws.cell(row, COL_NOMBRE).value or f"fila {row}"
 
-        if not handle:
-            ws.cell(row, COL_TW_A).value = None
-            continue
+            if not handle:
+                ws.cell(row, COL_TW_A).value = None
+                continue
 
-        if is_done(ws.cell(row, COL_TW_A).value):
-            skipped += 1
-            continue
+            if is_done(ws.cell(row, COL_TW_A).value):
+                skipped += 1
+                continue
 
-        result = get_last_tweet_date(session, handle)
-        ws.cell(row, COL_TW_A).value = result
+            result = get_last_tweet_date(session, handle)
+            ws.cell(row, COL_TW_A).value = result
 
-        if result == "404":
-            print(f"  @{handle} ({nombre}): no encontrado (404)")
-            errors += 1
-        elif result:
-            print(f"  @{handle} ({nombre}): {result}")
-            done += 1
-        else:
-            print(f"  @{handle} ({nombre}): sin datos")
-            no_data += 1
+            if result == "404":
+                print(f"  @{handle} ({nombre}): no encontrado (404)")
+                errors += 1
+            elif result:
+                print(f"  @{handle} ({nombre}): {result}")
+                done += 1
+            else:
+                print(f"  @{handle} ({nombre}): sin datos")
+                no_data += 1
 
-        wb.save(XLSX)
-        time.sleep(DELAY)
+            wb.save(XLSX)
+            time.sleep(DELAY)
+    finally:
+        last_update_path = os.path.join(ROOT_DIR, "src", "data", "lastUpdate.json")
+        try:
+            with open(last_update_path, encoding="utf-8") as f:
+                data = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            data = {}
+        data["twitter"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        with open(last_update_path, "w", encoding="utf-8") as f:
+            json.dump(data, f)
+        print(f"Fecha de última actualización guardada en {last_update_path}")
 
     print(f"\nCompletado: {done} con fecha, {errors} no encontrados, "
           f"{no_data} sin datos, {skipped} ya tenían fecha.")

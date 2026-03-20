@@ -16,7 +16,7 @@
     "twitter": "PSOE",
     "twitter_activo": "2026-02-14",
     "bluesky": "psoe-cef.bsky.social",
-    "bluesky_activo": "2026-02-14",
+    "bluesky_activo": "2026-03-19",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "comunicacion@psoe.es"
@@ -37,8 +37,8 @@
     "ambito": "Nacional",
     "twitter": "sumar",
     "twitter_activo": "2025-01-21",
-    "bluesky": "sumar.bsky.social",
-    "bluesky_activo": null,
+    "bluesky": "movimientosumar.es",
+    "bluesky_activo": "2026-03-19",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "contacto@sumar.social"
@@ -49,7 +49,7 @@
     "twitter": "esquerra_erc",
     "twitter_activo": "2026-02-14",
     "bluesky": "esquerrarepublicana.cat",
-    "bluesky_activo": "2026-02-11",
+    "bluesky_activo": "2026-02-24",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "comunicacio@esquerra.cat"
@@ -71,7 +71,7 @@
     "twitter": "ehbildu",
     "twitter_activo": "2026-02-14",
     "bluesky": "ehbildu.bsky.social",
-    "bluesky_activo": "2026-02-14",
+    "bluesky_activo": "2026-03-19",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "komunikazioa@ehbildu.eus"
@@ -115,7 +115,7 @@
     "twitter": "PODEMOS",
     "twitter_activo": "2026-02-14",
     "bluesky": "ahorapodemos.bsky.social",
-    "bluesky_activo": "2026-02-12",
+    "bluesky_activo": "2026-03-19",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "comunicacion@podemos.info"
@@ -126,9 +126,9 @@
     "twitter": "IzquierdaUnida",
     "twitter_activo": "2026-02-14",
     "bluesky": "izquierdaunida.org",
-    "bluesky_activo": "2026-02-14",
+    "bluesky_activo": "2026-03-19",
     "mastodon": "https://mastodon.social/@izquierda_unida",
-    "mastodon_activo": "2026-02-14",
+    "mastodon_activo": "2026-03-19",
     "email": "comunicacion@izquierda-unida.es"
   },
   {
@@ -136,8 +136,8 @@
     "ambito": "Nacional",
     "twitter": "SomComuns",
     "twitter_activo": "2026-02-14",
-    "bluesky": null,
-    "bluesky_activo": null,
+    "bluesky": "somcomuns.bsky.social",
+    "bluesky_activo": "2025-10-07",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "comunicacio@catalunyaencomu.cat"
@@ -148,7 +148,7 @@
     "twitter": "cupnacional",
     "twitter_activo": "2026-02-14",
     "bluesky": "cup.cat",
-    "bluesky_activo": "2026-01-29",
+    "bluesky_activo": "2026-03-11",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "comunicacio@cup.cat"
@@ -159,7 +159,7 @@
     "twitter": "BNGaliza",
     "twitter_activo": "2015-02-04",
     "bluesky": "obloque.gal",
-    "bluesky_activo": "2026-02-13",
+    "bluesky_activo": "2026-03-19",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "comunicacion@bng.gal"
@@ -170,7 +170,7 @@
     "twitter": "chunta",
     "twitter_activo": "2026-02-14",
     "bluesky": "chuntaaragonesista.bsky.social",
-    "bluesky_activo": "2026-02-08",
+    "bluesky_activo": "2026-03-18",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "prensa@chuntaargonesa.es"

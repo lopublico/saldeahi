@@ -2,12 +2,20 @@
 import { Button } from "@/components/ui/button";
 import "../styles/global.css";
 import { ModeToggle } from '@/components/ModeToggle';
+import lastUpdateData from "@/data/lastUpdate.json";
 
 const {
   title       = "sal de ahí",
   description = "Exige a tus representantes e instituciones públicas que abandonen redes sociales gobernadas por oligarcas.",
   image       = "/og-image.png",
 } = Astro.props;
+
+const lu = lastUpdateData as any;
+const lastUpdateISO = [lu.twitter, lu.bluesky, lu.mastodon].filter(Boolean).sort().at(-1) ?? "";
+const lastUpdate = lastUpdateISO
+  ? new Date(lastUpdateISO + "T00:00:00Z")
+      .toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })
+  : "";
 
 const siteBase  = Astro.site?.toString().replace(/\/$/, '') ?? 'https://saldeahi.es';
 const ogImage   = image.startsWith('http') ? image : `${siteBase}${image}`;
@@ -64,12 +72,13 @@ const canonical = siteBase;
     </script>
   </head>
 
-  <body class="min-h-svh overflow-x-hidden grid grid-rows-[auto_1fr_auto] bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">
+  <body class="min-h-svh overflow-x-hidden grid grid-rows-[auto_1fr_auto] bg-background text-foreground">
 
     <header class="relative z-10">
-      <div class="mx-auto max-w-screen-xl px-4 py-3">
-        <div class="flex items-center justify-end">
-          <Button variant="default">
+      <div class="mx-auto max-w-screen-xl px-4 sm:px-6 py-3">
+        <div class="flex items-center justify-end gap-1">
+          <ModeToggle client:load />
+          <Button variant="ghost" size="sm" class="text-sm font-medium">
             <a href="/porque">por qué</a>
           </Button>
         </div>
@@ -78,7 +87,7 @@ const canonical = siteBase;
 
     <main class="relative">
       <section
-        class="mx-auto max-w-screen-xl px-4 py-8"
+        class="mx-auto max-w-screen-xl px-4 py-8 sm:py-12"
         aria-labelledby="hero-title"
       >
         <div class="w-full text-center">
@@ -87,30 +96,20 @@ const canonical = siteBase;
       </section>
     </main>
 
-    <footer>
-      <div class="mx-auto max-w-2xl px-4 py-4 text-center text-md text-slate-900 dark:text-slate-400 mt-10">
-        <span class="italic">Toda la información utilizada procede exclusivamente de fuentes públicas y se emplea con una finalidad estrictamente orientada a la participación ciudadana, sin ningún propósito comercial ni de explotación de datos.</span>
-        <br /><br /> por <a target="_blank" class="underline font-bold" href="https://www.avelrom.es">avelrom</a>
+    <footer class="border-t border-border/50 mt-10">
+      <div class="mx-auto max-w-2xl px-4 py-8 text-center space-y-3">
+        <p class="text-xs text-muted-foreground italic max-w-prose mx-auto leading-relaxed">
+          Toda la información utilizada procede exclusivamente de fuentes públicas y se emplea con una finalidad estrictamente orientada a la participación ciudadana, sin ningún propósito comercial ni de explotación de datos.
+        </p>
+        <p class="text-sm text-muted-foreground">
+          parte de <a href="https://www.lopublico.es" class="underline hover:text-foreground transition-colors">Lo público</a>
+          {" · "}por <a target="_blank" class="underline font-medium hover:text-foreground transition-colors" href="https://www.avelrom.es">avelrom</a>
+        </p>
+        <p class="text-xs text-muted-foreground/60">
+          Última actualización: {lastUpdate}
+        </p>
       </div>
     </footer>
 
-    <script is:inline>
-      (() => {
-        const btn = document.getElementById("theme-toggle");
-        if (!btn) return;
-        const applyAria = () => {
-          const isDark = document.documentElement.classList.contains("dark");
-          btn.setAttribute("aria-pressed", String(isDark));
-          btn.setAttribute("aria-label", isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro");
-        };
-        const toggleTheme = () => {
-          const nowDark = document.documentElement.classList.toggle("dark");
-          try { localStorage.setItem("theme", nowDark ? "dark" : "light"); } catch {}
-          applyAria();
-        };
-        applyAria();
-        btn.addEventListener("click", toggleTheme);
-      })();
-    </script>
   </body>
 </html>
