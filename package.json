@@ -12,6 +12,7 @@
     "export:dry": ".venv/bin/python parsers/export_json.py --dry-run",
     "check:free": ".venv/bin/python parsers/check_free.py",
     "check:twitter": ".venv/bin/python parsers/check_twitter.py",
+    "check:nitter": ".venv/bin/python parsers/check_nitter.py",
     "format:xlsx": ".venv/bin/python parsers/format_xlsx.py"
   },
   "dependencies": {
