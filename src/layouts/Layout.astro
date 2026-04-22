@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import "../styles/global.css";
 import { ModeToggle } from '@/components/ModeToggle';
+import { ClientRouter } from 'astro:transitions';
 import lastUpdateData from "@/data/lastUpdate.json";
 
 const {
@@ -51,13 +52,14 @@ const canonical = siteBase;
 
     <!-- Fuentes -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Geist+Mono:wght@300..700&display=swap"
       rel="stylesheet"
     />
     <link
       href="https://cdn.fontshare.com/css?f[]=satoshi@400,500,700&display=swap"
       rel="stylesheet"
     />
+    <ClientRouter />
 
     <!-- Aplica tema antes del pintado para evitar FOUC -->
     <script is:inline>
@@ -77,7 +79,10 @@ const canonical = siteBase;
     <header class="relative z-10">
       <div class="mx-auto max-w-screen-xl px-4 sm:px-6 py-3">
         <div class="flex items-center justify-end gap-1">
-          <ModeToggle client:load />
+          <ModeToggle client:load transition:persist="mode-toggle" />
+          <Button variant="ghost" size="sm" class="text-sm font-medium">
+            <a href="/estadisticas">estadísticas</a>
+          </Button>
           <Button variant="ghost" size="sm" class="text-sm font-medium">
             <a href="/porque">por qué</a>
           </Button>
@@ -91,6 +96,16 @@ const canonical = siteBase;
         aria-labelledby="hero-title"
       >
         <div class="w-full text-center">
+          <h1 class="flex justify-center mb-2" transition:name="site-logo">
+            <a href="/">
+              <img
+                src="/logox.png"
+                alt="sal de ahí"
+                class="h-16 sm:h-20 md:h-24 w-auto object-contain dark:invert"
+              />
+            </a>
+          </h1>
+          <slot name="subtitle" />
           <slot />
         </div>
       </section>

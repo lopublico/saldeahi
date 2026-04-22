@@ -38,7 +38,8 @@ import re
 import sys
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
+from typing import Optional
 import openpyxl
 
 # ── Rutas ─────────────────────────────────────────────────────────────────────
@@ -90,8 +91,22 @@ def fmt_date(val):
     return None
 
 
-def is_active(val) -> bool:
-    """True si el valor es una fecha real de los últimos 30 días."""
+def load_last_update_refs() -> dict:
+    """Lee lastUpdate.json y devuelve las fechas de referencia por plataforma."""
+    path = os.path.join(DATA_DIR, "lastUpdate.json")
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
+def is_active(val, ref_date: Optional[date] = None) -> bool:
+    """True si val es una fecha dentro de los 30 días anteriores a ref_date.
+
+    ref_date debe ser la fecha del último check, no la fecha actual.
+    Si no se pasa ref_date, se usa hoy como fallback.
+    """
     if not isinstance(val, str):
         return False
     m = re.match(r"^(\d{4}-\d{2}-\d{2})", val)
@@ -99,8 +114,9 @@ def is_active(val) -> bool:
         return False
     try:
         d = datetime.strptime(m.group(1), "%Y-%m-%d").date()
-        cutoff = (datetime.now() - timedelta(days=30)).date()
-        return d >= cutoff
+        ref = ref_date if ref_date else datetime.now().date()
+        cutoff = ref - timedelta(days=30)
+        return cutoff <= d <= ref
     except ValueError:
         return False
 
@@ -259,11 +275,25 @@ def build_universidades(ws, rows):
     return result
 
 
-def build_total(ws, all_rows_by_cat):
+def build_total(ws, all_rows_by_cat, refs: dict):
     """
     total.json — versión agregada con flags booleanos para _activo.
+    Usa las fechas de lastUpdate.json como referencia temporal, no datetime.now().
     subcategoria: col 10 (Detalle) si tiene valor, si no col 11 (Tipo).
     """
+    def ref_date(platform: str):
+        val = refs.get(platform)
+        if not val:
+            return None
+        try:
+            return datetime.strptime(val[:10], "%Y-%m-%d").date()
+        except ValueError:
+            return None
+
+    tw_ref = ref_date("twitter")
+    bs_ref = ref_date("bluesky")
+    md_ref = ref_date("mastodon")
+
     result = []
     for cat, rows in all_rows_by_cat.items():
         for row in rows:
@@ -276,11 +306,11 @@ def build_total(ws, all_rows_by_cat):
                 "subcategoria":    sub,
                 "nombre":          str_val(ws, row, C_NOMBRE),
                 "twitter":         str_val(ws, row, C_TW),
-                "twitter_activo":  is_active(fmt_date(tw_val)),
+                "twitter_activo":  is_active(fmt_date(tw_val), tw_ref),
                 "bluesky":         str_val(ws, row, C_BS),
-                "bluesky_activo":  is_active(fmt_date(bs_val)),
+                "bluesky_activo":  is_active(fmt_date(bs_val), bs_ref),
                 "mastodon":        str_val(ws, row, C_MD),
-                "mastodon_activo": is_active(fmt_date(md_val)),
+                "mastodon_activo": is_active(fmt_date(md_val), md_ref),
             })
     return result
 
@@ -315,6 +345,9 @@ def main():
         print("MODO DRY-RUN: no se escribirá ningún archivo.\n")
 
     print(f"Cargando {XLSX}…")
+    refs = load_last_update_refs()
+    if refs:
+        print(f"  Referencias temporales: {refs}")
     wb = openpyxl.load_workbook(XLSX, data_only=True)
     ws = wb["Sheet1"]
 
@@ -345,7 +378,7 @@ def main():
         write_json(dest, data, dry_run)
 
     # Generar total.json
-    total_data = build_total(ws, rows_by_cat)
+    total_data = build_total(ws, rows_by_cat, refs)
     total_path = os.path.join(DATA_DIR, "total.json")
     total_action = "  (sin cambios)" if dry_run else f"  → {total_path}"
     print(f"  total.json: {len(total_data)} entradas{total_action}")

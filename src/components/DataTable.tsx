@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { CheckCircle, Radiation, XCircle, Mail, Flag, ArrowUpDown } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -324,149 +325,160 @@ export function DataTable() {
 
       {/* ── Móvil ── */}
       <div className="md:hidden">
-        {searchQuery && filteredData.length > 0 ? (
-          <div className="space-y-3">
-            <p className="text-sm text-slate-500 text-left">
-              {filteredData.length} resultado{filteredData.length !== 1 ? 's' : ''}
-            </p>
-            {filteredData.map((item, i) => (
-              <MobileCard key={i} item={item} />
-            ))}
-          </div>
-        ) : searchQuery ? (
-          <div className="rounded-md border border-slate-200 bg-slate-50 px-6 py-8 text-center text-slate-500 text-sm">
-            Sin resultados para <strong>"{searchQuery}"</strong>
-          </div>
-        ) : (
-          <div className="rounded-md border border-slate-200 bg-slate-50 px-6 py-8 text-center text-slate-500 text-sm">
-            <p className="font-medium text-slate-700 mb-1">La tabla completa solo está disponible en ordenador</p>
-            <p>Usa el buscador para encontrar una entidad concreta.</p>
+        {filteredData.length > 0 ? (() => {
+          const MOBILE_LIMIT = 40;
+          const shown = searchQuery ? filteredData : filteredData.slice(0, MOBILE_LIMIT);
+          return (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground text-left">
+                {searchQuery
+                  ? <>{filteredData.length} resultado{filteredData.length !== 1 ? 's' : ''} para <strong>"{searchQuery}"</strong></>
+                  : <>{filteredData.length} entidad{filteredData.length !== 1 ? 'es' : ''}</>
+                }
+              </p>
+              {shown.map((item, i) => (
+                <MobileCard key={i} item={item} />
+              ))}
+              {!searchQuery && filteredData.length > MOBILE_LIMIT && (
+                <p className="text-xs text-center text-muted-foreground py-2">
+                  Mostrando {MOBILE_LIMIT} de {filteredData.length}. Usa el buscador para filtrar.
+                </p>
+              )}
+            </div>
+          );
+        })() : (
+          <div className="rounded-md border px-6 py-8 text-center text-muted-foreground text-sm">
+            Sin resultados{searchQuery ? <> para <strong>"{searchQuery}"</strong></> : ''}
           </div>
         )}
       </div>
 
       {/* ── Escritorio ── */}
       <div className="hidden md:block">
-        <div className="mb-4 text-sm text-slate-600">
-          Mostrando {sortedData.length} de {searchQuery ? allData.length : rawData.length} entidades
-        </div>
+        <Card className="overflow-hidden">
+          <CardHeader className="flex-row items-center justify-between py-2.5 px-4">
+            <span className="text-sm text-muted-foreground">
+              Mostrando <span className="font-medium text-foreground">{sortedData.length}</span> de{" "}
+              <span className="font-medium text-foreground">{searchQuery ? allData.length : rawData.length}</span> entidades
+            </span>
+          </CardHeader>
+          <CardContent>
+            <Table className="min-w-[640px]">
+              <TableHeader>
+                <TableRow className="bg-muted/40 hover:bg-muted/40">
+                  <TableHead className="cursor-pointer hover:text-foreground transition-colors" onClick={() => handleSort('nombre')}>
+                    <div className="flex items-center gap-1.5">
+                      Nombre
+                      <ArrowUpDown className="h-3 w-3 text-muted-foreground" />
+                      {sortColumn === 'nombre' && <span className="text-xs text-muted-foreground">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
+                    </div>
+                  </TableHead>
+                  <TableHead className="cursor-pointer hover:text-foreground transition-colors text-center hidden md:table-cell" onClick={() => handleSort('detalle')}>
+                    <div className="flex items-center justify-center gap-1.5">
+                      Detalle
+                      <ArrowUpDown className="h-3 w-3 text-muted-foreground" />
+                      {sortColumn === 'detalle' && <span className="text-xs text-muted-foreground">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
+                    </div>
+                  </TableHead>
+                  <TableHead className="w-24 cursor-pointer hover:text-foreground transition-colors text-center" onClick={() => handleSort('twitter')}>
+                    <div className="flex items-center justify-center gap-1.5">
+                      <span className="hidden sm:inline">X/Twitter</span>
+                      <ArrowUpDown className="h-3 w-3 text-muted-foreground" />
+                      {sortColumn === 'twitter' && <span className="text-xs text-muted-foreground">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
+                    </div>
+                  </TableHead>
+                  <TableHead className="w-24 cursor-pointer hover:text-foreground transition-colors text-center" onClick={() => handleSort('bluesky')}>
+                    <div className="flex items-center justify-center gap-1.5">
+                      <span className="hidden sm:inline">Bluesky</span>
+                      <ArrowUpDown className="h-3 w-3 text-muted-foreground" />
+                      {sortColumn === 'bluesky' && <span className="text-xs text-muted-foreground">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
+                    </div>
+                  </TableHead>
+                  <TableHead className="w-24 cursor-pointer hover:text-foreground transition-colors text-center" onClick={() => handleSort('mastodon')}>
+                    <div className="flex items-center justify-center gap-1.5">
+                      <span className="hidden sm:inline">Mastodon</span>
+                      <ArrowUpDown className="h-3 w-3 text-muted-foreground" />
+                      {sortColumn === 'mastodon' && <span className="text-xs text-muted-foreground">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-center">
+                    <span className="hidden sm:inline">Acción</span>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
 
-        <div className="rounded-md border overflow-x-auto no-scrollbar">
-          <Table className="min-w-[640px]">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="cursor-pointer hover:bg-slate-50" onClick={() => handleSort('nombre')}>
-                  <div className="flex items-center gap-1">
-                    Nombre
-                    <ArrowUpDown className="h-3 w-3" />
-                    {sortColumn === 'nombre' && <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
-                  </div>
-                </TableHead>
-                <TableHead className="cursor-pointer hover:bg-slate-50 text-center hidden md:table-cell" onClick={() => handleSort('detalle')}>
-                  <div className="flex items-center justify-center gap-1">
-                    Detalle
-                    <ArrowUpDown className="h-3 w-3" />
-                    {sortColumn === 'detalle' && <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
-                  </div>
-                </TableHead>
-                <TableHead className="w-24 cursor-pointer hover:bg-slate-50 text-center" onClick={() => handleSort('twitter')}>
-                  <div className="flex items-center justify-center gap-1">
-                    <span className="hidden sm:inline">X/Twitter</span>
-                    <ArrowUpDown className="h-3 w-3" />
-                    {sortColumn === 'twitter' && <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
-                  </div>
-                </TableHead>
-                <TableHead className="w-24 cursor-pointer hover:bg-slate-50 text-center" onClick={() => handleSort('bluesky')}>
-                  <div className="flex items-center justify-center gap-1">
-                    <span className="hidden sm:inline">Bluesky</span>
-                    <ArrowUpDown className="h-3 w-3" />
-                    {sortColumn === 'bluesky' && <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
-                  </div>
-                </TableHead>
-                <TableHead className="w-24 cursor-pointer hover:bg-slate-50 text-center" onClick={() => handleSort('mastodon')}>
-                  <div className="flex items-center justify-center gap-1">
-                    <span className="hidden sm:inline">Mastodon</span>
-                    <ArrowUpDown className="h-3 w-3" />
-                    {sortColumn === 'mastodon' && <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
-                  </div>
-                </TableHead>
-                <TableHead className="text-center">
-                  <span className="hidden sm:inline">Acción</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {sortedData.length > 0 ? (
-                sortedData.map((item, index) => (
-                  <TableRow
-                    key={index}
-                    id={`table-row-${index}`}
-                    className="group"
-                    onMouseEnter={(e) => {
-                      const btn = document.getElementById(`edit-btn-${index}`);
-                      if (btn && window.innerWidth >= 768) {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        btn.style.top  = `${rect.top + rect.height / 2}px`;
-                        btn.style.left = `${rect.right + 8}px`;
-                        btn.style.opacity = '1';
-                        btn.style.pointerEvents = 'auto';
-                        const tid = btn.getAttribute('data-timeout-id');
-                        if (tid) clearTimeout(parseInt(tid));
-                      }
-                    }}
-                    onMouseLeave={() => {
-                      const btn = document.getElementById(`edit-btn-${index}`);
-                      if (btn && window.innerWidth >= 768) {
-                        const tid = setTimeout(() => {
-                          btn.style.opacity = '0';
-                          btn.style.pointerEvents = 'none';
-                        }, 100);
-                        btn.setAttribute('data-timeout-id', tid.toString());
-                      }
-                    }}
-                  >
-                    <TableCell className="font-medium text-left max-w-md">
-                      <div className="truncate text-sm sm:text-base">{item.nombre}</div>
-                    </TableCell>
-                    <TableCell className="text-sm text-slate-600 text-center max-w-xs hidden md:table-cell">
-                      <div className="truncate">{item.detalle}</div>
-                    </TableCell>
-                    <TableCell className="text-center align-middle">
-                      <div className="flex items-center justify-center">
-                        <TwitterIcon handle={item.twitter} activo={item.twitter_activo} />
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center align-middle">
-                      <div className="flex items-center justify-center">
-                        <BlueskyIcon handle={item.bluesky} activo={item.bluesky_activo} />
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center align-middle">
-                      <div className="flex items-center justify-center">
-                        <MastodonIcon handle={item.mastodon} activo={item.mastodon_activo} />
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Button variant="outline" size="sm" className="h-9 px-2 sm:px-4 whitespace-nowrap" asChild>
-                        <a href={generateMailto(item)}>
-                          <Mail className="h-4 w-4 sm:mr-2" />
-                          <span className="hidden sm:inline">Exigir migración</span>
-                        </a>
-                      </Button>
+              <TableBody>
+                {sortedData.length > 0 ? (
+                  sortedData.map((item, index) => (
+                    <TableRow
+                      key={index}
+                      id={`table-row-${index}`}
+                      className="group"
+                      onMouseEnter={(e) => {
+                        const btn = document.getElementById(`edit-btn-${index}`);
+                        if (btn && window.innerWidth >= 768) {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          btn.style.top  = `${rect.top + rect.height / 2}px`;
+                          btn.style.left = `${rect.right + 8}px`;
+                          btn.style.opacity = '1';
+                          btn.style.pointerEvents = 'auto';
+                          const tid = btn.getAttribute('data-timeout-id');
+                          if (tid) clearTimeout(parseInt(tid));
+                        }
+                      }}
+                      onMouseLeave={() => {
+                        const btn = document.getElementById(`edit-btn-${index}`);
+                        if (btn && window.innerWidth >= 768) {
+                          const tid = setTimeout(() => {
+                            btn.style.opacity = '0';
+                            btn.style.pointerEvents = 'none';
+                          }, 100);
+                          btn.setAttribute('data-timeout-id', tid.toString());
+                        }
+                      }}
+                    >
+                      <TableCell className="font-medium text-left max-w-md">
+                        <div className="truncate text-sm sm:text-base">{item.nombre}</div>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground text-center max-w-xs hidden md:table-cell">
+                        <div className="truncate">{item.detalle}</div>
+                      </TableCell>
+                      <TableCell className="text-center align-middle">
+                        <div className="flex items-center justify-center">
+                          <TwitterIcon handle={item.twitter} activo={item.twitter_activo} />
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center align-middle">
+                        <div className="flex items-center justify-center">
+                          <BlueskyIcon handle={item.bluesky} activo={item.bluesky_activo} />
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center align-middle">
+                        <div className="flex items-center justify-center">
+                          <MastodonIcon handle={item.mastodon} activo={item.mastodon_activo} />
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Button variant="outline" size="sm" className="h-9 px-2 sm:px-4 whitespace-nowrap" asChild>
+                          <a href={generateMailto(item)}>
+                            <Mail className="h-4 w-4 sm:mr-2" />
+                            <span className="hidden sm:inline">Exigir migración</span>
+                          </a>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
+                      No se encontraron resultados
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center text-slate-500 py-8">
-                    No se encontraron resultados
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
 
       <TooltipProvider>

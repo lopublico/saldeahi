@@ -6,10 +6,15 @@ import Layout from "@/layouts/Layout.astro";
   title="sal de ahí"
   description="Exige a tus representantes e instituciones públicas que abandonen redes sociales gobernadas por oligarcas."
 >
-    <h1 class="text-balance font-title tracking-tight
-               text-8xl sm:text-9xl md:text-9xl lg:text-9xl font-extralight">
-      <a href="/">sal de ahí</a>
-    </h1>
+  <h2
+    slot="subtitle"
+    class="mt-2 text-balance font-mono tracking-tight
+           text-[11px] sm:text-xs md:text-sm max-w-xl mx-auto px-2 text-muted-foreground"
+    transition:name="hero-subtitle"
+  >
+    Los gobiernos democráticos deberían habitar espacios democráticos.
+    Exige a tus representantes que abandonen redes gobernadas por oligarcas.
+  </h2>
 
   <div class="text-left px-4 sm:px-6 max-w-4xl mx-auto space-y-6 mt-10">
     <p class="mt-10">
