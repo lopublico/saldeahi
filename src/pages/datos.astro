@@ -1,0 +1,685 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { ExportButton } from "@/components/ExportButton";
+import lastUpdateData from "@/data/lastUpdate.json";
+import ageData from "@/data/age.json";
+import gobiernoData from "@/data/gobierno.json";
+import congresoData from "@/data/congreso.json";
+import senadoData from "@/data/senado.json";
+import partidosData from "@/data/partidos.json";
+import autonomiasData from "@/data/autonomias.json";
+import universidadesData from "@/data/universidades.json";
+
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+const lu = lastUpdateData as any;
+
+function platformRef(d: string | undefined) {
+  return d ? new Date(d + "T00:00:00Z").getTime() : Date.now();
+}
+const TWITTER_REF  = platformRef(lu.twitter);
+const BLUESKY_REF  = platformRef(lu.bluesky);
+const MASTODON_REF = platformRef(lu.mastodon);
+
+function isActiveDate(val: unknown, ref: number): boolean {
+  if (!val || typeof val !== "string") return false;
+  if (!/^\d{4}-\d{2}-\d{2}/.test(val)) return false;
+  return ref - new Date(val).getTime() <= THIRTY_DAYS_MS;
+}
+function twitterOnX(handle: unknown, activo: unknown): boolean {
+  if (!handle) return false;
+  if (activo == null) return true;
+  return isActiveDate(activo, TWITTER_REF);
+}
+function normalizeItem(item: any) {
+  return {
+    twitter:         item.twitter || null,
+    twitter_activo:  twitterOnX(item.twitter, item.twitter_activo),
+    bluesky:         item.bluesky  || null,
+    bluesky_activo:  isActiveDate(item.bluesky_activo, BLUESKY_REF),
+    mastodon:        item.mastodon || null,
+    mastodon_activo: isActiveDate(item.mastodon_activo, MASTODON_REF),
+    grupo:           item.grupo || null,
+    tipo:            item.tipo || null,
+  };
+}
+
+const CATEGORIES = [
+  { key: "age",           label: "Administración",  data: ageData           },
+  { key: "gobierno",      label: "Gobierno",         data: gobiernoData      },
+  { key: "congreso",      label: "Congreso",         data: congresoData      },
+  { key: "senado",        label: "Senado",           data: senadoData        },
+  { key: "partidos",      label: "Partidos",         data: partidosData      },
+  { key: "autonomias",    label: "Autonomías",       data: autonomiasData    },
+  { key: "universidades", label: "Universidades",    data: universidadesData },
+];
+
+const catStats = CATEGORIES.map(({ key, label, data }) => {
+  const items = (data as any[]).map(normalizeItem);
+  const total        = items.length;
+  const enX          = items.filter(x => x.twitter_activo).length;
+  const fueraDeX     = total - enX;
+  const conBluesky   = items.filter(x => x.bluesky).length;
+  const conMastodon  = items.filter(x => x.mastodon).length;
+  const sinAlternativa = items.filter(x => !x.bluesky && !x.mastodon).length;
+  const pctFuera     = total > 0 ? Math.round((fueraDeX / total) * 100) : 0;
+  const pctBsky      = total > 0 ? Math.round((conBluesky / total) * 100) : 0;
+  return { key, label, total, enX, fueraDeX, conBluesky, conMastodon, sinAlternativa, pctFuera, pctBsky };
+});
+
+const totales = catStats.reduce(
+  (acc, c) => ({
+    total:          acc.total          + c.total,
+    enX:            acc.enX            + c.enX,
+    fueraDeX:       acc.fueraDeX       + c.fueraDeX,
+    conBluesky:     acc.conBluesky     + c.conBluesky,
+    conMastodon:    acc.conMastodon    + c.conMastodon,
+    sinAlternativa: acc.sinAlternativa + c.sinAlternativa,
+  }),
+  { total: 0, enX: 0, fueraDeX: 0, conBluesky: 0, conMastodon: 0, sinAlternativa: 0 }
+);
+
+const conAlternativa = totales.total - totales.sinAlternativa;
+const pctFueraDeX    = totales.total > 0 ? Math.round((totales.fueraDeX    / totales.total) * 100) : 0;
+const pctConAlt      = totales.total > 0 ? Math.round((conAlternativa      / totales.total) * 100) : 0;
+const pctEnX         = totales.total > 0 ? Math.round((totales.enX         / totales.total) * 100) : 0;
+const pctBsky        = totales.total > 0 ? Math.round((totales.conBluesky  / totales.total) * 100) : 0;
+const pctMstdn       = totales.total > 0 ? Math.round((totales.conMastodon / totales.total) * 100) : 0;
+
+// ── Congreso: por grupo parlamentario (solo diputados) ────────────────────────
+const CONGRESO_GRUPO_LABELS: Record<string, string> = {
+  "Grupo Parlamentario Popular en el Congreso":   "PP",
+  "Grupo Parlamentario Socialista":               "PSOE",
+  "Grupo Parlamentario VOX":                      "VOX",
+  "Grupo Parlamentario Plurinacional SUMAR":      "SUMAR",
+  "Grupo Parlamentario Mixto":                    "Mixto",
+  "Grupo Parlamentario Junts per Catalunya":      "Junts",
+  "Grupo Parlamentario Republicano":              "ERC",
+  "Grupo Parlamentario Euskal Herria Bildu":      "EH Bildu",
+  "Grupo Parlamentario Vasco (EAJ-PNV)":          "PNV",
+};
+
+const congresoGruposMap: Record<string, { total: number; enX: number; fueraDeX: number; conBluesky: number; conMastodon: number }> = {};
+
+for (const raw of congresoData as any[]) {
+  if (raw.tipo !== "Diputado/a" || !raw.grupo) continue;
+  const label = CONGRESO_GRUPO_LABELS[raw.grupo] ?? raw.grupo;
+  if (!congresoGruposMap[label]) congresoGruposMap[label] = { total: 0, enX: 0, fueraDeX: 0, conBluesky: 0, conMastodon: 0 };
+  const g = congresoGruposMap[label];
+  const item = normalizeItem(raw);
+  g.total++;
+  if (item.twitter_activo) g.enX++; else g.fueraDeX++;
+  if (item.bluesky) g.conBluesky++;
+  if (item.mastodon) g.conMastodon++;
+}
+
+const CONGRESO_GRUPO_ORDER = ["PP", "PSOE", "VOX", "SUMAR", "ERC", "EH Bildu", "Junts", "PNV", "Mixto"];
+const gruposStats = CONGRESO_GRUPO_ORDER
+  .filter(k => congresoGruposMap[k])
+  .map(k => ({ label: k, ...congresoGruposMap[k], pctFuera: Math.round((congresoGruposMap[k].fueraDeX / congresoGruposMap[k].total) * 100) }));
+
+// ── Senado: por grupo parlamentario ───────────────────────────────────────────
+const SENADO_GRUPO_LABELS: Record<string, string> = {
+  "GPP":   "PP",
+  "GPS":   "PSOE",
+  "GPERB": "ERC / EH Bildu",
+  "GPIC":  "IC",
+  "GPPLU": "Plurinacional",
+  "GPV":   "PNV",
+  "GPMX":  "Mixto",
+};
+
+const senadoGruposMap: Record<string, { total: number; enX: number; fueraDeX: number; conBluesky: number; conMastodon: number }> = {};
+
+for (const raw of senadoData as any[]) {
+  if (raw.tipo !== "Senador/a" || !raw.grupo) continue;
+  const label = SENADO_GRUPO_LABELS[raw.grupo] ?? raw.grupo;
+  if (!senadoGruposMap[label]) senadoGruposMap[label] = { total: 0, enX: 0, fueraDeX: 0, conBluesky: 0, conMastodon: 0 };
+  const g = senadoGruposMap[label];
+  const item = normalizeItem(raw);
+  g.total++;
+  if (item.twitter_activo) g.enX++; else g.fueraDeX++;
+  if (item.bluesky) g.conBluesky++;
+  if (item.mastodon) g.conMastodon++;
+}
+
+const SENADO_GRUPO_ORDER = ["PP", "PSOE", "ERC / EH Bildu", "IC", "Plurinacional", "PNV", "Mixto"];
+const senadoGruposStats = SENADO_GRUPO_ORDER
+  .filter(k => senadoGruposMap[k])
+  .map(k => ({ label: k, ...senadoGruposMap[k], pctFuera: Math.round((senadoGruposMap[k].fueraDeX / senadoGruposMap[k].total) * 100) }));
+
+// Widths for the platform bar
+const pctEnXW   = pctEnX;
+const pctBskyW  = pctBsky;
+const pctMstdnW = pctMstdn;
+const pctNingW  = totales.total > 0 ? Math.round((totales.sinAlternativa / totales.total) * 100) : 0;
+
+function fmtDate(d: string | undefined) {
+  if (!d) return "—";
+  return new Date(d + "T00:00:00Z").toLocaleDateString("es-ES", {
+    day: "numeric", month: "long", year: "numeric", timeZone: "UTC",
+  });
+}
+---
+
+<Layout
+  title="Datos · sal de ahí"
+  description="Cifras y metodología sobre la presencia de instituciones públicas españolas en redes sociales."
+>
+  <h2
+    slot="subtitle"
+    class="mt-2 text-balance font-mono tracking-tight
+           text-[11px] sm:text-xs md:text-sm max-w-xl mx-auto px-2 text-muted-foreground"
+    transition:name="hero-subtitle"
+  >
+    Los gobiernos democráticos deberían habitar espacios democráticos.
+    Exige a tus representantes que abandonen redes gobernadas por oligarcas.
+  </h2>
+
+  <div class="text-left px-4 sm:px-6 max-w-5xl mx-auto pb-16 mt-8 space-y-10">
+
+    <!-- Cabecera -->
+    <div class="flex items-center justify-between">
+      <p class="text-xs text-muted-foreground">
+        {totales.total} entidades · actualizado {fmtDate(lu.twitter)}
+      </p>
+      <ExportButton client:load />
+    </div>
+
+    <!-- Métricas clave -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="rounded-xl border border-border/60 bg-card px-4 py-4">
+        <p class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground mb-1">Monitorizadas</p>
+        <p class="text-3xl font-bold tabular-nums">{totales.total}</p>
+        <p class="text-xs text-muted-foreground mt-1">entidades públicas</p>
+      </div>
+      <div class="rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/30 px-4 py-4">
+        <p class="text-[11px] uppercase tracking-wide font-medium text-emerald-700 dark:text-emerald-400 mb-1">Han salido de X</p>
+        <p class="text-3xl font-bold tabular-nums text-emerald-700 dark:text-emerald-400">{pctFueraDeX}%</p>
+        <p class="text-xs text-emerald-600/70 dark:text-emerald-500/70 mt-1">{totales.fueraDeX} entidades</p>
+      </div>
+      <div class="rounded-xl border border-sky-200 dark:border-sky-900/50 bg-sky-50 dark:bg-sky-950/30 px-4 py-4">
+        <p class="text-[11px] uppercase tracking-wide font-medium text-sky-700 dark:text-sky-400 mb-1">Con Bluesky</p>
+        <p class="text-3xl font-bold tabular-nums text-sky-700 dark:text-sky-400">{pctBsky}%</p>
+        <p class="text-xs text-sky-600/70 dark:text-sky-500/70 mt-1">{totales.conBluesky} entidades</p>
+      </div>
+      <div class="rounded-xl border border-violet-200 dark:border-violet-900/50 bg-violet-50 dark:bg-violet-950/30 px-4 py-4">
+        <p class="text-[11px] uppercase tracking-wide font-medium text-violet-700 dark:text-violet-400 mb-1">Con Mastodon</p>
+        <p class="text-3xl font-bold tabular-nums text-violet-700 dark:text-violet-400">{pctMstdn}%</p>
+        <p class="text-xs text-violet-600/70 dark:text-violet-500/70 mt-1">{totales.conMastodon} entidades</p>
+      </div>
+    </div>
+
+    <!-- Barra de distribución de plataformas -->
+    <div class="rounded-xl border border-border/60 overflow-hidden">
+      <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30">
+        <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Distribución de presencia en plataformas</h3>
+      </div>
+      <div class="px-4 py-5 space-y-4">
+        <!-- X / Twitter -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-medium">Siguen en X / Twitter</span>
+            <span class="text-xs tabular-nums text-muted-foreground">{totales.enX} de {totales.total} <span class="text-red-500 font-medium">({pctEnX}%)</span></span>
+          </div>
+          <div class="flex h-2 w-full overflow-hidden rounded-full bg-muted">
+            <div class="h-full bg-red-400 transition-all" style={`width:${pctEnX}%`} />
+          </div>
+        </div>
+        <!-- Bluesky -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-medium">Presencia en Bluesky</span>
+            <span class="text-xs tabular-nums text-muted-foreground">{totales.conBluesky} de {totales.total} <span class="text-sky-500 font-medium">({pctBsky}%)</span></span>
+          </div>
+          <div class="flex h-2 w-full overflow-hidden rounded-full bg-muted">
+            <div class="h-full bg-sky-400 transition-all" style={`width:${pctBsky}%`} />
+          </div>
+        </div>
+        <!-- Mastodon -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-medium">Presencia en Mastodon</span>
+            <span class="text-xs tabular-nums text-muted-foreground">{totales.conMastodon} de {totales.total} <span class="text-violet-500 font-medium">({pctMstdn}%)</span></span>
+          </div>
+          <div class="flex h-2 w-full overflow-hidden rounded-full bg-muted">
+            <div class="h-full bg-violet-400 transition-all" style={`width:${pctMstdn}%`} />
+          </div>
+        </div>
+        <!-- Sin alternativa -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-medium">Sin ninguna alternativa a X</span>
+            <span class="text-xs tabular-nums text-muted-foreground">{totales.sinAlternativa} de {totales.total} <span class="text-amber-500 font-medium">({pctNingW}%)</span></span>
+          </div>
+          <div class="flex h-2 w-full overflow-hidden rounded-full bg-muted">
+            <div class="h-full bg-amber-400 transition-all" style={`width:${pctNingW}%`} />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grupos parlamentarios: nota de contexto -->
+    <div class="rounded-xl border border-border/60 overflow-hidden">
+      <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30 flex items-center justify-between">
+        <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Presencia por grupo parlamentario</h3>
+        <span class="text-[11px] text-muted-foreground/60">XV Legislatura · solo parlamentarios en activo</span>
+      </div>
+      <div class="px-4 py-3 text-xs text-muted-foreground leading-relaxed border-b border-border/30 bg-muted/10">
+        Se contabilizan únicamente diputados/as y senadores/as con escaño actual. No incluye presidencia, instituciones ni grupos parlamentarios como entidad. Los grupos del Senado usan las abreviaturas oficiales del senado.es.
+      </div>
+
+      <!-- Congreso -->
+      <div class="px-4 pt-3 pb-1">
+        <p class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Congreso de los Diputados</p>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full table-fixed" data-sortable>
+          <colgroup>
+            <col />
+            <col style="width:56px" />
+            <col style="width:160px" />
+            <col style="width:72px" />
+            <col style="width:80px" />
+            <col style="width:88px" />
+          </colgroup>
+          <thead>
+            <tr class="border-b border-border/40 bg-muted/20">
+              <th data-sort="grupo" class="sortable-th py-2 px-4 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-left">Grupo<span class="sort-ind"></span></th>
+              <th data-sort="total" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">N<span class="sort-ind"></span></th>
+              <th data-sort="pctFuera" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-left">Fuera de X %<span class="sort-ind"></span></th>
+              <th data-sort="enX" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">En X<span class="sort-ind"></span></th>
+              <th data-sort="bsky" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">Bluesky<span class="sort-ind"></span></th>
+              <th data-sort="mstdn" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">Mastodon<span class="sort-ind"></span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {gruposStats.map((g) => (
+              <tr class="border-b border-border/30 hover:bg-muted/20 transition-colors">
+                <td data-col="grupo" class="py-2 px-4 text-sm font-medium text-left truncate">{g.label}</td>
+                <td data-col="total" data-val={g.total} class="py-2 px-3 text-sm tabular-nums text-right text-muted-foreground">{g.total}</td>
+                <td data-col="pctFuera" data-val={g.pctFuera} class="py-2 px-3">
+                  <div class="flex items-center gap-2">
+                    <div class="flex h-1.5 w-16 overflow-hidden rounded-full bg-muted shrink-0">
+                      <div class="h-full bg-emerald-500" style={`width:${g.pctFuera}%`} />
+                    </div>
+                    <span class="text-xs tabular-nums font-medium text-emerald-600 dark:text-emerald-400 shrink-0">{g.pctFuera}%</span>
+                  </div>
+                </td>
+                <td data-col="enX" data-val={g.enX} class="py-2 px-3 text-sm tabular-nums text-right text-red-500">{g.enX}</td>
+                <td data-col="bsky" data-val={g.conBluesky} class="py-2 px-3 text-sm tabular-nums text-right text-sky-500">{g.conBluesky}</td>
+                <td data-col="mstdn" data-val={g.conMastodon} class="py-2 px-3 text-sm tabular-nums text-right text-violet-500">{g.conMastodon}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Senado -->
+      <div class="px-4 pt-4 pb-1 border-t border-border/40 mt-1">
+        <p class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Senado de España</p>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full table-fixed" data-sortable>
+          <colgroup>
+            <col />
+            <col style="width:56px" />
+            <col style="width:160px" />
+            <col style="width:72px" />
+            <col style="width:80px" />
+            <col style="width:88px" />
+          </colgroup>
+          <thead>
+            <tr class="border-b border-border/40 bg-muted/20">
+              <th data-sort="grupo" class="sortable-th py-2 px-4 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-left">Grupo<span class="sort-ind"></span></th>
+              <th data-sort="total" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">N<span class="sort-ind"></span></th>
+              <th data-sort="pctFuera" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-left">Fuera de X %<span class="sort-ind"></span></th>
+              <th data-sort="enX" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">En X<span class="sort-ind"></span></th>
+              <th data-sort="bsky" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">Bluesky<span class="sort-ind"></span></th>
+              <th data-sort="mstdn" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">Mastodon<span class="sort-ind"></span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {senadoGruposStats.map((g) => (
+              <tr class="border-b border-border/30 hover:bg-muted/20 transition-colors">
+                <td data-col="grupo" class="py-2 px-4 text-sm font-medium text-left truncate">{g.label}</td>
+                <td data-col="total" data-val={g.total} class="py-2 px-3 text-sm tabular-nums text-right text-muted-foreground">{g.total}</td>
+                <td data-col="pctFuera" data-val={g.pctFuera} class="py-2 px-3">
+                  <div class="flex items-center gap-2">
+                    <div class="flex h-1.5 w-16 overflow-hidden rounded-full bg-muted shrink-0">
+                      <div class="h-full bg-emerald-500" style={`width:${g.pctFuera}%`} />
+                    </div>
+                    <span class="text-xs tabular-nums font-medium text-emerald-600 dark:text-emerald-400 shrink-0">{g.pctFuera}%</span>
+                  </div>
+                </td>
+                <td data-col="enX" data-val={g.enX} class="py-2 px-3 text-sm tabular-nums text-right text-red-500">{g.enX}</td>
+                <td data-col="bsky" data-val={g.conBluesky} class="py-2 px-3 text-sm tabular-nums text-right text-sky-500">{g.conBluesky}</td>
+                <td data-col="mstdn" data-val={g.conMastodon} class="py-2 px-3 text-sm tabular-nums text-right text-violet-500">{g.conMastodon}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tabla por categoría -->
+    <div class="rounded-xl border border-border/60 overflow-hidden">
+      <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30">
+        <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Desglose por categoría</h3>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full table-fixed" data-sortable>
+          <colgroup>
+            <col />
+            <col style="width:56px" />
+            <col style="width:160px" />
+            <col style="width:72px" />
+            <col style="width:80px" />
+            <col style="width:88px" />
+            <col style="width:68px" />
+          </colgroup>
+          <thead>
+            <tr class="border-b border-border/40 bg-muted/20">
+              <th data-sort="cat" class="sortable-th py-2 px-4 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-left">Categoría<span class="sort-ind"></span></th>
+              <th data-sort="total" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">N<span class="sort-ind"></span></th>
+              <th data-sort="pctFuera" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-left">Fuera de X %<span class="sort-ind"></span></th>
+              <th data-sort="enX" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">En X<span class="sort-ind"></span></th>
+              <th data-sort="bsky" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">Bluesky<span class="sort-ind"></span></th>
+              <th data-sort="mstdn" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">Mastodon<span class="sort-ind"></span></th>
+              <th data-sort="sinalt" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">Sin alt.<span class="sort-ind"></span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {catStats.map((c) => (
+              <tr class="border-b border-border/30 hover:bg-muted/20 transition-colors">
+                <td data-col="cat" class="py-2 px-4 text-sm font-medium text-left truncate">{c.label}</td>
+                <td data-col="total" data-val={c.total} class="py-2 px-3 text-sm tabular-nums text-right text-muted-foreground">{c.total}</td>
+                <td data-col="pctFuera" data-val={c.pctFuera} class="py-2 px-3">
+                  <div class="flex items-center gap-2">
+                    <div class="flex h-1.5 w-16 overflow-hidden rounded-full bg-muted shrink-0">
+                      <div class="h-full bg-emerald-500" style={`width:${c.pctFuera}%`} />
+                    </div>
+                    <span class="text-xs tabular-nums font-medium text-emerald-600 dark:text-emerald-400 shrink-0">{c.pctFuera}%</span>
+                  </div>
+                </td>
+                <td data-col="enX" data-val={c.enX} class="py-2 px-3 text-sm tabular-nums text-right text-red-500">{c.enX}</td>
+                <td data-col="bsky" data-val={c.conBluesky} class="py-2 px-3 text-sm tabular-nums text-right text-sky-500">{c.conBluesky}</td>
+                <td data-col="mstdn" data-val={c.conMastodon} class="py-2 px-3 text-sm tabular-nums text-right text-violet-500">{c.conMastodon}</td>
+                <td data-col="sinalt" data-val={c.sinAlternativa} class="py-2 px-3 text-sm tabular-nums text-right text-muted-foreground">{c.sinAlternativa}</td>
+              </tr>
+            ))}
+            <tr data-footer class="border-t border-border bg-muted/20">
+              <td class="py-2 px-4 text-sm font-semibold text-left">Total</td>
+              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right text-muted-foreground">{totales.total}</td>
+              <td class="py-2 px-3">
+                <div class="flex items-center gap-2">
+                  <div class="flex h-1.5 w-16 overflow-hidden rounded-full bg-muted shrink-0">
+                    <div class="h-full bg-emerald-500" style={`width:${pctFueraDeX}%`} />
+                  </div>
+                  <span class="text-xs tabular-nums font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">{pctFueraDeX}%</span>
+                </div>
+              </td>
+              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right text-red-500">{totales.enX}</td>
+              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right text-sky-500">{totales.conBluesky}</td>
+              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right text-violet-500">{totales.conMastodon}</td>
+              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right text-muted-foreground">{totales.sinAlternativa}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Metodología -->
+    <div class="space-y-4 pt-2">
+
+      <div class="border-b border-border/40 pb-2">
+        <h2 class="text-base font-semibold">Metodología</h2>
+        <p class="text-xs text-muted-foreground mt-0.5">Cómo se identifican, verifican y actualizan los datos.</p>
+      </div>
+
+      <!-- Proceso -->
+      <div class="rounded-xl border border-border/60 bg-card overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30">
+          <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Proceso de obtención de datos</h3>
+        </div>
+        <div class="px-4 py-4 space-y-4 text-sm text-muted-foreground leading-relaxed">
+          <p>
+            Los datos se obtienen en cuatro etapas que combinan revisión manual con verificación automatizada:
+          </p>
+          <ol class="space-y-3">
+            {[
+              ["1. Mantenimiento del registro", "Se mantiene una hoja de cálculo (xlsx) como documento de referencia. Los nombres de usuario de X, Bluesky, Mastodon y el correo de contacto se añaden o corrigen a mano, contrastando siempre con fuentes oficiales (webs institucionales, comunicados de prensa, perfiles verificados)."],
+              ["2. Verificación de actividad", "Scripts en Python leen la hoja de cálculo y consultan APIs externas para obtener la fecha de la última publicación en cada plataforma. Las fechas se escriben de vuelta en el xlsx."],
+              ["3. Exportación a JSON", "export_json.py convierte el xlsx a los ficheros JSON de src/data/ (uno por categoría). Estos ficheros son los que utiliza la web."],
+              ["4. Generación de la web", "Astro lee los JSON al compilar y genera el HTML estático con todas las estadísticas calculadas. No hay base de datos ni servidor: todo es HTML y JavaScript estáticos."],
+            ].map(([title, desc]) => (
+              <li class="flex gap-3">
+                <span class="font-medium text-foreground shrink-0 w-44">{title}</span>
+                <span>{desc}</span>
+              </li>
+            ))}
+          </ol>
+          <div class="mt-2 rounded-lg bg-muted/40 border border-border/40 px-3 py-2.5">
+            <p class="text-[11px] uppercase tracking-wide text-muted-foreground mb-1.5">Secuencia de actualización</p>
+            <div class="flex flex-wrap items-center gap-1.5 text-xs font-mono">
+              <code class="bg-muted px-1.5 py-0.5 rounded">datosfinales.xlsx</code>
+              <span class="text-muted-foreground/40">→</span>
+              <code class="bg-muted px-1.5 py-0.5 rounded">check_twitter.py</code>
+              <code class="bg-muted px-1.5 py-0.5 rounded">check_free.py</code>
+              <span class="text-muted-foreground/40">→</span>
+              <code class="bg-muted px-1.5 py-0.5 rounded">export_json.py</code>
+              <span class="text-muted-foreground/40">→</span>
+              <code class="bg-muted px-1.5 py-0.5 rounded">npm run build</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alcance -->
+      <div class="rounded-xl border border-border/60 bg-card overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30">
+          <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Alcance y criterios de inclusión</h3>
+        </div>
+        <div class="px-4 py-4 space-y-3 text-sm text-muted-foreground leading-relaxed">
+          <p>
+            Se monitorizan <strong class="text-foreground">{totales.total} entidades</strong> en siete categorías. El criterio de inclusión varía por categoría:
+          </p>
+          <ul class="space-y-2.5">
+            {[
+              ["Administración General del Estado", "Ministerios, secretarías de estado y organismos públicos con rango de secretaría. No incluye agencias, entes públicos ni delegaciones territoriales."],
+              ["Gobierno", "Presidente del Gobierno y todos los miembros del Consejo de Ministros con cartera. Se actualiza con cada remodelación."],
+              ["Congreso de los Diputados", "La institución, la presidencia, todos los grupos parlamentarios y cada diputado/a con escaño en activo en la legislatura vigente en el momento de la última actualización."],
+              ["Senado de España", "La institución, la presidencia y cada senador/a con escaño en activo (elegidos y designados por comunidades autónomas)."],
+              ["Partidos políticos", "Partidos de ámbito estatal con representación parlamentaria en el Congreso en la legislatura vigente. Se incluye la cuenta de partido (no de candidatos individuales, que ya se contabilizan en Congreso/Senado)."],
+              ["Comunidades Autónomas", "Presidentes/as de gobierno de cada comunidad autónoma y asambleas/parlamentos autonómicos como institución."],
+              ["Universidades", "Universidades públicas y privadas españolas reconocidas oficialmente por el Ministerio de Universidades."],
+            ].map(([cat, desc]) => (
+              <li class="flex gap-2">
+                <span class="text-muted-foreground/40 shrink-0 mt-0.5">·</span>
+                <span><strong class="text-foreground">{cat}:</strong> {desc}</span>
+              </li>
+            ))}
+          </ul>
+          <p class="text-xs border-t border-border/30 pt-3">
+            Los partidos de ámbito exclusivamente autonómico (PNV, ERC, CiU, Bildu…) no tienen entrada propia en la categoría Partidos, pero sí aparecen como representantes en Congreso y Senado.
+          </p>
+        </div>
+      </div>
+
+      <!-- Verificación X/Twitter -->
+      <div class="rounded-xl border border-border/60 bg-card overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30">
+          <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Verificación X / Twitter</h3>
+        </div>
+        <div class="px-4 py-4 space-y-3 text-sm text-muted-foreground leading-relaxed">
+          <p>
+            La actividad en X se verifica mediante <strong class="text-foreground">GetXAPI</strong>, un servicio de terceros que permite consultar datos públicos de X sin necesidad de la API oficial. Para cada nombre de usuario registrado se hace una petición al endpoint <code class="font-mono text-xs bg-muted px-1 py-0.5 rounded">GET /twitter/user/tweets</code>, que devuelve los tweets públicos más recientes. Se extrae y almacena la fecha del más reciente.
+          </p>
+          <p>
+            Las cuentas que devuelven error de tipo <em>not found</em> o <em>suspended</em> se registran con el marcador <code class="font-mono text-xs bg-muted px-1 py-0.5 rounded">404</code>. Las cuentas con tweets protegidos (visibilidad restringida) no son accesibles y pueden quedar registradas erróneamente como inactivas.
+          </p>
+          <p>
+            La verificación únicamente accede a publicaciones <strong class="text-foreground">públicas</strong>. No se infiere actividad privada ni se accede a ningún dato que requiera autenticación.
+          </p>
+        </div>
+      </div>
+
+      <!-- Verificación Bluesky y Mastodon -->
+      <div class="rounded-xl border border-border/60 bg-card overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30">
+          <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Verificación Bluesky y Mastodon</h3>
+        </div>
+        <div class="px-4 py-4 space-y-4 text-sm text-muted-foreground leading-relaxed">
+          <div>
+            <p class="font-medium text-foreground mb-1.5">Bluesky — AT Protocol <span class="font-normal text-muted-foreground">(check_free.py)</span></p>
+            <p>
+              Se consulta el endpoint público <code class="font-mono text-xs bg-muted px-1 py-0.5 rounded">app.bsky.feed.getAuthorFeed</code> de la API abierta de Bluesky (<code class="font-mono text-xs bg-muted px-1 py-0.5 rounded">public.api.bsky.app</code>). Devuelve las publicaciones más recientes del usuario; se extrae la fecha de la primera. No requiere registro ni contraseña, aunque el script introduce una pausa breve entre peticiones para no saturar el servidor.
+            </p>
+            <p class="mt-2 text-xs">
+              Nota: AT Protocol no está completamente descentralizado a día de hoy — Bluesky PBC opera la infraestructura principal. A diferencia de ActivityPub, todavía no existe interoperabilidad real entre distintos servidores personales de datos (PDS).
+            </p>
+          </div>
+          <div class="border-t border-border/30 pt-3">
+            <p class="font-medium text-foreground mb-1.5">Mastodon — ActivityPub <span class="font-normal text-muted-foreground">(check_free.py)</span></p>
+            <p>
+              Se registra la URL completa del perfil (incluyendo la instancia, p.ej. <code class="font-mono text-xs bg-muted px-1 py-0.5 rounded">mastodon.social/@usuario</code>). El script extrae el dominio y el usuario de la URL, y consulta el endpoint <code class="font-mono text-xs bg-muted px-1 py-0.5 rounded">/api/v1/accounts/lookup?acct=usuario</code> del servidor correspondiente para obtener el ID numérico. Con ese ID recupera los toots recientes via <code class="font-mono text-xs bg-muted px-1 py-0.5 rounded">/api/v1/accounts/{"{id}"}/statuses</code> y anota la fecha del más reciente.
+            </p>
+            <p class="mt-2 text-xs">
+              ActivityPub es el protocolo más consolidado para redes sociales descentralizadas: cada servidor es independiente, puede hablar con los demás y puede ser gestionado por cualquier organización. El conjunto de datos no distingue entre servidores (mastodon.social, fosstodon.org, etc.); cualquier cuenta en ActivityPub cuenta igual.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Criterio de actividad -->
+      <div class="rounded-xl border border-border/60 bg-card overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30">
+          <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Criterio de actividad</h3>
+        </div>
+        <div class="px-4 py-4 space-y-3 text-sm text-muted-foreground leading-relaxed">
+          <p>
+            Una cuenta se considera <strong class="text-foreground">activa</strong> si la fecha de su última publicación está dentro de los <strong class="text-foreground">30 días anteriores a la fecha de referencia de cada plataforma</strong> (las fechas que aparecen en la sección de actualización más abajo). El criterio se aplica sobre esa fecha fija, no sobre la fecha en que se consulta la web; así las cifras son <strong class="text-foreground">estables y reproducibles</strong> entre actualizaciones.
+          </p>
+          <div class="rounded-lg bg-muted/40 border border-border/40 p-3 space-y-2 text-xs">
+            <p><strong class="text-foreground">Activa</strong> — último post ≤ 30 días antes de la fecha de referencia</p>
+            <p><strong class="text-foreground">Inactiva</strong> — existe la cuenta pero no ha publicado en ese período</p>
+            <p><strong class="text-foreground text-red-600 dark:text-red-400">404</strong> — el handle no existe o fue suspendido en el momento de la consulta</p>
+            <p class="text-muted-foreground/60 pt-1">El umbral de 30 días es convencional pero razonable para instituciones públicas: una entidad que no publica durante un mes puede considerarse inactiva a efectos prácticos.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actualización -->
+      <div class="rounded-xl border border-border/60 bg-card overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30">
+          <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Última actualización</h3>
+        </div>
+        <div class="px-4 py-4 space-y-3 text-sm text-muted-foreground leading-relaxed">
+          <p>Fechas de referencia de la última ejecución completa de los scripts de verificación. La actividad se mide contra estas fechas, no contra la fecha de consulta.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {[
+              { plat: "X / Twitter", fecha: fmtDate(lu.twitter)  },
+              { plat: "Bluesky",     fecha: fmtDate(lu.bluesky)  },
+              { plat: "Mastodon",    fecha: fmtDate(lu.mastodon) },
+            ].map(({ plat, fecha }) => (
+              <div class="rounded-lg border border-border/50 bg-muted/20 px-3 py-2.5">
+                <p class="text-[11px] uppercase tracking-wide text-muted-foreground">{plat}</p>
+                <p class="font-medium text-foreground text-sm mt-0.5">{fecha}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <!-- Limitaciones -->
+      <div class="rounded-xl border border-border/60 bg-card overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30">
+          <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Limitaciones conocidas</h3>
+        </div>
+        <div class="px-4 py-4">
+          <ul class="space-y-2.5 text-sm text-muted-foreground">
+            {[
+              ["Tweets protegidos", "GetXAPI solo accede a tweets públicos. Las cuentas con privacidad restringida pueden registrarse como inactivas aunque publiquen regularmente."],
+              ["Dependencia de terceros (X)", "La verificación de actividad en X depende de GetXAPI, un servicio de terceros sin garantías formales de continuidad o precisión. La API oficial de X no es accesible sin suscripción de pago."],
+              ["Registro manual", "La lista se mantiene a mano: pueden existir cuentas sin registrar, sobre todo en categorías con muchos cambios (Congreso, Senado) o en plataformas de incorporación más reciente."],
+              ["Plataformas no cubiertas", "No se recogen cuentas de Instagram, Facebook, TikTok, LinkedIn, YouTube ni otras plataformas. La selección de X, Bluesky y Mastodon responde al foco en plataformas de comunicación pública institucional de texto."],
+              ["Cobertura", "No se incluyen organismos autónomos, agencias estatales, empresas públicas, ayuntamientos, diputaciones ni delegaciones territoriales. Ampliar a estos ámbitos queda fuera del alcance actual."],
+              ["Legislatura vigente", "Los datos de Congreso y Senado corresponden a la composición en el momento de la última actualización. Tras elecciones o cambios de gobierno puede haber un desfase hasta la siguiente revisión."],
+              ["Verificación de identidad", "Se asume que un enlace desde la web oficial a una cuenta es prueba suficiente de titularidad. No se han verificado de forma independiente todas las cuentas."],
+            ].map(([title, desc]) => (
+              <li class="flex gap-2">
+                <span class="text-amber-500 shrink-0 mt-0.5">⚠</span>
+                <span><strong class="text-foreground">{title}:</strong> {desc}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</Layout>
+
+<style>
+  .sortable-th {
+    cursor: pointer;
+    user-select: none;
+  }
+  .sortable-th:hover {
+    color: hsl(var(--foreground));
+  }
+  .sort-ind {
+    font-size: 10px;
+    margin-left: 2px;
+    opacity: 0.5;
+  }
+</style>
+
+<script>
+  function initSortableTables() {
+    document.querySelectorAll<HTMLTableElement>('table[data-sortable]').forEach(table => {
+      const thead = table.querySelector('thead');
+      const tbody = table.querySelector('tbody');
+      if (!tbody) return;
+
+      const allThs = thead?.querySelectorAll<HTMLElement>('th[data-sort]') ?? [];
+
+      allThs.forEach(th => {
+        th.addEventListener('click', () => {
+          const col = th.dataset.sort!;
+          const current = th.dataset.dir || '';
+          const dir = current === 'asc' ? 'desc' : 'asc';
+
+          allThs.forEach(h => {
+            h.dataset.dir = '';
+            const ind = h.querySelector('.sort-ind');
+            if (ind) ind.textContent = '';
+          });
+          th.dataset.dir = dir;
+          const ind = th.querySelector('.sort-ind');
+          if (ind) ind.textContent = dir === 'asc' ? ' ↑' : ' ↓';
+
+          const rows = Array.from(tbody.querySelectorAll<HTMLTableRowElement>('tr:not([data-footer])'));
+          const footer = tbody.querySelector<HTMLTableRowElement>('tr[data-footer]');
+
+          rows.sort((a, b) => {
+            const aCell = a.querySelector<HTMLElement>(`td[data-col="${col}"]`);
+            const bCell = b.querySelector<HTMLElement>(`td[data-col="${col}"]`);
+            const aHasVal = aCell?.hasAttribute('data-val') ?? false;
+            const bHasVal = bCell?.hasAttribute('data-val') ?? false;
+            const av = aHasVal ? Number(aCell!.dataset.val) : (aCell?.textContent?.trim() ?? '');
+            const bv = bHasVal ? Number(bCell!.dataset.val) : (bCell?.textContent?.trim() ?? '');
+            if (av < bv) return dir === 'asc' ? -1 : 1;
+            if (av > bv) return dir === 'asc' ? 1 : -1;
+            return 0;
+          });
+
+          rows.forEach(r => tbody.appendChild(r));
+          if (footer) tbody.appendChild(footer);
+        });
+      });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initSortableTables);
+</script>

@@ -6,11 +6,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Mainbar } from "@/components/Mainbar";
-import {
-  CheckCircle, Radiation, XCircle, Mail, Flag,
-  ArrowUpDown, Search, Info,
-} from "lucide-react";
+import { Mail, Flag, Search, Info, ChevronUp, ChevronDown } from "lucide-react";
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
@@ -25,7 +21,7 @@ import autonomiasData from "@/data/autonomias.json";
 import universidadesData from "@/data/universidades.json";
 import lastUpdateData from "@/data/lastUpdate.json";
 
-// ── Plataformas ────────────────────────────────────────────────────────────────
+// ── Actividad de plataformas ───────────────────────────────────────────────────
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -67,14 +63,13 @@ function normalizeData(data: any[], categoria: string) {
       nombre:          (item.nombre || "").trim(),
       detalle,
       categoria,
-      twitter:         item.twitter         || null,
+      twitter:         item.twitter  || null,
       twitter_activo:  twitterOnX(item.twitter, item.twitter_activo),
-      bluesky:         item.bluesky         || null,
-      bluesky_activo:  isActiveDate(item.bluesky_activo,  BLUESKY_REF),
-      mastodon:        item.mastodon        || null,
+      bluesky:         item.bluesky  || null,
+      bluesky_activo:  isActiveDate(item.bluesky_activo, BLUESKY_REF),
+      mastodon:        item.mastodon || null,
       mastodon_activo: isActiveDate(item.mastodon_activo, MASTODON_REF),
-      email:           item.email           || null,
-      raw:             item,
+      email:           item.email    || null,
     };
   });
 }
@@ -82,96 +77,137 @@ function normalizeData(data: any[], categoria: string) {
 // ── Stats ──────────────────────────────────────────────────────────────────────
 
 function calculateStats(data: any[]) {
-  const total = data.length;
-  if (total === 0)
+  if (data.length === 0)
     return { enX: 0, fueraDeX: 0, mastodon: 0, bluesky: 0, sinAlternativa: 0 };
-
   let enX = 0, fueraDeX = 0, mastodon = 0, bluesky = 0, sinAlternativa = 0;
-  data.forEach((item) => {
+  for (const item of data) {
     if (item.twitter_activo) enX++; else fueraDeX++;
-    if (item.mastodon)        mastodon++;
-    else if (item.bluesky)    bluesky++;
-    else                      sinAlternativa++;
-  });
+    if (item.mastodon)       mastodon++;
+    else if (item.bluesky)   bluesky++;
+    else                     sinAlternativa++;
+  }
   return { enX, fueraDeX, mastodon, bluesky, sinAlternativa };
 }
 
-// ── Iconos ─────────────────────────────────────────────────────────────────────
+// ── Badges de plataforma ───────────────────────────────────────────────────────
 
-const TwitterIcon = ({ handle, activo }: { handle?: string | null; activo?: boolean }) => {
-  const icon = (!handle || !activo)
-    ? <Radiation className="h-5 w-5 text-emerald-600" />
-    : <Radiation className="h-5 w-5 text-red-500" />;
-  if (handle) {
-    return (
-      <a href={`https://twitter.com/${handle}`} target="_blank" rel="noopener noreferrer"
-        className="inline-block hover:opacity-70 transition-opacity">{icon}</a>
-    );
-  }
-  return icon;
+type BadgeVariant = "danger" | "success" | "sky" | "violet" | "warning" | "absent";
+
+const BADGE_CLS: Record<BadgeVariant, string> = {
+  danger:  "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+  success: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+  sky:     "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400",
+  violet:  "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400",
+  warning: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-500",
+  absent:  "bg-muted/40 text-muted-foreground/30",
 };
 
-const BlueskyIcon = ({ handle, activo }: { handle?: string | null; activo?: boolean }) => {
-  const icon = !handle
-    ? <XCircle className="h-5 w-5 text-slate-300" />
-    : !activo
-      ? <CheckCircle className="h-5 w-5 text-amber-400" />
-      : <CheckCircle className="h-5 w-5 text-emerald-600" />;
-  if (handle) {
-    return (
-      <a href={`https://bsky.app/profile/${handle}`} target="_blank" rel="noopener noreferrer"
-        className="inline-block hover:opacity-70 transition-opacity">{icon}</a>
-    );
+const PLATFORMS = [
+  { key: "twitter"  as const, label: "𝕏" },
+  { key: "bluesky"  as const, label: "B" },
+  { key: "mastodon" as const, label: "M" },
+];
+
+function badgeProps(item: any, platform: "twitter" | "bluesky" | "mastodon") {
+  if (platform === "twitter") {
+    return {
+      variant: (item.twitter_activo ? "danger" : "success") as BadgeVariant,
+      tip: !item.twitter          ? "Sin cuenta en X"
+         : item.twitter_activo    ? `@${item.twitter} · activo en X`
+                                  : `@${item.twitter} · inactivo en X`,
+      href: item.twitter ? `https://x.com/${item.twitter}` : undefined,
+    };
   }
-  return icon;
+  if (platform === "bluesky") {
+    return {
+      variant: (!item.bluesky ? "absent" : item.bluesky_activo ? "sky" : "warning") as BadgeVariant,
+      tip: !item.bluesky          ? "Sin Bluesky"
+         : item.bluesky_activo    ? item.bluesky
+                                  : `${item.bluesky} · poco activo`,
+      href: item.bluesky ? `https://bsky.app/profile/${item.bluesky}` : undefined,
+    };
+  }
+  return {
+    variant: (!item.mastodon ? "absent" : item.mastodon_activo ? "violet" : "warning") as BadgeVariant,
+    tip: !item.mastodon         ? "Sin Mastodon"
+       : item.mastodon_activo   ? item.mastodon
+                                : `${item.mastodon} · poco activo`,
+    href: item.mastodon ?? undefined,
+  };
+}
+
+const BADGE_BASE = "inline-flex items-center justify-center w-7 h-7 rounded-md text-[11px] font-bold leading-none select-none transition-opacity";
+
+const PlatformBadge = ({ label, href, variant, tip }: {
+  label: string; href?: string; variant: BadgeVariant; tip: string;
+}) => {
+  const cls = `${BADGE_BASE} ${BADGE_CLS[variant]} ${href ? "hover:opacity-70 cursor-pointer" : "cursor-default"}`;
+  const inner = href
+    ? <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>{label}</a>
+    : <span className={cls}>{label}</span>;
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{inner}</TooltipTrigger>
+      <TooltipContent side="top" className="text-xs">{tip}</TooltipContent>
+    </Tooltip>
+  );
 };
 
-const MastodonIcon = ({ handle, activo }: { handle?: string | null; activo?: boolean }) => {
-  const icon = !handle
-    ? <XCircle className="h-5 w-5 text-slate-300" />
-    : !activo
-      ? <CheckCircle className="h-5 w-5 text-amber-400" />
-      : <CheckCircle className="h-5 w-5 text-emerald-600" />;
-  if (handle) {
-    return (
-      <a href={handle} target="_blank" rel="noopener noreferrer"
-        className="inline-block hover:opacity-70 transition-opacity">{icon}</a>
-    );
-  }
-  return icon;
-};
-
-// ── Mailto / Issue ─────────────────────────────────────────────────────────────
+// ── Acciones ───────────────────────────────────────────────────────────────────
 
 const FALLBACK_EMAILS: Record<string, string> = {
-  AGE: "informacion@administracion.gob.es",
-  Gobierno: "presidencia@lamoncloa.gob.es",
-  Congreso: "congreso@congreso.es",
-  Senado: "senado@senado.es",
-  Partidos: "info@partido.es",
-  "Autonomías": "comunicacion@gobierno.regional.es",
+  AGE:           "informacion@administracion.gob.es",
+  Gobierno:      "presidencia@lamoncloa.gob.es",
+  Congreso:      "congreso@congreso.es",
+  Senado:        "senado@senado.es",
+  Partidos:      "info@partido.es",
+  "Autonomías":  "comunicacion@gobierno.regional.es",
   Universidades: "informacion@universidad.es",
 };
 
 const REPO = "https://github.com/lopublico/saldeahi";
 
 function generateIssueUrl(item: any) {
-  const title = `Corrección de datos: ${item.nombre}`;
-  const tw = item.twitter  ? `\`${item.twitter}\``  : "_sin cuenta_";
-  const bs = item.bluesky  ? `\`${item.bluesky}\``  : "_sin cuenta_";
-  const md = item.mastodon ? `\`${item.mastodon}\`` : "_sin cuenta_";
-  const em = item.email    ? `\`${item.email}\``    : "_no disponible_";
-  const sub = item.detalle ? ` · ${item.detalle}`   : "";
+  const sub = item.detalle ? ` · ${item.detalle}` : "";
+  const row = (label: string, val: string | null) =>
+    `| ${label} | ${val ? `\`${val}\`` : "_sin cuenta_"} |`;
   const body =
-`## Entidad\n**${item.nombre}** (${item.categoria}${sub})\n\n## Datos que figuran ahora\n\n| Campo | Valor actual |\n|-------|-------------|\n| X / Twitter | ${tw} |\n| Bluesky | ${bs} |\n| Mastodon | ${md} |\n| Email | ${em} |\n\n## ¿Qué hay que cambiar?\n\n- [ ] **X / Twitter** → el correcto es: \n- [ ] **Bluesky** → el correcto es: \n- [ ] **Mastodon** → el correcto es: \n- [ ] **Email** → el correcto es: \n- [ ] La cuenta ya no existe o está suspendida\n- [ ] Falta una cuenta que no aparece\n- [ ] Otro motivo: \n\n---\n_Gracias por ayudar a mantener los datos actualizados._`;
+`## Entidad
+**${item.nombre}** (${item.categoria}${sub})
+
+## Datos actuales
+
+| Campo | Valor |
+|-------|-------|
+${row("X / Twitter", item.twitter)}
+${row("Bluesky", item.bluesky)}
+${row("Mastodon", item.mastodon)}
+${row("Email", item.email)}
+
+## ¿Qué hay que cambiar?
+
+- [ ] X / Twitter → el correcto es:
+- [ ] Bluesky → el correcto es:
+- [ ] Mastodon → el correcto es:
+- [ ] Email → el correcto es:
+- [ ] La cuenta ya no existe o está suspendida
+- [ ] Falta una cuenta que no aparece
+- [ ] Otro motivo:
+
+---
+_Gracias por ayudar a mantener los datos actualizados._`;
+  const title = `Corrección de datos: ${item.nombre}`;
   return `${REPO}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&labels=${encodeURIComponent("datos")}`;
 }
 
 function generateMailto(item: any) {
-  const email = item.email || FALLBACK_EMAILS[item.categoria] || "info@gobierno.es";
+  const email   = item.email || FALLBACK_EMAILS[item.categoria] || "info@gobierno.es";
   const subject = encodeURIComponent("Solicitud de migración a redes federadas");
-  const body = encodeURIComponent(
-    `Estimado/a responsable de ${item.nombre},\n\nMe pongo en contacto para solicitar que ${item.nombre} considere establecer presencia en redes sociales federadas como Mastodon o Bluesky.\n\nLas instituciones públicas democráticas deberían comunicarse a través de plataformas que respeten los valores democráticos y no estén controladas por oligarcas.\n\nAtentamente,`
+  const body    = encodeURIComponent(
+    `Estimado/a responsable de ${item.nombre},\n\n` +
+    `Me pongo en contacto para solicitar que ${item.nombre} considere establecer presencia en redes sociales federadas como Mastodon o Bluesky.\n\n` +
+    `Las instituciones públicas democráticas deberían comunicarse a través de plataformas que respeten los valores democráticos y no estén controladas por oligarcas.\n\n` +
+    `Atentamente,`
   );
   return `mailto:${email}?subject=${subject}&body=${body}`;
 }
@@ -179,38 +215,62 @@ function generateMailto(item: any) {
 // ── Tarjeta móvil ──────────────────────────────────────────────────────────────
 
 const MobileCard = ({ item }: { item: any }) => (
-  <div className="rounded-lg border bg-background p-4 space-y-4 text-left">
-    <div>
-      <div className="font-semibold text-sm leading-snug">{item.nombre}</div>
-      <div className="text-xs text-muted-foreground mt-0.5">
-        {item.categoria}{item.detalle ? ` · ${item.detalle}` : ""}
+  <div className="rounded-lg border bg-background p-3 text-left">
+    <div className="font-medium text-sm leading-snug">{item.nombre}</div>
+    {item.detalle && (
+      <div className="text-xs text-muted-foreground mt-0.5 truncate">
+        {item.categoria} · {item.detalle}
       </div>
-    </div>
-    <div className="space-y-2">
-      {[
-        { label: "X/Twitter", el: <TwitterIcon handle={item.twitter} activo={item.twitter_activo} /> },
-        { label: "Bluesky",   el: <BlueskyIcon  handle={item.bluesky}  activo={item.bluesky_activo}  /> },
-        { label: "Mastodon",  el: <MastodonIcon handle={item.mastodon} activo={item.mastodon_activo} /> },
-      ].map(({ label, el }) => (
-        <div key={label} className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">{label}</span>
-          {el}
-        </div>
-      ))}
-    </div>
-    <div className="flex gap-2 pt-1">
-      <Button variant="outline" size="sm" className="flex-1" asChild>
-        <a href={generateMailto(item)}>
-          <Mail className="h-4 w-4 mr-2" />Exigir migración
-        </a>
-      </Button>
-      <Button variant="ghost" size="sm" className="px-3" title="Proponer corrección"
-        onClick={() => window.open(generateIssueUrl(item), "_blank")}>
-        <Flag className="h-4 w-4 text-muted-foreground" />
-      </Button>
+    )}
+    <div className="flex items-center justify-between mt-3">
+      <div className="flex items-center gap-1">
+        {PLATFORMS.map(({ key, label }) => (
+          <PlatformBadge key={key} label={label} {...badgeProps(item, key)} />
+        ))}
+      </div>
+      <div className="flex items-center gap-1">
+        <Button variant="outline" size="sm" className="h-7 px-2.5 text-xs" asChild>
+          <a href={generateMailto(item)}>
+            <Mail className="h-3 w-3 mr-1" />Exigir
+          </a>
+        </Button>
+        <Button variant="ghost" size="icon" className="h-6 w-6 opacity-40 hover:opacity-70"
+          onClick={() => window.open(generateIssueUrl(item), "_blank")}>
+          <Flag className="h-3 w-3 text-muted-foreground" />
+        </Button>
+      </div>
     </div>
   </div>
 );
+
+// ── Stat bar ───────────────────────────────────────────────────────────────────
+
+function StatBar({ pct, barClass, label, detail, tip }: {
+  pct: number; barClass: string; label: string; detail: string; tip?: string;
+}) {
+  return (
+    <div className="w-full space-y-1.5">
+      <div className="flex items-baseline justify-between">
+        <div className="flex items-baseline gap-2">
+          <span className="text-2xl font-bold tabular-nums leading-none">{pct}%</span>
+          <span className="text-xs text-muted-foreground">{label}</span>
+        </div>
+        {tip && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info className="h-3 w-3 cursor-help text-muted-foreground/30 shrink-0" />
+            </TooltipTrigger>
+            <TooltipContent side="top" className="text-xs max-w-[200px] text-left">{tip}</TooltipContent>
+          </Tooltip>
+        )}
+      </div>
+      <div className="h-2 w-full rounded-full overflow-hidden bg-muted">
+        <div className={`h-full rounded-full ${barClass}`} style={{ width: `${pct}%` }} />
+      </div>
+      <p className="text-xs text-muted-foreground/50 tabular-nums">{detail}</p>
+    </div>
+  );
+}
 
 // ── Tabs ───────────────────────────────────────────────────────────────────────
 
@@ -225,7 +285,9 @@ const TAB_ITEMS = [
   { value: "universidades", label: "Universidades"  },
 ];
 
-function TabRow({ items, active, onSelect }: { items: typeof TAB_ITEMS; active: string; onSelect: (v: string) => void }) {
+function TabRow({ items, active, onSelect }: {
+  items: typeof TAB_ITEMS; active: string; onSelect: (v: string) => void;
+}) {
   return (
     <div role="tablist" className="flex gap-1 rounded-lg bg-muted p-1 overflow-x-auto no-scrollbar">
       {items.map((it) => (
@@ -252,22 +314,17 @@ function TabRow({ items, active, onSelect }: { items: typeof TAB_ITEMS; active: 
 
 interface AppSectionProps {
   initialStats: {
-    enX: number;
-    fueraDeX: number;
-    mastodon: number;
-    bluesky: number;
-    sinAlternativa: number;
+    enX: number; fueraDeX: number;
+    mastodon: number; bluesky: number; sinAlternativa: number;
   };
 }
 
 export function AppSection({ initialStats }: AppSectionProps) {
-  const [activeTab, setActiveTab]       = useState("age");
-  const [searchQuery, setSearchQuery]   = useState("");
-  const [sortColumn, setSortColumn]     = useState<string | null>(null);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [stats, setStats]               = useState(initialStats);
-
-  // ── Datos ──────────────────────────────────────────────────────────────────
+  const [activeTab,      setActiveTab]      = useState("age");
+  const [searchQuery,    setSearchQuery]    = useState("");
+  const [sortColumn,     setSortColumn]     = useState<string | null>(null);
+  const [sortDirection,  setSortDirection]  = useState<"asc" | "desc">("asc");
+  const [stats,          setStats]          = useState(initialStats);
 
   const allDataByCategory = useMemo(() => ({
     age:           normalizeData(ageData,           "AGE"),
@@ -289,13 +346,10 @@ export function AppSection({ initialStats }: AppSectionProps) {
   const filteredData = useMemo(() => {
     const source = searchQuery ? allData : rawData;
     if (!searchQuery) return source;
-    const normalize = (s: string) =>
-      s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-    const q = normalize(searchQuery);
+    const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+    const q = norm(searchQuery);
     return source.filter((item) =>
-      [item.nombre, item.detalle, item.categoria].some(
-        (f) => f && normalize(f).includes(q)
-      )
+      [item.nombre, item.detalle, item.categoria].some((f) => f && norm(f).includes(q))
     );
   }, [rawData, allData, searchQuery]);
 
@@ -326,306 +380,223 @@ export function AppSection({ initialStats }: AppSectionProps) {
     });
   }, [filteredData, sortColumn, sortDirection]);
 
-  // ── Stats ──────────────────────────────────────────────────────────────────
-
   useEffect(() => {
     setStats(calculateStats(rawData));
   }, [rawData]);
 
-  // ── Ordenación ─────────────────────────────────────────────────────────────
-
   const handleSort = (col: string) => {
-    if (sortColumn === col) {
-      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setSortColumn(col);
-      setSortDirection("asc");
-    }
+    if (sortColumn === col) setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+    else { setSortColumn(col); setSortDirection("asc"); }
   };
 
-  // ── Derivados de tab ───────────────────────────────────────────────────────
+  const SortIcon = ({ col }: { col: string }) =>
+    sortColumn === col
+      ? sortDirection === "asc"
+        ? <ChevronUp className="h-3 w-3 inline ml-0.5" />
+        : <ChevronDown className="h-3 w-3 inline ml-0.5" />
+      : <span className="opacity-30 text-[10px] ml-0.5">↕</span>;
 
-  const half = Math.ceil(TAB_ITEMS.length / 2);
-  const totalX   = stats.enX + stats.fueraDeX;
+  const half    = Math.ceil(TAB_ITEMS.length / 2);
+  const totalX  = stats.enX + stats.fueraDeX;
   const totalFed = stats.mastodon + stats.bluesky + stats.sinAlternativa;
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  // Clases repetidas
+  const TH_SORT = "py-2 px-4 text-[11px] uppercase tracking-wide font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors text-left";
+  const TH_PLATFORM = "py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground w-12 text-center border-l border-border/40 cursor-pointer hover:text-foreground transition-colors";
+  const TD_PLATFORM = "py-2 px-3 align-middle w-12 text-center border-l border-border/20";
 
   return (
-    <div className="w-full space-y-5 sm:space-y-6">
+    <TooltipProvider>
+      <div className="w-full space-y-5 sm:space-y-6">
 
-      {/* ── Barras ── */}
-      <div className="w-full max-w-2xl mx-auto px-4 space-y-3">
-        <div>
-          <div className="flex items-baseline justify-between mb-1.5">
-            <span className="text-xs font-medium text-foreground">¿Siguen en X?</span>
-            <span className="text-xs text-muted-foreground tabular-nums">{totalX} entidades</span>
-          </div>
-          <Mainbar
-            trackClassName="ring-0 shadow-none"
-            segments={[
-              { label: "Fuera de X",  value: stats.fueraDeX, colorClass: "bg-emerald-500" },
-              { label: "Siguen en X", value: stats.enX,      colorClass: "bg-red-400"     },
-            ]}
-            ariaLabel={`${stats.fueraDeX} fuera de X, ${stats.enX} siguen en X`}
-            height={10} roundedClass="rounded-sm" showCounts
+        {/* Stats */}
+        <div className="w-full max-w-2xl mx-auto px-4 space-y-4">
+          <StatBar
+            pct={totalX > 0 ? Math.round((stats.enX / totalX) * 100) : 0}
+            barClass="bg-red-400"
+            label="siguen en X"
+            detail={`${stats.enX} en X · ${stats.fueraDeX} han salido`}
+          />
+          <StatBar
+            pct={totalFed > 0 ? Math.round(((stats.mastodon + stats.bluesky) / totalFed) * 100) : 0}
+            barClass="bg-sky-400"
+            label="con alternativa (Bluesky o Mastodon)"
+            detail={`${stats.mastodon} en Mastodon · ${stats.bluesky} en Bluesky`}
+            tip="Bluesky usa AT Protocol, actualmente menos descentralizado que ActivityPub (Mastodon)."
           />
         </div>
-        <div>
-          <div className="flex items-baseline justify-between mb-1.5">
-            <div className="flex items-center gap-1">
-              <span className="text-xs font-medium text-foreground">Con alternativas federadas</span>
-              <div className="group relative">
-                <Info className="h-3 w-3 text-muted-foreground/60 cursor-help" />
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-60 p-2.5 bg-popover text-popover-foreground text-xs rounded-md shadow-md border border-border z-10">
-                  <strong>Bluesky</strong> usa AT Protocol, actualmente menos descentralizado que ActivityPub (Mastodon).
-                </div>
-              </div>
+
+        {/* Buscador */}
+        <div className="w-full max-w-2xl mx-auto px-4">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text" inputMode="search"
+              placeholder="Buscar entidad, ministerio, partido..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck={false}
+              className="pl-10 h-10"
+            />
+          </div>
+        </div>
+
+        {/* Pestañas */}
+        <div className="w-full px-4">
+          <div className="md:hidden space-y-1">
+            <TabRow items={TAB_ITEMS.slice(0, half)} active={activeTab} onSelect={setActiveTab} />
+            <TabRow items={TAB_ITEMS.slice(half)}    active={activeTab} onSelect={setActiveTab} />
+          </div>
+          <div className="hidden md:flex justify-center">
+            <TabRow items={TAB_ITEMS} active={activeTab} onSelect={setActiveTab} />
+          </div>
+        </div>
+
+        {/* Leyenda + Tabla */}
+        <div className="w-full space-y-3">
+          <div className="w-full px-4 space-y-2">
+            <p className="text-[11px] text-muted-foreground/50 text-center">
+              Actividad medida sobre los 30 días anteriores a la última actualización del conjunto de datos.
+            </p>
+            <div className="flex flex-wrap justify-center gap-x-5 gap-y-1.5 text-xs text-muted-foreground">
+              {([
+                { cls: BADGE_CLS.danger,  label: "𝕏", text: "Activo en X"               },
+                { cls: BADGE_CLS.success, label: "𝕏", text: "Sin cuenta o inactivo en X" },
+                { cls: BADGE_CLS.sky,     label: "B",  text: "Bluesky activo"             },
+                { cls: BADGE_CLS.warning, label: "B",  text: "Bluesky inactivo"           },
+                { cls: BADGE_CLS.violet,  label: "M",  text: "Mastodon activo"            },
+                { cls: BADGE_CLS.absent,  label: "·",  text: "Sin cuenta"                 },
+              ] as const).map(({ cls, label, text }) => (
+                <span key={text} className="flex items-center gap-1.5">
+                  <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold ${cls}`}>{label}</span>
+                  {text}
+                </span>
+              ))}
             </div>
-            <span className="text-xs text-muted-foreground tabular-nums">{totalFed} entidades</span>
           </div>
-          <Mainbar
-            trackClassName="ring-0 shadow-none"
-            segments={[
-              { label: "Mastodon",        value: stats.mastodon,       colorClass: "bg-violet-500" },
-              { label: "Bluesky",         value: stats.bluesky,        colorClass: "bg-sky-400"    },
-              { label: "Sin alternativa", value: stats.sinAlternativa, colorClass: "bg-border"     },
-            ]}
-            ariaLabel={`${stats.mastodon} en Mastodon, ${stats.bluesky} en Bluesky, ${stats.sinAlternativa} sin alternativa`}
-            height={10} roundedClass="rounded-sm" showCounts
-          />
-        </div>
-      </div>
 
-      {/* ── Buscador ── */}
-      <div className="w-full max-w-2xl mx-auto px-4">
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text" inputMode="search"
-            placeholder="Buscar entidad, ministerio, partido..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck={false}
-            className="pl-10 h-10"
-          />
-        </div>
-      </div>
-
-      {/* ── Pestañas ── */}
-      <div className="w-full px-4">
-        {/* Móvil: dos filas */}
-        <div className="md:hidden space-y-1">
-          <TabRow items={TAB_ITEMS.slice(0, half)} active={activeTab} onSelect={setActiveTab} />
-          <TabRow items={TAB_ITEMS.slice(half)}    active={activeTab} onSelect={setActiveTab} />
-        </div>
-        {/* Escritorio: fila única centrada */}
-        <div className="hidden md:flex justify-center">
-          <div role="tablist" className="flex gap-1 rounded-lg bg-muted p-1">
-            {TAB_ITEMS.map((it) => (
-              <button
-                key={it.value}
-                role="tab"
-                aria-selected={activeTab === it.value}
-                onClick={() => setActiveTab(it.value)}
-                className={cn(
-                  "flex-none rounded-md transition-colors whitespace-nowrap font-medium h-8 px-3 text-xs",
-                  activeTab === it.value
-                    ? "bg-background text-foreground shadow-sm ring-1 ring-border"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {it.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Tabla ── */}
-      <div className="w-full px-2 sm:px-4">
-
-        {/* Móvil */}
-        <div className="md:hidden">
-          {(() => {
-            const LIMIT = 40;
-            const shown = searchQuery ? filteredData : filteredData.slice(0, LIMIT);
-            return filteredData.length > 0 ? (
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground text-left">
-                  {searchQuery
-                    ? <>{filteredData.length} resultado{filteredData.length !== 1 ? "s" : ""} para <strong>"{searchQuery}"</strong></>
-                    : <>{filteredData.length} entidad{filteredData.length !== 1 ? "es" : ""}</>
-                  }
-                </p>
-                {shown.map((item, i) => <MobileCard key={i} item={item} />)}
-                {!searchQuery && filteredData.length > LIMIT && (
-                  <p className="text-xs text-center text-muted-foreground py-2">
-                    Mostrando {LIMIT} de {filteredData.length}. Usa el buscador para filtrar.
+          {/* Móvil */}
+          <div className="md:hidden px-2">
+            {filteredData.length > 0 ? (() => {
+              const LIMIT = 40;
+              const shown = searchQuery ? filteredData : filteredData.slice(0, LIMIT);
+              return (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    {searchQuery
+                      ? <>{filteredData.length} resultado{filteredData.length !== 1 ? "s" : ""} para <strong>"{searchQuery}"</strong></>
+                      : <>{filteredData.length} entidad{filteredData.length !== 1 ? "es" : ""}</>
+                    }
                   </p>
-                )}
-              </div>
-            ) : (
+                  {shown.map((item, i) => <MobileCard key={i} item={item} />)}
+                  {!searchQuery && filteredData.length > LIMIT && (
+                    <p className="text-xs text-center text-muted-foreground py-2">
+                      Mostrando {LIMIT} de {filteredData.length}. Usa el buscador para filtrar.
+                    </p>
+                  )}
+                </div>
+              );
+            })() : (
               <div className="rounded-md border px-6 py-8 text-center text-muted-foreground text-sm">
                 Sin resultados{searchQuery ? <> para <strong>"{searchQuery}"</strong></> : ""}
               </div>
-            );
-          })()}
-        </div>
+            )}
+          </div>
 
-        {/* Escritorio */}
-        <div className="hidden md:block">
-          <Card className="overflow-hidden">
-            <CardHeader className="flex-row items-center justify-between py-2.5 px-4">
-              <span className="text-sm text-muted-foreground">
-                Mostrando{" "}
-                <span className="font-medium text-foreground">{sortedData.length}</span> de{" "}
-                <span className="font-medium text-foreground">
-                  {searchQuery ? allData.length : rawData.length}
-                </span>{" "}
-                entidades
-              </span>
-            </CardHeader>
-            <CardContent>
-              <Table className="min-w-[640px]">
-                <TableHeader>
-                  <TableRow className="bg-muted/40 hover:bg-muted/40">
-                    {[
-                      { col: "nombre",   label: "Nombre",    cls: "" },
-                      { col: "detalle",  label: "Detalle",   cls: "text-center hidden md:table-cell" },
-                      { col: "twitter",  label: "X/Twitter", cls: "w-24 text-center" },
-                      { col: "bluesky",  label: "Bluesky",   cls: "w-24 text-center" },
-                      { col: "mastodon", label: "Mastodon",  cls: "w-24 text-center" },
-                    ].map(({ col, label, cls }) => (
-                      <TableHead
-                        key={col}
-                        className={cn("cursor-pointer hover:text-foreground transition-colors", cls)}
-                        onClick={() => handleSort(col)}
-                      >
-                        <div className={cn("flex items-center gap-1.5", cls.includes("text-center") ? "justify-center" : "")}>
-                          <span className={col !== "nombre" && col !== "detalle" ? "hidden sm:inline" : ""}>{label}</span>
-                          <ArrowUpDown className="h-3 w-3 text-muted-foreground" />
-                          {sortColumn === col && (
-                            <span className="text-xs text-muted-foreground">
-                              {sortDirection === "asc" ? "↑" : "↓"}
-                            </span>
-                          )}
-                        </div>
+          {/* Escritorio */}
+          <div className="hidden md:block px-4">
+            <Card className="overflow-hidden border-border/60">
+              <CardHeader className="flex-row items-center justify-between py-2 px-4 border-b border-border/40">
+                <span className="text-xs text-muted-foreground">
+                  <span className="font-medium text-foreground">{sortedData.length}</span>
+                  {" "}de{" "}
+                  <span className="font-medium text-foreground">
+                    {searchQuery ? allData.length : rawData.length}
+                  </span>{" "}entidades
+                </span>
+                <span className="text-xs text-muted-foreground/50">
+                  Pasa el cursor sobre los badges para ver el handle
+                </span>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table className="w-full">
+                  <TableHeader>
+                    <TableRow className="bg-muted/30 hover:bg-muted/30 border-b border-border/40">
+                      <TableHead className={TH_SORT} onClick={() => handleSort("nombre")}>
+                        Nombre <SortIcon col="nombre" />
                       </TableHead>
-                    ))}
-                    <TableHead className="text-center">
-                      <span className="hidden sm:inline">Acción</span>
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sortedData.length > 0 ? (
-                    sortedData.map((item, index) => (
-                      <TableRow key={index} id={`row-${index}`} className="group">
-                        <TableCell className="font-medium text-left max-w-md">
-                          <div className="truncate text-sm sm:text-base">{item.nombre}</div>
+                      <TableHead
+                        className={cn(TH_SORT, "hidden lg:table-cell")}
+                        onClick={() => handleSort("detalle")}
+                      >
+                        Detalle <SortIcon col="detalle" />
+                      </TableHead>
+                      {PLATFORMS.map(({ key, label }) => (
+                        <TableHead key={key} className={TH_PLATFORM} onClick={() => handleSort(key)}>
+                          {label} <SortIcon col={key} />
+                        </TableHead>
+                      ))}
+                      <TableHead className="py-2 px-3 w-20" />
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedData.length > 0 ? sortedData.map((item, i) => (
+                      <TableRow key={i} className="group border-b border-border/30 hover:bg-muted/20 transition-colors">
+                        <TableCell className="py-2 px-4 align-middle text-left">
+                          <div className="text-sm font-medium leading-snug truncate">{item.nombre}</div>
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground text-center max-w-xs hidden md:table-cell">
-                          <div className="truncate">{item.detalle}</div>
+                        <TableCell className="py-2 px-3 align-middle text-left hidden lg:table-cell">
+                          <div className="text-xs text-muted-foreground truncate">{item.detalle}</div>
                         </TableCell>
-                        <TableCell className="text-center align-middle">
-                          <div className="flex items-center justify-center">
-                            <TwitterIcon handle={item.twitter} activo={item.twitter_activo} />
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center align-middle">
-                          <div className="flex items-center justify-center">
-                            <BlueskyIcon handle={item.bluesky} activo={item.bluesky_activo} />
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center align-middle">
-                          <div className="flex items-center justify-center">
-                            <MastodonIcon handle={item.mastodon} activo={item.mastodon_activo} />
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex items-center justify-center gap-1">
-                            <Button variant="outline" size="sm" className="h-9 px-2 sm:px-4 whitespace-nowrap" asChild>
-                              <a href={generateMailto(item)}>
-                                <Mail className="h-4 w-4 sm:mr-2" />
-                                <span className="hidden sm:inline">Exigir migración</span>
-                              </a>
-                            </Button>
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost" size="sm" className="h-9 w-9 p-0"
-                                    onClick={() => window.open(generateIssueUrl(item), "_blank")}
-                                  >
-                                    <Flag className="h-4 w-4 text-muted-foreground" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent side="left">Proponer corrección</TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                        {PLATFORMS.map(({ key, label }) => (
+                          <TableCell key={key} className={TD_PLATFORM}>
+                            <PlatformBadge label={label} {...badgeProps(item, key)} />
+                          </TableCell>
+                        ))}
+                        <TableCell className="py-2 px-3 align-middle w-44">
+                          <div className="flex items-center gap-1 justify-end">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="outline" size="sm"
+                                  className="h-7 px-2 text-[11px] gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  asChild>
+                                  <a href={generateMailto(item)}>
+                                    <Mail className="h-3 w-3 shrink-0" />
+                                    Exigir migración
+                                  </a>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="text-xs max-w-[200px] text-left">
+                                Abre tu cliente de correo con un borrador pidiendo a {item.nombre} que se establezca en redes federadas.
+                              </TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 opacity-40 hover:opacity-70 transition-opacity"
+                                  onClick={() => window.open(generateIssueUrl(item), "_blank")}>
+                                  <Flag className="h-3 w-3 text-muted-foreground" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="text-xs">Proponer corrección de datos</TooltipContent>
+                            </Tooltip>
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
-                        No se encontraron resultados
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* ── Leyenda ── */}
-      <div className="w-full max-w-4xl mx-auto px-4 mb-10">
-        <div className="bg-muted/30 rounded-lg p-4 sm:p-6 text-left">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs">
-            {[
-              {
-                title: "Twitter/X",
-                items: [
-                  { icon: <Radiation className="h-4 w-4 text-emerald-600 flex-shrink-0" />, text: "Sin cuenta o inactiva" },
-                  { icon: <Radiation className="h-4 w-4 text-red-500 flex-shrink-0" />,     text: "Cuenta activa" },
-                ],
-              },
-              {
-                title: "Bluesky",
-                items: [
-                  { icon: <XCircle className="h-4 w-4 text-slate-300 flex-shrink-0" />,     text: "Sin cuenta" },
-                  { icon: <CheckCircle className="h-4 w-4 text-amber-400 flex-shrink-0" />, text: "Cuenta inactiva" },
-                  { icon: <CheckCircle className="h-4 w-4 text-emerald-600 flex-shrink-0" />, text: "Cuenta activa" },
-                ],
-              },
-              {
-                title: "Mastodon",
-                items: [
-                  { icon: <XCircle className="h-4 w-4 text-slate-300 flex-shrink-0" />,     text: "Sin cuenta" },
-                  { icon: <CheckCircle className="h-4 w-4 text-amber-400 flex-shrink-0" />, text: "Cuenta inactiva" },
-                  { icon: <CheckCircle className="h-4 w-4 text-emerald-600 flex-shrink-0" />, text: "Cuenta activa" },
-                ],
-              },
-            ].map(({ title, items }) => (
-              <div key={title}>
-                <p className="font-medium mb-2">{title}</p>
-                <ul className="space-y-2 text-muted-foreground">
-                  {items.map(({ icon, text }) => (
-                    <li key={text} className="flex items-center gap-2">
-                      {icon}<span>{text}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+                    )) : (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-muted-foreground py-12 text-sm">
+                          No se encontraron resultados
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </div>
 
-    </div>
+      </div>
+    </TooltipProvider>
   );
 }

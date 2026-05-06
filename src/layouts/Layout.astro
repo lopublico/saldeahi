@@ -61,16 +61,18 @@ const canonical = siteBase;
     />
     <ClientRouter />
 
-    <!-- Aplica tema antes del pintado para evitar FOUC -->
+    <!-- Aplica tema antes del pintado y tras cada navegación (view transitions) -->
     <script is:inline>
-      (() => {
+      function __applyTheme() {
         try {
           const saved = localStorage.getItem("theme");
           const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
           const theme = saved ?? (prefersDark ? "dark" : "light");
-          if (theme === "dark") document.documentElement.classList.add("dark");
+          document.documentElement.classList.toggle("dark", theme === "dark");
         } catch {}
-      })();
+      }
+      __applyTheme();
+      document.addEventListener("astro:after-swap", __applyTheme);
     </script>
   </head>
 
@@ -81,7 +83,7 @@ const canonical = siteBase;
         <div class="flex items-center justify-end gap-1">
           <ModeToggle client:load transition:persist="mode-toggle" />
           <Button variant="ghost" size="sm" class="text-sm font-medium">
-            <a href="/estadisticas">estadísticas</a>
+            <a href="/datos">datos</a>
           </Button>
           <Button variant="ghost" size="sm" class="text-sm font-medium">
             <a href="/porque">por qué</a>

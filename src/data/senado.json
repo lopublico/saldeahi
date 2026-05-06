@@ -3526,5 +3526,65 @@
     "mastodon": null,
     "mastodon_activo": null,
     "email": "jmanuel.avila@senado.es"
+  },
+  {
+    "tipo": "Partido",
+    "nombre": "Esquerra Republicana de Catalunya",
+    "grupo": "GPIC",
+    "twitter": "esquerra_erc",
+    "twitter_activo": "2026-04-22",
+    "bluesky": "esquerrarepublicana.cat",
+    "bluesky_activo": "2026-04-20",
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": "comunicacio@esquerra.cat"
+  },
+  {
+    "tipo": "Partido",
+    "nombre": "Junts per Catalunya",
+    "grupo": "GPIC",
+    "twitter": "JuntsXCat",
+    "twitter_activo": "2026-04-22",
+    "bluesky": "juntsxcat.bsky.social",
+    "bluesky_activo": "2024-11-22",
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": "premsa@junts.cat"
+  },
+  {
+    "tipo": "Partido",
+    "nombre": "Euskal Herria Bildu",
+    "grupo": "GPERB",
+    "twitter": "ehbildu",
+    "twitter_activo": "2026-04-22",
+    "bluesky": "ehbildu.bsky.social",
+    "bluesky_activo": "2026-04-22",
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": "komunikazioa@ehbildu.eus"
+  },
+  {
+    "tipo": "Partido",
+    "nombre": "Euzko Alderdi Jeltzalea - Partido Nacionalista Vasco",
+    "grupo": "GPV",
+    "twitter": "eajpnv",
+    "twitter_activo": "2026-04-22",
+    "bluesky": "eajpnv.bsky.social",
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": "comunicacion@eaj-pnv.eus"
+  },
+  {
+    "tipo": "Partido",
+    "nombre": "Coalición Canaria",
+    "grupo": "GPMX",
+    "twitter": "coalicion",
+    "twitter_activo": "2026-04-22",
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": "comunicacion@coalicioncanaria.org"
   }
 ]
