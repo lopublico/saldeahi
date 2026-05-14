@@ -4,8 +4,8 @@
     "cargo": "Presidente del Gobierno",
     "twitter": "sanchezcastejon",
     "twitter_activo": "2026-04-22",
-    "bluesky": "pedrosanchezcas.bsky.social",
-    "bluesky_activo": "404",
+    "bluesky": null,
+    "bluesky_activo": null,
     "mastodon": null,
     "mastodon_activo": null,
     "email": "cartaservicios@presidencia.gob.es"
@@ -35,10 +35,10 @@
   {
     "nombre": "Sara Aagesen Muñoz",
     "cargo": "Vicepresidenta 3ª y Ministra para la Transición Ecológica y el Reto Demográfico",
-    "twitter": "saraagesen",
+    "twitter": null,
     "twitter_activo": "404",
     "bluesky": "saraaagesen.bsky.social",
-    "bluesky_activo": "2026-04-22",
+    "bluesky_activo": null,
     "mastodon": null,
     "mastodon_activo": null,
     "email": "prensa@miteco.gob.es"
@@ -68,7 +68,7 @@
   {
     "nombre": "Margarita Robles Fernández",
     "cargo": "Ministra de Defensa",
-    "twitter": "Defensag_RoblesF",
+    "twitter": "RoblesMargarita",
     "twitter_activo": "404",
     "bluesky": null,
     "bluesky_activo": null,
@@ -79,7 +79,7 @@
   {
     "nombre": "Fernando Grande-Marlaska Gómez",
     "cargo": "Ministro del Interior",
-    "twitter": "fgrandemarlaska",
+    "twitter": null,
     "twitter_activo": "404",
     "bluesky": null,
     "bluesky_activo": null,

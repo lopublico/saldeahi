@@ -244,7 +244,7 @@
   {
     "nombre": "Agencia Estatal de Administración Tributaria (AEAT)",
     "categoria": "Organismo Autónomo",
-    "twitter": "AgTributaria",
+    "twitter": "Ag_Tributaria",
     "twitter_activo": "404",
     "bluesky": null,
     "bluesky_activo": null,
@@ -288,7 +288,7 @@
   {
     "nombre": "Tesorería General de la Seguridad Social (TGSS)",
     "categoria": "Organismo Autónomo",
-    "twitter": "TGSS_gob",
+    "twitter": "info_TGSS",
     "twitter_activo": "404",
     "bluesky": null,
     "bluesky_activo": null,
@@ -411,7 +411,7 @@
     "categoria": "Empresa Pública",
     "twitter": "loterias_es",
     "twitter_activo": "2026-04-22",
-    "bluesky": null,
+    "bluesky": "lyadelestado",
     "bluesky_activo": null,
     "mastodon": null,
     "mastodon_activo": null,

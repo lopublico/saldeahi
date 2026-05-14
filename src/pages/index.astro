@@ -50,13 +50,15 @@ const allData = [
   ...universidadesData.map(normalizeItem),
 ];
 
-let enX = 0, fueraDeX = 0, mastodon = 0, bluesky = 0, sinAlternativa = 0;
+let enX = 0, conBluesky = 0, conMastodon = 0, conAlternativa = 0, sinAlternativa = 0;
 for (const item of allData) {
-  if (item.twitter_activo) enX++; else fueraDeX++;
-  if (item.mastodon)        mastodon++;
-  else if (item.bluesky)    bluesky++;
-  else                      sinAlternativa++;
+  if (item.twitter_activo) enX++;
+  if (item.bluesky)  conBluesky++;
+  if (item.mastodon) conMastodon++;
+  if (item.bluesky || item.mastodon) conAlternativa++;
+  else sinAlternativa++;
 }
+const fueraDeX = allData.length - enX;
 ---
 
 <Layout
@@ -76,7 +78,7 @@ for (const item of allData) {
   <div class="mt-6 sm:mt-8 w-full" transition:persist="app-section">
     <AppSection
       client:load
-      initialStats={{ enX, fueraDeX, mastodon, bluesky, sinAlternativa }}
+      initialStats={{ enX, fueraDeX, conBluesky, conMastodon, conAlternativa, sinAlternativa }}
     />
   </div>
 </Layout>

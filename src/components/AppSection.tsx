@@ -6,11 +6,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Mail, Flag, Search, Info, ChevronUp, ChevronDown } from "lucide-react";
+import { Mail, Search, Info, ChevronUp, ChevronDown } from "lucide-react";
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { ReportButton } from "@/components/ReportModal";
 
 import ageData from "@/data/age.json";
 import gobiernoData from "@/data/gobierno.json";
@@ -78,15 +79,16 @@ function normalizeData(data: any[], categoria: string) {
 
 function calculateStats(data: any[]) {
   if (data.length === 0)
-    return { enX: 0, fueraDeX: 0, mastodon: 0, bluesky: 0, sinAlternativa: 0 };
-  let enX = 0, fueraDeX = 0, mastodon = 0, bluesky = 0, sinAlternativa = 0;
+    return { enX: 0, fueraDeX: 0, conBluesky: 0, conMastodon: 0, conAlternativa: 0, sinAlternativa: 0 };
+  let enX = 0, conBluesky = 0, conMastodon = 0, conAlternativa = 0, sinAlternativa = 0;
   for (const item of data) {
-    if (item.twitter_activo) enX++; else fueraDeX++;
-    if (item.mastodon)       mastodon++;
-    else if (item.bluesky)   bluesky++;
-    else                     sinAlternativa++;
+    if (item.twitter_activo) enX++;
+    if (item.bluesky)  conBluesky++;
+    if (item.mastodon) conMastodon++;
+    if (item.bluesky || item.mastodon) conAlternativa++;
+    else sinAlternativa++;
   }
-  return { enX, fueraDeX, mastodon, bluesky, sinAlternativa };
+  return { enX, fueraDeX: data.length - enX, conBluesky, conMastodon, conAlternativa, sinAlternativa };
 }
 
 // ── Badges de plataforma ───────────────────────────────────────────────────────
@@ -165,40 +167,7 @@ const FALLBACK_EMAILS: Record<string, string> = {
   Universidades: "informacion@universidad.es",
 };
 
-const REPO = "https://github.com/lopublico/saldeahi";
 
-function generateIssueUrl(item: any) {
-  const sub = item.detalle ? ` · ${item.detalle}` : "";
-  const row = (label: string, val: string | null) =>
-    `| ${label} | ${val ? `\`${val}\`` : "_sin cuenta_"} |`;
-  const body =
-`## Entidad
-**${item.nombre}** (${item.categoria}${sub})
-
-## Datos actuales
-
-| Campo | Valor |
-|-------|-------|
-${row("X / Twitter", item.twitter)}
-${row("Bluesky", item.bluesky)}
-${row("Mastodon", item.mastodon)}
-${row("Email", item.email)}
-
-## ¿Qué hay que cambiar?
-
-- [ ] X / Twitter → el correcto es:
-- [ ] Bluesky → el correcto es:
-- [ ] Mastodon → el correcto es:
-- [ ] Email → el correcto es:
-- [ ] La cuenta ya no existe o está suspendida
-- [ ] Falta una cuenta que no aparece
-- [ ] Otro motivo:
-
----
-_Gracias por ayudar a mantener los datos actualizados._`;
-  const title = `Corrección de datos: ${item.nombre}`;
-  return `${REPO}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&labels=${encodeURIComponent("datos")}`;
-}
 
 function generateMailto(item: any) {
   const email   = item.email || FALLBACK_EMAILS[item.categoria] || "info@gobierno.es";
@@ -228,16 +197,13 @@ const MobileCard = ({ item }: { item: any }) => (
           <PlatformBadge key={key} label={label} {...badgeProps(item, key)} />
         ))}
       </div>
-      <div className="flex items-center gap-1">
-        <Button variant="outline" size="sm" className="h-7 px-2.5 text-xs" asChild>
+      <div className="flex items-center gap-1.5">
+        <Button variant="outline" size="sm" className="h-7 px-2.5 text-xs text-foreground border-border hover:bg-muted" asChild>
           <a href={generateMailto(item)}>
             <Mail className="h-3 w-3 mr-1" />Exigir
           </a>
         </Button>
-        <Button variant="ghost" size="icon" className="h-6 w-6 opacity-40 hover:opacity-70"
-          onClick={() => window.open(generateIssueUrl(item), "_blank")}>
-          <Flag className="h-3 w-3 text-muted-foreground" />
-        </Button>
+        <ReportButton item={item} />
       </div>
     </div>
   </div>
@@ -315,7 +281,7 @@ function TabRow({ items, active, onSelect }: {
 interface AppSectionProps {
   initialStats: {
     enX: number; fueraDeX: number;
-    mastodon: number; bluesky: number; sinAlternativa: number;
+    conBluesky: number; conMastodon: number; conAlternativa: number; sinAlternativa: number;
   };
 }
 
@@ -396,9 +362,8 @@ export function AppSection({ initialStats }: AppSectionProps) {
         : <ChevronDown className="h-3 w-3 inline ml-0.5" />
       : <span className="opacity-30 text-[10px] ml-0.5">↕</span>;
 
-  const half    = Math.ceil(TAB_ITEMS.length / 2);
-  const totalX  = stats.enX + stats.fueraDeX;
-  const totalFed = stats.mastodon + stats.bluesky + stats.sinAlternativa;
+  const half  = Math.ceil(TAB_ITEMS.length / 2);
+  const total = stats.enX + stats.fueraDeX;
 
   // Clases repetidas
   const TH_SORT = "py-2 px-4 text-[11px] uppercase tracking-wide font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors text-left";
@@ -412,16 +377,16 @@ export function AppSection({ initialStats }: AppSectionProps) {
         {/* Stats */}
         <div className="w-full max-w-2xl mx-auto px-4 space-y-4">
           <StatBar
-            pct={totalX > 0 ? Math.round((stats.enX / totalX) * 100) : 0}
+            pct={total > 0 ? Math.round((stats.enX / total) * 100) : 0}
             barClass="bg-red-400"
-            label="siguen en X"
-            detail={`${stats.enX} en X · ${stats.fueraDeX} han salido`}
+            label="activos en X en los últimos 30 días"
+            detail={`${stats.enX} con actividad reciente · ${stats.fueraDeX} sin actividad o sin cuenta`}
           />
           <StatBar
-            pct={totalFed > 0 ? Math.round(((stats.mastodon + stats.bluesky) / totalFed) * 100) : 0}
+            pct={total > 0 ? Math.round((stats.conAlternativa / total) * 100) : 0}
             barClass="bg-sky-400"
-            label="con alternativa (Bluesky o Mastodon)"
-            detail={`${stats.mastodon} en Mastodon · ${stats.bluesky} en Bluesky`}
+            label="con presencia en Bluesky o Mastodon"
+            detail={`${stats.conBluesky} en Bluesky · ${stats.conMastodon} en Mastodon`}
             tip="Bluesky usa AT Protocol, actualmente menos descentralizado que ActivityPub (Mastodon)."
           />
         </div>
@@ -553,32 +518,23 @@ export function AppSection({ initialStats }: AppSectionProps) {
                             <PlatformBadge label={label} {...badgeProps(item, key)} />
                           </TableCell>
                         ))}
-                        <TableCell className="py-2 px-3 align-middle w-44">
+                        <TableCell className="py-2 px-3 align-middle w-16">
                           <div className="flex items-center gap-1 justify-end">
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button variant="outline" size="sm"
-                                  className="h-7 px-2 text-[11px] gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                <Button variant="ghost" size="icon"
+                                  className="h-7 w-7 text-foreground hover:bg-muted opacity-75 hover:opacity-100 transition-all"
                                   asChild>
-                                  <a href={generateMailto(item)}>
-                                    <Mail className="h-3 w-3 shrink-0" />
-                                    Exigir migración
+                                  <a href={generateMailto(item)} aria-label="Pedir migración a redes federadas">
+                                    <Mail className="h-3.5 w-3.5" />
                                   </a>
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent side="top" className="text-xs max-w-[200px] text-left">
-                                Abre tu cliente de correo con un borrador pidiendo a {item.nombre} que se establezca en redes federadas.
+                                Enviar correo a {item.nombre} pidiendo que se establezca en redes federadas
                               </TooltipContent>
                             </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 opacity-40 hover:opacity-70 transition-opacity"
-                                  onClick={() => window.open(generateIssueUrl(item), "_blank")}>
-                                  <Flag className="h-3 w-3 text-muted-foreground" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="text-xs">Proponer corrección de datos</TooltipContent>
-                            </Tooltip>
+                            <ReportButton item={item} />
                           </div>
                         </TableCell>
                       </TableRow>

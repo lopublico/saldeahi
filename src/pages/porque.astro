@@ -3,8 +3,8 @@ import Layout from "@/layouts/Layout.astro";
 ---
 
 <Layout
-  title="sal de ahí"
-  description="Exige a tus representantes e instituciones públicas que abandonen redes sociales gobernadas por oligarcas."
+  title="Por qué · sal de ahí"
+  description="Argumentos sobre la presencia de instituciones públicas en redes sociales controladas por empresas privadas."
 >
   <h2
     slot="subtitle"
@@ -16,43 +16,100 @@ import Layout from "@/layouts/Layout.astro";
     Exige a tus representantes que abandonen redes gobernadas por oligarcas.
   </h2>
 
-  <div class="text-left px-4 sm:px-6 max-w-4xl mx-auto space-y-6 mt-10">
-    <p class="mt-10">
-  <strong class="text-xl ">Por qué hay que salir de ahí</strong><br><br>
-  Las instituciones públicas españolas siguen usando redes sociales controladas por empresas privadas para comunicarse con la ciudadanía de forma prácticamente prioritaria: comunicados oficiales, estado de infraestructuras y servicios, alertas...<strong> La conversación pública e información gubernamental no debería estar supeditada al patio de recreo de unos pocos tecnócratas</strong>.
-</p>
+  <div class="text-left px-4 sm:px-6 max-w-3xl mx-auto space-y-8 mt-10 pb-16 text-sm leading-relaxed">
 
-<p>
-  La <a class=" underline" href="https://ec.social-network.europa.eu/@EUCommission" target="_blank">Comisión Europea</a> opera su propia instancia de Mastodon (<span class="italic font-bold">social.network.europa.eu</span>) desde 2022, precisamente porque entiende que la comunicación institucional necesita infraestructuras abiertas y controlables. No es un experimento: es una apuesta seria por la soberanía digital a la que poco a poco se están uniendo agentes políticos como la <i>Vicepresidenta ejecutiva de la Comisión Europea para la Soberanía Tecnológica, la Seguridad y la Democracia,</i> <a class="underline" href="https://ec.social-network.europa.eu/@HennaVirkkunen">Henna Virkkunen</a>.
+    <!-- Sección 1 -->
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold">La dependencia institucional de plataformas privadas</h2>
 
+      <p>
+        Las instituciones públicas españolas utilizan plataformas de comunicación controladas por corporaciones privadas como canal prioritario para relacionarse con la ciudadanía: comunicados oficiales, información sobre servicios, alertas de emergencia y comparecencias públicas se distribuyen mayoritariamente a través de X/Twitter, Meta o YouTube. Esta situación plantea interrogantes sobre la sostenibilidad y la legitimidad democrática del modelo.
+      </p>
 
-</p>
+      <p>
+        La dependencia comunicativa de las administraciones públicas respecto a plataformas privadas no es un problema meramente técnico. Implica que las condiciones bajo las cuales los ciudadanos acceden a la información pública —incluyendo qué contenido se amplifica y cuál se limita— quedan sujetas a decisiones unilaterales de empresas privadas con intereses propios. La adquisición de Twitter por Elon Musk en 2022 y los cambios subsiguientes en la política de moderación y en el algoritmo de distribución ilustran la volatilidad de estas condiciones.
+      </p>
 
-<p class="mt-10">
-  <strong class="text-xl ">El fediverso es la alternativa</strong><br><br>
-Mastodon y otras redes federadas funcionan como el email: cada organismo puede tener su propio servidor, pero todos hablan entre sí gracias a un protocolo abierto (ActivityPub). No hay un dueño central que pueda cambiar las reglas o privatizar la conversación, ni siquiera los gobiernos. Y lo mejor es que <b>los ciudadanos no están obligados a usar las instancias públicas</b>: pueden abrir su cuenta en cualquier servidor —independiente, comunitario o incluso autogestionado— y aun así participar plenamente en la conversación de los servidores gubernamentales. Así mantienen su autonomía y, si un servidor se tuerce, siempre pueden migrar a otro sin perder su identidad digital. Tienes más información sobre cómo empezar a usar Mastodon <a class="underline font-bold" href="https://lainterseccion.net/crecer-en-redes/guia-para-comenzar-a-usar-mastodon/" target="_blank">aquí</a>.</p>
+      <p>
+        Este proyecto registra de forma sistemática la presencia de {"{"}totales{"}"}—categoría, nombre, plataforma y actividad reciente— con el objetivo de proporcionar datos empíricos para el debate sobre soberanía digital de las administraciones públicas.
+      </p>
+    </section>
 
-<p class="mt-10">
-  <strong class="text-xl ">¿Y Bluesky?</strong><br><br>
-  El protocolo ATproto todavía no es tan descentralizado como Mastodon. La propia documentación de Bluesky admite que habrá pocos relays con cobertura completa, lo que significa que el control sigue más concentrado de lo deseable. No es centralizado como X, pero tampoco es el fediverso. De ahí que Mastodon se perfile como una apuesta a largo plazo.
-</p>
+    <!-- Sección 2 -->
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold">El fediverso como alternativa estructural</h2>
 
+      <p>
+        Mastodon y otras aplicaciones basadas en <strong>ActivityPub</strong> —el protocolo de la W3C que rige la comunicación entre servidores del fediverso— ofrecen una arquitectura radicalmente distinta. Cada organismo puede operar su propio servidor, que se comunica con el resto de la red sin necesidad de intermediario central. No existe un propietario único con capacidad para modificar las reglas de forma unilateral o privatizar el acceso a los datos.
+      </p>
 
-<p class="mt-10">
-  <strong class="text-xl ">Lo que pedimos</strong>
-</p>
-<ul class="list-disc pl-5 space-y-2">
-  <li>Que ministerios, parlamentos, universidades y ayuntamientos <span class="font-bold text-violet-600">operen sus propias instancias de Mastodon o usen servidores públicos verificables</span> como única forma de garantizar la soberanía digital.</li>
-  <li>Que <span class="font-bold text-violet-600">la información pública no dependa de algoritmos opacos ni de empresas</span> que pueden cambiar las condiciones cuando les apetezca.</li>
-  <li>Que <span class="font-bold text-violet-600">se cumpla la Ley de Servicios Digitales europea</span>: transparencia, rendición de cuentas y control sobre los espacios donde se gestiona la conversación democrática.</li>
-</ul>
+      <p>
+        La <a class="underline" href="https://ec.social-network.europa.eu/@EUCommission" target="_blank">Comisión Europea</a> opera su propia instancia de Mastodon (<span class="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">social.network.europa.eu</span>) desde noviembre de 2022. La decisión se enmarca en una estrategia más amplia de soberanía tecnológica: la infraestructura comunicativa de una institución pública no debería estar alojada en sistemas sobre los que la institución no tiene control alguno. Funcionarios de la talla de la vicepresidenta ejecutiva para la Soberanía Tecnológica, Henna Virkkunen, participan activamente desde este espacio.
+      </p>
 
-<p>
-  La tecnología ya existe. La Comisión Europea lo está haciendo. <span class="font-bold underline">Solo falta que España se suba al carro</span>.
-</p>
+      <p>
+        Desde el punto de vista del ciudadano, la arquitectura federada preserva su autonomía: puede abrir cuenta en cualquier servidor —independiente, comunitario, o autogestionado— y participar de igual modo en la conversación de los servidores institucionales. Si un servidor cambia de política, el usuario puede migrar sin perder su identidad ni sus conexiones.
+      </p>
+    </section>
 
-<p>
-  <img src="/og-image.png" alt="" class="max-w-full h-auto rounded-lg" />
-</p>
+    <!-- Sección 3 -->
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold">Bluesky y los límites de la descentralización parcial</h2>
+
+      <p>
+        Bluesky implementa el protocolo AT Protocol (atproto), diseñado con objetivos de descentralización, pero con diferencias sustanciales respecto a ActivityPub en la práctica actual. La propia documentación técnica de Bluesky reconoce que el componente de relay —responsable de indexar y distribuir el contenido entre nodos— opera de forma centralizada en la práctica: existe un número muy reducido de relays con cobertura completa de la red, todos ellos operados por Bluesky PBC.
+      </p>
+
+      <p>
+        Esto significa que, aunque cualquier usuario puede alojar su propio PDS (<em>Personal Data Server</em>), la distribución del contenido sigue dependiendo de la infraestructura centralizada de Bluesky PBC. La interoperabilidad entre PDS independientes sin pasar por los relays de Bluesky es actualmente limitada.
+      </p>
+
+      <p>
+        Bluesky representa una mejora respecto a X en términos de portabilidad de datos y apertura del protocolo. Sin embargo, no resuelve el problema de fondo de la dependencia institucional en la misma medida que ActivityPub. Este proyecto registra la presencia en Bluesky como indicador positivo de apertura hacia alternativas, sin equipararlo a una adopción plena de infraestructura federada.
+      </p>
+    </section>
+
+    <!-- Sección 4 -->
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold">Marco normativo</h2>
+
+      <p>
+        El Reglamento de Servicios Digitales (DSA, Reglamento UE 2022/2065) establece obligaciones de transparencia y rendición de cuentas para las grandes plataformas en línea. Sin embargo, no obliga a las administraciones públicas a usar —o abandonar— ninguna plataforma en concreto. La decisión sobre qué canales de comunicación digital utilizar sigue siendo competencia de cada institución.
+      </p>
+
+      <p>
+        Diversas declaraciones y resoluciones del Parlamento Europeo han instado a las instituciones europeas a reducir su dependencia de plataformas de terceros para la comunicación institucional. La <a class="underline" href="https://digital-strategy.ec.europa.eu/en/policies/digital-services-act-package" target="_blank">Estrategia Digital Europea</a> contempla la soberanía tecnológica como uno de sus ejes, aunque sin compromisos concretos sobre comunicación institucional en redes sociales.
+      </p>
+    </section>
+
+    <!-- Sección 5: lo que muestra el proyecto -->
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold">Lo que muestran los datos</h2>
+
+      <p>
+        Los datos recogidos en este proyecto permiten observar la distribución real de la presencia institucional española en las tres plataformas analizadas. Se puede constatar qué categorías de instituciones mantienen actividad en X, cuáles han abierto cuentas en plataformas alternativas, y cuáles no tienen presencia verificada en ninguna de las tres.
+      </p>
+
+      <p>
+        El análisis no pretende prescribir qué plataformas deben usar las instituciones. Su objetivo es documentar el estado actual con el suficiente rigor metodológico para que los datos puedan usarse como referencia objetiva en investigaciones sobre comunicación institucional, políticas de soberanía digital o evolución del ecosistema de redes sociales en el contexto público español.
+      </p>
+
+      <div class="rounded-xl border border-border/60 bg-muted/20 px-4 py-4 space-y-2 mt-2">
+        <p class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Para más información</p>
+        <ul class="space-y-1.5 text-xs text-muted-foreground">
+          <li>· <a class="underline" href="https://ec.social-network.europa.eu/@EUCommission" target="_blank">Cuenta de la Comisión Europea en Mastodon</a></li>
+          <li>· <a class="underline" href="https://www.w3.org/TR/activitypub/" target="_blank">Especificación ActivityPub — W3C</a></li>
+          <li>· <a class="underline" href="https://atproto.com" target="_blank">Documentación AT Protocol (Bluesky)</a></li>
+          <li>· <a class="underline" href="https://digital-strategy.ec.europa.eu/en" target="_blank">Estrategia Digital Europea — Comisión Europea</a></li>
+          <li>· <a class="underline" href="https://lainterseccion.net/crecer-en-redes/guia-para-comenzar-a-usar-mastodon/" target="_blank">Guía para empezar a usar Mastodon</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Nota de imagen -->
+    <p>
+      <img src="/og-image.png" alt="" class="max-w-full h-auto rounded-lg" />
+    </p>
+
   </div>
 </Layout>

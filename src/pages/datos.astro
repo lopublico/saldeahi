@@ -55,35 +55,48 @@ const CATEGORIES = [
 
 const catStats = CATEGORIES.map(({ key, label, data }) => {
   const items = (data as any[]).map(normalizeItem);
-  const total        = items.length;
-  const enX          = items.filter(x => x.twitter_activo).length;
-  const fueraDeX     = total - enX;
-  const conBluesky   = items.filter(x => x.bluesky).length;
-  const conMastodon  = items.filter(x => x.mastodon).length;
+  const total          = items.length;
+  const conTwitter     = items.filter(x => x.twitter).length;
+  const enX            = items.filter(x => x.twitter_activo).length;
+  const conBluesky     = items.filter(x => x.bluesky).length;
+  const activoBsky     = items.filter(x => x.bluesky_activo).length;
+  const conMastodon    = items.filter(x => x.mastodon).length;
+  const activoMstdn    = items.filter(x => x.mastodon_activo).length;
   const sinAlternativa = items.filter(x => !x.bluesky && !x.mastodon).length;
-  const pctFuera     = total > 0 ? Math.round((fueraDeX / total) * 100) : 0;
-  const pctBsky      = total > 0 ? Math.round((conBluesky / total) * 100) : 0;
-  return { key, label, total, enX, fueraDeX, conBluesky, conMastodon, sinAlternativa, pctFuera, pctBsky };
+  const sinNinguna     = items.filter(x => !x.twitter && !x.bluesky && !x.mastodon).length;
+  const pctFuera       = total > 0 ? Math.round(((total - enX) / total) * 100) : 0;
+  const pctBsky        = total > 0 ? Math.round((conBluesky / total) * 100) : 0;
+  return { key, label, total, conTwitter, enX, conBluesky, activoBsky, conMastodon, activoMstdn, sinAlternativa, sinNinguna, pctFuera, pctBsky };
 });
 
 const totales = catStats.reduce(
   (acc, c) => ({
     total:          acc.total          + c.total,
+    conTwitter:     acc.conTwitter     + c.conTwitter,
     enX:            acc.enX            + c.enX,
-    fueraDeX:       acc.fueraDeX       + c.fueraDeX,
     conBluesky:     acc.conBluesky     + c.conBluesky,
+    activoBsky:     acc.activoBsky     + c.activoBsky,
     conMastodon:    acc.conMastodon    + c.conMastodon,
+    activoMstdn:    acc.activoMstdn    + c.activoMstdn,
     sinAlternativa: acc.sinAlternativa + c.sinAlternativa,
+    sinNinguna:     acc.sinNinguna     + c.sinNinguna,
   }),
-  { total: 0, enX: 0, fueraDeX: 0, conBluesky: 0, conMastodon: 0, sinAlternativa: 0 }
+  { total: 0, conTwitter: 0, enX: 0, conBluesky: 0, activoBsky: 0, conMastodon: 0, activoMstdn: 0, sinAlternativa: 0, sinNinguna: 0 }
 );
 
 const conAlternativa = totales.total - totales.sinAlternativa;
-const pctFueraDeX    = totales.total > 0 ? Math.round((totales.fueraDeX    / totales.total) * 100) : 0;
-const pctConAlt      = totales.total > 0 ? Math.round((conAlternativa      / totales.total) * 100) : 0;
-const pctEnX         = totales.total > 0 ? Math.round((totales.enX         / totales.total) * 100) : 0;
-const pctBsky        = totales.total > 0 ? Math.round((totales.conBluesky  / totales.total) * 100) : 0;
-const pctMstdn       = totales.total > 0 ? Math.round((totales.conMastodon / totales.total) * 100) : 0;
+const pctFueraDeX       = totales.total > 0 ? Math.round(((totales.total - totales.enX)  / totales.total) * 100) : 0;
+const pctConAlt         = totales.total > 0 ? Math.round((conAlternativa                  / totales.total) * 100) : 0;
+const pctEnX            = totales.total > 0 ? Math.round((totales.enX                     / totales.total) * 100) : 0;
+const pctConTw          = totales.total > 0 ? Math.round((totales.conTwitter              / totales.total) * 100) : 0;
+const pctBsky           = totales.total > 0 ? Math.round((totales.conBluesky             / totales.total) * 100) : 0;
+const pctActivoBsky     = totales.conBluesky > 0 ? Math.round((totales.activoBsky        / totales.conBluesky) * 100) : 0;
+const pctMstdn          = totales.total > 0 ? Math.round((totales.conMastodon            / totales.total) * 100) : 0;
+const pctActivoMstdn    = totales.conMastodon > 0 ? Math.round((totales.activoMstdn      / totales.conMastodon) * 100) : 0;
+const pctSinNinguna     = totales.total > 0 ? Math.round((totales.sinNinguna             / totales.total) * 100) : 0;
+const pctNingW          = totales.total > 0 ? Math.round((totales.sinAlternativa         / totales.total) * 100) : 0;
+const pctActBskyOfTotal = totales.total > 0 ? Math.round((totales.activoBsky             / totales.total) * 100) : 0;
+const pctActMstdnOfTotal= totales.total > 0 ? Math.round((totales.activoMstdn            / totales.total) * 100) : 0;
 
 // ── Congreso: por grupo parlamentario (solo diputados) ────────────────────────
 const CONGRESO_GRUPO_LABELS: Record<string, string> = {
@@ -98,60 +111,67 @@ const CONGRESO_GRUPO_LABELS: Record<string, string> = {
   "Grupo Parlamentario Vasco (EAJ-PNV)":          "PNV",
 };
 
-const congresoGruposMap: Record<string, { total: number; enX: number; fueraDeX: number; conBluesky: number; conMastodon: number }> = {};
+type GrupoStat = { total: number; enX: number; fueraDeX: number; conBluesky: number; activoBsky: number; conMastodon: number };
+
+const congresoGruposMap: Record<string, GrupoStat> = {};
 
 for (const raw of congresoData as any[]) {
   if (raw.tipo !== "Diputado/a" || !raw.grupo) continue;
   const label = CONGRESO_GRUPO_LABELS[raw.grupo] ?? raw.grupo;
-  if (!congresoGruposMap[label]) congresoGruposMap[label] = { total: 0, enX: 0, fueraDeX: 0, conBluesky: 0, conMastodon: 0 };
+  if (!congresoGruposMap[label]) congresoGruposMap[label] = { total: 0, enX: 0, fueraDeX: 0, conBluesky: 0, activoBsky: 0, conMastodon: 0 };
   const g = congresoGruposMap[label];
   const item = normalizeItem(raw);
   g.total++;
   if (item.twitter_activo) g.enX++; else g.fueraDeX++;
-  if (item.bluesky) g.conBluesky++;
-  if (item.mastodon) g.conMastodon++;
+  if (item.bluesky)        g.conBluesky++;
+  if (item.bluesky_activo) g.activoBsky++;
+  if (item.mastodon)       g.conMastodon++;
 }
 
 const CONGRESO_GRUPO_ORDER = ["PP", "PSOE", "VOX", "SUMAR", "ERC", "EH Bildu", "Junts", "PNV", "Mixto"];
 const gruposStats = CONGRESO_GRUPO_ORDER
   .filter(k => congresoGruposMap[k])
-  .map(k => ({ label: k, ...congresoGruposMap[k], pctFuera: Math.round((congresoGruposMap[k].fueraDeX / congresoGruposMap[k].total) * 100) }));
+  .map(k => ({
+    label: k, ...congresoGruposMap[k],
+    pctFuera: Math.round((congresoGruposMap[k].fueraDeX / congresoGruposMap[k].total) * 100),
+    pctBsky:  Math.round((congresoGruposMap[k].conBluesky / congresoGruposMap[k].total) * 100),
+  }));
 
 // ── Senado: por grupo parlamentario ───────────────────────────────────────────
 const SENADO_GRUPO_LABELS: Record<string, string> = {
-  "GPP":   "PP",
-  "GPS":   "PSOE",
-  "GPERB": "ERC / EH Bildu",
-  "GPIC":  "IC",
-  "GPPLU": "Plurinacional",
-  "GPV":   "PNV",
-  "GPMX":  "Mixto",
+  "GPP":      "PP",
+  "GPS":      "PSOE",
+  "GPERB":    "ERC / EH Bildu",
+  "GPIC":     "IC",
+  "GPPLU":    "Plurinacional",
+  "GPV":      "PNV",
+  "GPMX":     "Mixto",
+  "GPEAJPNV": "PNV",
 };
 
-const senadoGruposMap: Record<string, { total: number; enX: number; fueraDeX: number; conBluesky: number; conMastodon: number }> = {};
+const senadoGruposMap: Record<string, GrupoStat> = {};
 
 for (const raw of senadoData as any[]) {
   if (raw.tipo !== "Senador/a" || !raw.grupo) continue;
   const label = SENADO_GRUPO_LABELS[raw.grupo] ?? raw.grupo;
-  if (!senadoGruposMap[label]) senadoGruposMap[label] = { total: 0, enX: 0, fueraDeX: 0, conBluesky: 0, conMastodon: 0 };
+  if (!senadoGruposMap[label]) senadoGruposMap[label] = { total: 0, enX: 0, fueraDeX: 0, conBluesky: 0, activoBsky: 0, conMastodon: 0 };
   const g = senadoGruposMap[label];
   const item = normalizeItem(raw);
   g.total++;
   if (item.twitter_activo) g.enX++; else g.fueraDeX++;
-  if (item.bluesky) g.conBluesky++;
-  if (item.mastodon) g.conMastodon++;
+  if (item.bluesky)        g.conBluesky++;
+  if (item.bluesky_activo) g.activoBsky++;
+  if (item.mastodon)       g.conMastodon++;
 }
 
 const SENADO_GRUPO_ORDER = ["PP", "PSOE", "ERC / EH Bildu", "IC", "Plurinacional", "PNV", "Mixto"];
 const senadoGruposStats = SENADO_GRUPO_ORDER
   .filter(k => senadoGruposMap[k])
-  .map(k => ({ label: k, ...senadoGruposMap[k], pctFuera: Math.round((senadoGruposMap[k].fueraDeX / senadoGruposMap[k].total) * 100) }));
-
-// Widths for the platform bar
-const pctEnXW   = pctEnX;
-const pctBskyW  = pctBsky;
-const pctMstdnW = pctMstdn;
-const pctNingW  = totales.total > 0 ? Math.round((totales.sinAlternativa / totales.total) * 100) : 0;
+  .map(k => ({
+    label: k, ...senadoGruposMap[k],
+    pctFuera: Math.round((senadoGruposMap[k].fueraDeX / senadoGruposMap[k].total) * 100),
+    pctBsky:  Math.round((senadoGruposMap[k].conBluesky / senadoGruposMap[k].total) * 100),
+  }));
 
 function fmtDate(d: string | undefined) {
   if (!d) return "—";
@@ -185,111 +205,134 @@ function fmtDate(d: string | undefined) {
       <ExportButton client:load />
     </div>
 
-    <!-- Métricas clave -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-      <div class="rounded-xl border border-border/60 bg-card px-4 py-4">
-        <p class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground mb-1">Monitorizadas</p>
-        <p class="text-3xl font-bold tabular-nums">{totales.total}</p>
-        <p class="text-xs text-muted-foreground mt-1">entidades públicas</p>
+    <!-- Estadísticas clave -->
+    <div class="border-y border-border/50 py-6 space-y-6">
+      <div>
+        <p class="text-[11px] font-medium text-muted-foreground mb-3 uppercase tracking-wide">Presencia registrada</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-4">
+          <div>
+            <p class="text-xs text-muted-foreground mb-0.5">Entidades monitorizadas</p>
+            <p class="text-2xl font-bold tabular-nums">{totales.total}</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-0.5">Con cuenta en X / Twitter</p>
+            <p class="text-2xl font-bold tabular-nums">{pctConTw}%<span class="text-sm font-normal text-muted-foreground ml-1.5">({totales.conTwitter})</span></p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-0.5">Con cuenta en Bluesky</p>
+            <p class="text-2xl font-bold tabular-nums">{pctBsky}%<span class="text-sm font-normal text-muted-foreground ml-1.5">({totales.conBluesky})</span></p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-0.5">Con cuenta en Mastodon</p>
+            <p class="text-2xl font-bold tabular-nums">{pctMstdn}%<span class="text-sm font-normal text-muted-foreground ml-1.5">({totales.conMastodon})</span></p>
+          </div>
+        </div>
       </div>
-      <div class="rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/30 px-4 py-4">
-        <p class="text-[11px] uppercase tracking-wide font-medium text-emerald-700 dark:text-emerald-400 mb-1">Han salido de X</p>
-        <p class="text-3xl font-bold tabular-nums text-emerald-700 dark:text-emerald-400">{pctFueraDeX}%</p>
-        <p class="text-xs text-emerald-600/70 dark:text-emerald-500/70 mt-1">{totales.fueraDeX} entidades</p>
-      </div>
-      <div class="rounded-xl border border-sky-200 dark:border-sky-900/50 bg-sky-50 dark:bg-sky-950/30 px-4 py-4">
-        <p class="text-[11px] uppercase tracking-wide font-medium text-sky-700 dark:text-sky-400 mb-1">Con Bluesky</p>
-        <p class="text-3xl font-bold tabular-nums text-sky-700 dark:text-sky-400">{pctBsky}%</p>
-        <p class="text-xs text-sky-600/70 dark:text-sky-500/70 mt-1">{totales.conBluesky} entidades</p>
-      </div>
-      <div class="rounded-xl border border-violet-200 dark:border-violet-900/50 bg-violet-50 dark:bg-violet-950/30 px-4 py-4">
-        <p class="text-[11px] uppercase tracking-wide font-medium text-violet-700 dark:text-violet-400 mb-1">Con Mastodon</p>
-        <p class="text-3xl font-bold tabular-nums text-violet-700 dark:text-violet-400">{pctMstdn}%</p>
-        <p class="text-xs text-violet-600/70 dark:text-violet-500/70 mt-1">{totales.conMastodon} entidades</p>
+      <div class="pt-6 border-t border-border/30">
+        <p class="text-[11px] font-medium text-muted-foreground mb-3 uppercase tracking-wide">Actividad <span class="font-normal normal-case">(últimos 30 días desde la fecha de referencia)</span></p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-4">
+          <div>
+            <p class="text-xs text-muted-foreground mb-0.5">Activas en X / Twitter</p>
+            <p class="text-2xl font-bold tabular-nums">{pctEnX}%<span class="text-sm font-normal text-muted-foreground ml-1.5">({totales.enX})</span></p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-0.5">Sin actividad en X</p>
+            <p class="text-2xl font-bold tabular-nums">{pctFueraDeX}%<span class="text-sm font-normal text-muted-foreground ml-1.5">({totales.total - totales.enX})</span></p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-0.5">Activas en Bluesky</p>
+            <p class="text-2xl font-bold tabular-nums">{totales.activoBsky}<span class="text-sm font-normal text-muted-foreground ml-1.5">({pctActivoBsky}% de con BS)</span></p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-0.5">Sin presencia en ninguna red</p>
+            <p class="text-2xl font-bold tabular-nums">{totales.sinNinguna}<span class="text-sm font-normal text-muted-foreground ml-1.5">({pctSinNinguna}%)</span></p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Barra de distribución de plataformas -->
-    <div class="rounded-xl border border-border/60 overflow-hidden">
-      <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30">
-        <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Distribución de presencia en plataformas</h3>
-      </div>
-      <div class="px-4 py-5 space-y-4">
+    <!-- Distribución por plataforma -->
+    <div>
+      <h2 class="text-base font-semibold mb-1">Distribución por plataforma</h2>
+      <p class="text-xs text-muted-foreground mb-5">Proporción de entidades con cuenta registrada (barra completa) y con actividad en los últimos 30 días (tramo oscuro) sobre el total de entidades monitorizadas.</p>
+      <div class="space-y-5">
         <!-- X / Twitter -->
         <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-xs font-medium">Siguen en X / Twitter</span>
-            <span class="text-xs tabular-nums text-muted-foreground">{totales.enX} de {totales.total} <span class="text-red-500 font-medium">({pctEnX}%)</span></span>
+          <div class="flex items-baseline justify-between mb-1.5 gap-4">
+            <span class="text-sm font-medium">X / Twitter</span>
+            <span class="text-xs tabular-nums text-muted-foreground shrink-0">{totales.conTwitter} con cuenta ({pctConTw}%) · {totales.enX} activas ({pctEnX}%)</span>
           </div>
-          <div class="flex h-2 w-full overflow-hidden rounded-full bg-muted">
-            <div class="h-full bg-red-400 transition-all" style={`width:${pctEnX}%`} />
+          <div class="flex h-2 w-full overflow-hidden bg-border/30">
+            <div class="h-full bg-foreground/75" style={`width:${pctEnX}%`} />
+            <div class="h-full bg-foreground/20" style={`width:${pctConTw - pctEnX}%`} />
           </div>
         </div>
         <!-- Bluesky -->
         <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-xs font-medium">Presencia en Bluesky</span>
-            <span class="text-xs tabular-nums text-muted-foreground">{totales.conBluesky} de {totales.total} <span class="text-sky-500 font-medium">({pctBsky}%)</span></span>
+          <div class="flex items-baseline justify-between mb-1.5 gap-4">
+            <span class="text-sm font-medium">Bluesky</span>
+            <span class="text-xs tabular-nums text-muted-foreground shrink-0">{totales.conBluesky} con cuenta ({pctBsky}%) · {totales.activoBsky} activas ({pctActBskyOfTotal}% del total, {pctActivoBsky}% de con BS)</span>
           </div>
-          <div class="flex h-2 w-full overflow-hidden rounded-full bg-muted">
-            <div class="h-full bg-sky-400 transition-all" style={`width:${pctBsky}%`} />
+          <div class="flex h-2 w-full overflow-hidden bg-border/30">
+            <div class="h-full bg-foreground/75" style={`width:${pctActBskyOfTotal}%`} />
+            <div class="h-full bg-foreground/20" style={`width:${pctBsky - pctActBskyOfTotal}%`} />
           </div>
         </div>
         <!-- Mastodon -->
         <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-xs font-medium">Presencia en Mastodon</span>
-            <span class="text-xs tabular-nums text-muted-foreground">{totales.conMastodon} de {totales.total} <span class="text-violet-500 font-medium">({pctMstdn}%)</span></span>
+          <div class="flex items-baseline justify-between mb-1.5 gap-4">
+            <span class="text-sm font-medium">Mastodon</span>
+            <span class="text-xs tabular-nums text-muted-foreground shrink-0">{totales.conMastodon} con cuenta ({pctMstdn}%) · {totales.activoMstdn} activas ({pctActMstdnOfTotal}% del total, {pctActivoMstdn}% de con MD)</span>
           </div>
-          <div class="flex h-2 w-full overflow-hidden rounded-full bg-muted">
-            <div class="h-full bg-violet-400 transition-all" style={`width:${pctMstdn}%`} />
+          <div class="flex h-2 w-full overflow-hidden bg-border/30">
+            <div class="h-full bg-foreground/75" style={`width:${pctActMstdnOfTotal}%`} />
+            <div class="h-full bg-foreground/20" style={`width:${pctMstdn - pctActMstdnOfTotal}%`} />
           </div>
         </div>
         <!-- Sin alternativa -->
         <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-xs font-medium">Sin ninguna alternativa a X</span>
-            <span class="text-xs tabular-nums text-muted-foreground">{totales.sinAlternativa} de {totales.total} <span class="text-amber-500 font-medium">({pctNingW}%)</span></span>
+          <div class="flex items-baseline justify-between mb-1.5 gap-4">
+            <span class="text-sm font-medium">Sin alternativa a X <span class="font-normal text-muted-foreground">(sin Bluesky ni Mastodon)</span></span>
+            <span class="text-xs tabular-nums text-muted-foreground shrink-0">{totales.sinAlternativa} ({pctNingW}%)</span>
           </div>
-          <div class="flex h-2 w-full overflow-hidden rounded-full bg-muted">
-            <div class="h-full bg-amber-400 transition-all" style={`width:${pctNingW}%`} />
+          <div class="flex h-2 w-full overflow-hidden bg-border/30">
+            <div class="h-full bg-foreground/40" style={`width:${pctNingW}%`} />
           </div>
         </div>
       </div>
+      <p class="text-[11px] text-muted-foreground/60 mt-3 flex gap-4">
+        <span>▪ oscuro: activas en los últimos 30 días</span>
+        <span>▪ claro: con cuenta, sin actividad reciente</span>
+      </p>
     </div>
 
-    <!-- Grupos parlamentarios: nota de contexto -->
-    <div class="rounded-xl border border-border/60 overflow-hidden">
-      <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30 flex items-center justify-between">
-        <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Presencia por grupo parlamentario</h3>
-        <span class="text-[11px] text-muted-foreground/60">XV Legislatura · solo parlamentarios en activo</span>
-      </div>
-      <div class="px-4 py-3 text-xs text-muted-foreground leading-relaxed border-b border-border/30 bg-muted/10">
-        Se contabilizan únicamente diputados/as y senadores/as con escaño actual. No incluye presidencia, instituciones ni grupos parlamentarios como entidad. Los grupos del Senado usan las abreviaturas oficiales del senado.es.
-      </div>
+    <!-- Grupos parlamentarios -->
+    <div>
+      <h2 class="text-base font-semibold mb-1">Presencia por grupo parlamentario</h2>
+      <p class="text-xs text-muted-foreground mb-5">XV Legislatura. Solo diputados/as y senadores/as con escaño actual; no incluye presidencia de cámara ni grupos como entidad. <em>Sin act. X</em>: sin publicación en X en los últimos 30 días. <em>BS activo</em>: con publicación en Bluesky en los últimos 30 días.</p>
 
       <!-- Congreso -->
-      <div class="px-4 pt-3 pb-1">
-        <p class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Congreso de los Diputados</p>
-      </div>
-      <div class="overflow-x-auto">
+      <p class="text-xs font-medium text-muted-foreground mb-2">Congreso de los Diputados</p>
+      <div class="overflow-x-auto border border-border/50 mb-8">
         <table class="w-full table-fixed" data-sortable>
           <colgroup>
             <col />
-            <col style="width:56px" />
-            <col style="width:160px" />
+            <col style="width:48px" />
+            <col style="width:140px" />
+            <col style="width:64px" />
+            <col style="width:70px" />
+            <col style="width:70px" />
             <col style="width:72px" />
-            <col style="width:80px" />
-            <col style="width:88px" />
           </colgroup>
           <thead>
             <tr class="border-b border-border/40 bg-muted/20">
-              <th data-sort="grupo" class="sortable-th py-2 px-4 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-left">Grupo<span class="sort-ind"></span></th>
-              <th data-sort="total" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">N<span class="sort-ind"></span></th>
-              <th data-sort="pctFuera" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-left">Fuera de X %<span class="sort-ind"></span></th>
-              <th data-sort="enX" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">En X<span class="sort-ind"></span></th>
-              <th data-sort="bsky" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">Bluesky<span class="sort-ind"></span></th>
-              <th data-sort="mstdn" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">Mastodon<span class="sort-ind"></span></th>
+              <th data-sort="grupo" class="sortable-th py-2 px-4 text-[11px] font-medium text-muted-foreground text-left">Grupo<span class="sort-ind"></span></th>
+              <th data-sort="total" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">N<span class="sort-ind"></span></th>
+              <th data-sort="pctFuera" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-left">Sin act. X<span class="sort-ind"></span></th>
+              <th data-sort="enX" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Act. X<span class="sort-ind"></span></th>
+              <th data-sort="bsky" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Bluesky<span class="sort-ind"></span></th>
+              <th data-sort="bskyA" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">BS activo<span class="sort-ind"></span></th>
+              <th data-sort="mstdn" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Mastodon<span class="sort-ind"></span></th>
             </tr>
           </thead>
           <tbody>
@@ -299,15 +342,16 @@ function fmtDate(d: string | undefined) {
                 <td data-col="total" data-val={g.total} class="py-2 px-3 text-sm tabular-nums text-right text-muted-foreground">{g.total}</td>
                 <td data-col="pctFuera" data-val={g.pctFuera} class="py-2 px-3">
                   <div class="flex items-center gap-2">
-                    <div class="flex h-1.5 w-16 overflow-hidden rounded-full bg-muted shrink-0">
-                      <div class="h-full bg-emerald-500" style={`width:${g.pctFuera}%`} />
+                    <div class="flex h-1.5 w-14 overflow-hidden bg-border/30 shrink-0">
+                      <div class="h-full bg-foreground/40" style={`width:${g.pctFuera}%`} />
                     </div>
-                    <span class="text-xs tabular-nums font-medium text-emerald-600 dark:text-emerald-400 shrink-0">{g.pctFuera}%</span>
+                    <span class="text-xs tabular-nums text-muted-foreground shrink-0">{g.pctFuera}%</span>
                   </div>
                 </td>
-                <td data-col="enX" data-val={g.enX} class="py-2 px-3 text-sm tabular-nums text-right text-red-500">{g.enX}</td>
-                <td data-col="bsky" data-val={g.conBluesky} class="py-2 px-3 text-sm tabular-nums text-right text-sky-500">{g.conBluesky}</td>
-                <td data-col="mstdn" data-val={g.conMastodon} class="py-2 px-3 text-sm tabular-nums text-right text-violet-500">{g.conMastodon}</td>
+                <td data-col="enX" data-val={g.enX} class="py-2 px-3 text-sm tabular-nums text-right">{g.enX}</td>
+                <td data-col="bsky" data-val={g.conBluesky} class="py-2 px-3 text-sm tabular-nums text-right">{g.conBluesky}</td>
+                <td data-col="bskyA" data-val={g.activoBsky} class="py-2 px-3 text-sm tabular-nums text-right font-medium">{g.activoBsky}</td>
+                <td data-col="mstdn" data-val={g.conMastodon} class="py-2 px-3 text-sm tabular-nums text-right">{g.conMastodon}</td>
               </tr>
             ))}
           </tbody>
@@ -315,27 +359,27 @@ function fmtDate(d: string | undefined) {
       </div>
 
       <!-- Senado -->
-      <div class="px-4 pt-4 pb-1 border-t border-border/40 mt-1">
-        <p class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Senado de España</p>
-      </div>
-      <div class="overflow-x-auto">
+      <p class="text-xs font-medium text-muted-foreground mb-2">Senado de España</p>
+      <div class="overflow-x-auto border border-border/50">
         <table class="w-full table-fixed" data-sortable>
           <colgroup>
             <col />
-            <col style="width:56px" />
-            <col style="width:160px" />
+            <col style="width:48px" />
+            <col style="width:140px" />
+            <col style="width:64px" />
+            <col style="width:70px" />
+            <col style="width:70px" />
             <col style="width:72px" />
-            <col style="width:80px" />
-            <col style="width:88px" />
           </colgroup>
           <thead>
             <tr class="border-b border-border/40 bg-muted/20">
-              <th data-sort="grupo" class="sortable-th py-2 px-4 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-left">Grupo<span class="sort-ind"></span></th>
-              <th data-sort="total" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">N<span class="sort-ind"></span></th>
-              <th data-sort="pctFuera" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-left">Fuera de X %<span class="sort-ind"></span></th>
-              <th data-sort="enX" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">En X<span class="sort-ind"></span></th>
-              <th data-sort="bsky" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">Bluesky<span class="sort-ind"></span></th>
-              <th data-sort="mstdn" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">Mastodon<span class="sort-ind"></span></th>
+              <th data-sort="grupo" class="sortable-th py-2 px-4 text-[11px] font-medium text-muted-foreground text-left">Grupo<span class="sort-ind"></span></th>
+              <th data-sort="total" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">N<span class="sort-ind"></span></th>
+              <th data-sort="pctFuera" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-left">Sin act. X<span class="sort-ind"></span></th>
+              <th data-sort="enX" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Act. X<span class="sort-ind"></span></th>
+              <th data-sort="bsky" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Bluesky<span class="sort-ind"></span></th>
+              <th data-sort="bskyA" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">BS activo<span class="sort-ind"></span></th>
+              <th data-sort="mstdn" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Mastodon<span class="sort-ind"></span></th>
             </tr>
           </thead>
           <tbody>
@@ -345,15 +389,16 @@ function fmtDate(d: string | undefined) {
                 <td data-col="total" data-val={g.total} class="py-2 px-3 text-sm tabular-nums text-right text-muted-foreground">{g.total}</td>
                 <td data-col="pctFuera" data-val={g.pctFuera} class="py-2 px-3">
                   <div class="flex items-center gap-2">
-                    <div class="flex h-1.5 w-16 overflow-hidden rounded-full bg-muted shrink-0">
-                      <div class="h-full bg-emerald-500" style={`width:${g.pctFuera}%`} />
+                    <div class="flex h-1.5 w-14 overflow-hidden bg-border/30 shrink-0">
+                      <div class="h-full bg-foreground/40" style={`width:${g.pctFuera}%`} />
                     </div>
-                    <span class="text-xs tabular-nums font-medium text-emerald-600 dark:text-emerald-400 shrink-0">{g.pctFuera}%</span>
+                    <span class="text-xs tabular-nums text-muted-foreground shrink-0">{g.pctFuera}%</span>
                   </div>
                 </td>
-                <td data-col="enX" data-val={g.enX} class="py-2 px-3 text-sm tabular-nums text-right text-red-500">{g.enX}</td>
-                <td data-col="bsky" data-val={g.conBluesky} class="py-2 px-3 text-sm tabular-nums text-right text-sky-500">{g.conBluesky}</td>
-                <td data-col="mstdn" data-val={g.conMastodon} class="py-2 px-3 text-sm tabular-nums text-right text-violet-500">{g.conMastodon}</td>
+                <td data-col="enX" data-val={g.enX} class="py-2 px-3 text-sm tabular-nums text-right">{g.enX}</td>
+                <td data-col="bsky" data-val={g.conBluesky} class="py-2 px-3 text-sm tabular-nums text-right">{g.conBluesky}</td>
+                <td data-col="bskyA" data-val={g.activoBsky} class="py-2 px-3 text-sm tabular-nums text-right font-medium">{g.activoBsky}</td>
+                <td data-col="mstdn" data-val={g.conMastodon} class="py-2 px-3 text-sm tabular-nums text-right">{g.conMastodon}</td>
               </tr>
             ))}
           </tbody>
@@ -361,31 +406,32 @@ function fmtDate(d: string | undefined) {
       </div>
     </div>
 
-    <!-- Tabla por categoría -->
-    <div class="rounded-xl border border-border/60 overflow-hidden">
-      <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30">
-        <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Desglose por categoría</h3>
-      </div>
-      <div class="overflow-x-auto">
+    <!-- Desglose por categoría -->
+    <div>
+      <h2 class="text-base font-semibold mb-1">Desglose por categoría</h2>
+      <p class="text-xs text-muted-foreground mb-4"><em>Act. X</em>: activos en X en los últimos 30 días. <em>↳ total</em>: total con cuenta en X (incluyendo inactivos). <em>BS activo</em>: activos en Bluesky en los últimos 30 días. <em>Sin red</em>: sin cuenta en ninguna de las tres plataformas.</p>
+      <div class="overflow-x-auto border border-border/50">
         <table class="w-full table-fixed" data-sortable>
           <colgroup>
             <col />
-            <col style="width:56px" />
-            <col style="width:160px" />
-            <col style="width:72px" />
-            <col style="width:80px" />
-            <col style="width:88px" />
+            <col style="width:48px" />
+            <col style="width:64px" />
+            <col style="width:64px" />
             <col style="width:68px" />
+            <col style="width:68px" />
+            <col style="width:68px" />
+            <col style="width:56px" />
           </colgroup>
           <thead>
             <tr class="border-b border-border/40 bg-muted/20">
-              <th data-sort="cat" class="sortable-th py-2 px-4 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-left">Categoría<span class="sort-ind"></span></th>
-              <th data-sort="total" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">N<span class="sort-ind"></span></th>
-              <th data-sort="pctFuera" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-left">Fuera de X %<span class="sort-ind"></span></th>
-              <th data-sort="enX" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">En X<span class="sort-ind"></span></th>
-              <th data-sort="bsky" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">Bluesky<span class="sort-ind"></span></th>
-              <th data-sort="mstdn" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">Mastodon<span class="sort-ind"></span></th>
-              <th data-sort="sinalt" class="sortable-th py-2 px-3 text-[11px] uppercase tracking-wide font-medium text-muted-foreground text-right">Sin alt.<span class="sort-ind"></span></th>
+              <th data-sort="cat" class="sortable-th py-2 px-4 text-[11px] font-medium text-muted-foreground text-left">Categoría<span class="sort-ind"></span></th>
+              <th data-sort="total" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">N<span class="sort-ind"></span></th>
+              <th data-sort="enX" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Act. X<span class="sort-ind"></span></th>
+              <th data-sort="conTw" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">↳ total<span class="sort-ind"></span></th>
+              <th data-sort="bsky" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Bluesky<span class="sort-ind"></span></th>
+              <th data-sort="bskyA" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">BS activo<span class="sort-ind"></span></th>
+              <th data-sort="mstdn" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Mastodon<span class="sort-ind"></span></th>
+              <th data-sort="sinNada" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Sin red<span class="sort-ind"></span></th>
             </tr>
           </thead>
           <tbody>
@@ -393,35 +439,23 @@ function fmtDate(d: string | undefined) {
               <tr class="border-b border-border/30 hover:bg-muted/20 transition-colors">
                 <td data-col="cat" class="py-2 px-4 text-sm font-medium text-left truncate">{c.label}</td>
                 <td data-col="total" data-val={c.total} class="py-2 px-3 text-sm tabular-nums text-right text-muted-foreground">{c.total}</td>
-                <td data-col="pctFuera" data-val={c.pctFuera} class="py-2 px-3">
-                  <div class="flex items-center gap-2">
-                    <div class="flex h-1.5 w-16 overflow-hidden rounded-full bg-muted shrink-0">
-                      <div class="h-full bg-emerald-500" style={`width:${c.pctFuera}%`} />
-                    </div>
-                    <span class="text-xs tabular-nums font-medium text-emerald-600 dark:text-emerald-400 shrink-0">{c.pctFuera}%</span>
-                  </div>
-                </td>
-                <td data-col="enX" data-val={c.enX} class="py-2 px-3 text-sm tabular-nums text-right text-red-500">{c.enX}</td>
-                <td data-col="bsky" data-val={c.conBluesky} class="py-2 px-3 text-sm tabular-nums text-right text-sky-500">{c.conBluesky}</td>
-                <td data-col="mstdn" data-val={c.conMastodon} class="py-2 px-3 text-sm tabular-nums text-right text-violet-500">{c.conMastodon}</td>
-                <td data-col="sinalt" data-val={c.sinAlternativa} class="py-2 px-3 text-sm tabular-nums text-right text-muted-foreground">{c.sinAlternativa}</td>
+                <td data-col="enX" data-val={c.enX} class="py-2 px-3 text-sm tabular-nums text-right">{c.enX}</td>
+                <td data-col="conTw" data-val={c.conTwitter} class="py-2 px-3 text-sm tabular-nums text-right text-muted-foreground">{c.conTwitter}</td>
+                <td data-col="bsky" data-val={c.conBluesky} class="py-2 px-3 text-sm tabular-nums text-right">{c.conBluesky}</td>
+                <td data-col="bskyA" data-val={c.activoBsky} class="py-2 px-3 text-sm tabular-nums text-right font-medium">{c.activoBsky}</td>
+                <td data-col="mstdn" data-val={c.conMastodon} class="py-2 px-3 text-sm tabular-nums text-right">{c.conMastodon}</td>
+                <td data-col="sinNada" data-val={c.sinNinguna} class="py-2 px-3 text-sm tabular-nums text-right text-muted-foreground">{c.sinNinguna}</td>
               </tr>
             ))}
             <tr data-footer class="border-t border-border bg-muted/20">
               <td class="py-2 px-4 text-sm font-semibold text-left">Total</td>
               <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right text-muted-foreground">{totales.total}</td>
-              <td class="py-2 px-3">
-                <div class="flex items-center gap-2">
-                  <div class="flex h-1.5 w-16 overflow-hidden rounded-full bg-muted shrink-0">
-                    <div class="h-full bg-emerald-500" style={`width:${pctFueraDeX}%`} />
-                  </div>
-                  <span class="text-xs tabular-nums font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">{pctFueraDeX}%</span>
-                </div>
-              </td>
-              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right text-red-500">{totales.enX}</td>
-              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right text-sky-500">{totales.conBluesky}</td>
-              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right text-violet-500">{totales.conMastodon}</td>
-              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right text-muted-foreground">{totales.sinAlternativa}</td>
+              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right">{totales.enX}</td>
+              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right text-muted-foreground">{totales.conTwitter}</td>
+              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right">{totales.conBluesky}</td>
+              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right">{totales.activoBsky}</td>
+              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right">{totales.conMastodon}</td>
+              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right text-muted-foreground">{totales.sinNinguna}</td>
             </tr>
           </tbody>
         </table>
@@ -429,192 +463,100 @@ function fmtDate(d: string | undefined) {
     </div>
 
     <!-- Metodología -->
-    <div class="space-y-4 pt-2">
+    <div class="pt-2 border-t border-border/40">
+      <h2 class="text-base font-semibold mb-1">Metodología</h2>
+      <p class="text-xs text-muted-foreground mb-8">Criterios de inclusión, proceso de obtención y verificación de los datos.</p>
 
-      <div class="border-b border-border/40 pb-2">
-        <h2 class="text-base font-semibold">Metodología</h2>
-        <p class="text-xs text-muted-foreground mt-0.5">Cómo se identifican, verifican y actualizan los datos.</p>
-      </div>
+      <div class="space-y-8 text-sm text-muted-foreground leading-relaxed max-w-3xl">
 
-      <!-- Proceso -->
-      <div class="rounded-xl border border-border/60 bg-card overflow-hidden">
-        <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30">
-          <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Proceso de obtención de datos</h3>
-        </div>
-        <div class="px-4 py-4 space-y-4 text-sm text-muted-foreground leading-relaxed">
-          <p>
-            Los datos se obtienen en cuatro etapas que combinan revisión manual con verificación automatizada:
+        <!-- 1. Alcance -->
+        <div>
+          <h3 class="text-sm font-semibold text-foreground mb-2">1. Alcance y unidad de análisis</h3>
+          <p class="mb-3">
+            El estudio cubre {totales.total} entidades distribuidas en siete categorías: Administración General del Estado (ministerios y organismos con rango de secretaría), Gobierno (presidente y ministros en activo), Congreso de los Diputados (institución, presidencia, grupos parlamentarios y diputados/as con escaño), Senado (ídem para senadores/as, incluyendo designados por comunidades autónomas), Partidos políticos (cuentas orgánicas de partidos con representación en el Congreso), Comunidades Autónomas (presidencias y asambleas autonómicas) y Universidades (centros reconocidos por el Ministerio de Universidades).
           </p>
-          <ol class="space-y-3">
-            {[
-              ["1. Mantenimiento del registro", "Se mantiene una hoja de cálculo (xlsx) como documento de referencia. Los nombres de usuario de X, Bluesky, Mastodon y el correo de contacto se añaden o corrigen a mano, contrastando siempre con fuentes oficiales (webs institucionales, comunicados de prensa, perfiles verificados)."],
-              ["2. Verificación de actividad", "Scripts en Python leen la hoja de cálculo y consultan APIs externas para obtener la fecha de la última publicación en cada plataforma. Las fechas se escriben de vuelta en el xlsx."],
-              ["3. Exportación a JSON", "export_json.py convierte el xlsx a los ficheros JSON de src/data/ (uno por categoría). Estos ficheros son los que utiliza la web."],
-              ["4. Generación de la web", "Astro lee los JSON al compilar y genera el HTML estático con todas las estadísticas calculadas. No hay base de datos ni servidor: todo es HTML y JavaScript estáticos."],
-            ].map(([title, desc]) => (
-              <li class="flex gap-3">
-                <span class="font-medium text-foreground shrink-0 w-44">{title}</span>
-                <span>{desc}</span>
-              </li>
-            ))}
-          </ol>
-          <div class="mt-2 rounded-lg bg-muted/40 border border-border/40 px-3 py-2.5">
-            <p class="text-[11px] uppercase tracking-wide text-muted-foreground mb-1.5">Secuencia de actualización</p>
-            <div class="flex flex-wrap items-center gap-1.5 text-xs font-mono">
-              <code class="bg-muted px-1.5 py-0.5 rounded">datosfinales.xlsx</code>
-              <span class="text-muted-foreground/40">→</span>
-              <code class="bg-muted px-1.5 py-0.5 rounded">check_twitter.py</code>
-              <code class="bg-muted px-1.5 py-0.5 rounded">check_free.py</code>
-              <span class="text-muted-foreground/40">→</span>
-              <code class="bg-muted px-1.5 py-0.5 rounded">export_json.py</code>
-              <span class="text-muted-foreground/40">→</span>
-              <code class="bg-muted px-1.5 py-0.5 rounded">npm run build</code>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Alcance -->
-      <div class="rounded-xl border border-border/60 bg-card overflow-hidden">
-        <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30">
-          <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Alcance y criterios de inclusión</h3>
-        </div>
-        <div class="px-4 py-4 space-y-3 text-sm text-muted-foreground leading-relaxed">
           <p>
-            Se monitorizan <strong class="text-foreground">{totales.total} entidades</strong> en siete categorías. El criterio de inclusión varía por categoría:
+            Se excluyen organismos autónomos, agencias estatales, entidades locales y delegaciones territoriales. Los partidos de ámbito exclusivamente autonómico no tienen entrada propia en la categoría Partidos, aunque sus representantes sí figuran en Congreso y Senado.
           </p>
-          <ul class="space-y-2.5">
-            {[
-              ["Administración General del Estado", "Ministerios, secretarías de estado y organismos públicos con rango de secretaría. No incluye agencias, entes públicos ni delegaciones territoriales."],
-              ["Gobierno", "Presidente del Gobierno y todos los miembros del Consejo de Ministros con cartera. Se actualiza con cada remodelación."],
-              ["Congreso de los Diputados", "La institución, la presidencia, todos los grupos parlamentarios y cada diputado/a con escaño en activo en la legislatura vigente en el momento de la última actualización."],
-              ["Senado de España", "La institución, la presidencia y cada senador/a con escaño en activo (elegidos y designados por comunidades autónomas)."],
-              ["Partidos políticos", "Partidos de ámbito estatal con representación parlamentaria en el Congreso en la legislatura vigente. Se incluye la cuenta de partido (no de candidatos individuales, que ya se contabilizan en Congreso/Senado)."],
-              ["Comunidades Autónomas", "Presidentes/as de gobierno de cada comunidad autónoma y asambleas/parlamentos autonómicos como institución."],
-              ["Universidades", "Universidades públicas y privadas españolas reconocidas oficialmente por el Ministerio de Universidades."],
-            ].map(([cat, desc]) => (
-              <li class="flex gap-2">
-                <span class="text-muted-foreground/40 shrink-0 mt-0.5">·</span>
-                <span><strong class="text-foreground">{cat}:</strong> {desc}</span>
-              </li>
-            ))}
+        </div>
+
+        <!-- 2. Obtención de datos -->
+        <div>
+          <h3 class="text-sm font-semibold text-foreground mb-2">2. Obtención y verificación de handles</h3>
+          <p class="mb-3">
+            La identificación de cuentas sigue un proceso de dos fases. En la <strong class="text-foreground">fase automatizada</strong> se extraen las listas de «siguiendo» de perfiles institucionales semilla en X y Bluesky, y se aplica coincidencia aproximada (<em>fuzzy matching</em>) entre los nombres normalizados de cada entidad y el nombre de display de cada perfil candidato. Para Bluesky, la identidad se verifica mediante la API pública <code class="font-mono text-xs">public.api.bsky.app</code> (endpoint <code class="font-mono text-xs">app.bsky.actor.getProfile</code>), que devuelve el nombre real y la bio sin necesidad de autenticación. Para X, la verificación se realiza con GetXAPI.
+          </p>
+          <p class="mb-3">
+            En la <strong class="text-foreground">fase de revisión manual</strong>, cada propuesta del sistema es aceptada, descartada o corregida individualmente. Se contrasta con webs oficiales, comunicados de prensa y referencias cruzadas entre plataformas. A cada asignación se le asigna un nivel de confianza:
+          </p>
+          <dl class="space-y-1.5 pl-4 border-l border-border/50 text-sm">
+            <div class="flex gap-3"><dt class="font-medium text-foreground w-14 shrink-0">Alta</dt><dd>Nombre de display contiene todos los apellidos y el nombre, o el nombre institucional oficial completo.</dd></div>
+            <div class="flex gap-3"><dt class="font-medium text-foreground w-14 shrink-0">Media</dt><dd>Nombre de display contiene dos apellidos o un apellido más nombre; contenido coherente con el cargo, validado manualmente.</dd></div>
+            <div class="flex gap-3"><dt class="font-medium text-foreground w-14 shrink-0">Baja</dt><dd>Un único apellido sin otros indicadores — no se incluye en el dataset publicado.</dd></div>
+          </dl>
+        </div>
+
+        <!-- 3. Verificación de actividad -->
+        <div>
+          <h3 class="text-sm font-semibold text-foreground mb-2">3. Verificación de actividad</h3>
+          <p class="mb-2">
+            La actividad en cada plataforma se comprueba periódicamente mediante consulta a APIs externas, almacenando la fecha de la última publicación detectada:
+          </p>
+          <ul class="space-y-2 pl-4 border-l border-border/50">
+            <li><strong class="text-foreground">X / Twitter</strong> — endpoint <code class="font-mono text-xs">GET /twitter/user/tweets</code> (GetXAPI). Las cuentas con error <em>not found</em> o <em>suspended</em> se registran como <code class="font-mono text-xs">404</code>. Las cuentas con tweets protegidos pueden quedar registradas incorrectamente como inactivas.</li>
+            <li><strong class="text-foreground">Bluesky</strong> — endpoint <code class="font-mono text-xs">app.bsky.feed.getAuthorFeed</code> (API pública, sin autenticación).</li>
+            <li><strong class="text-foreground">Mastodon</strong> — endpoints <code class="font-mono text-xs">/api/v1/accounts/lookup</code> y <code class="font-mono text-xs">/api/v1/accounts/{"{id}"}/statuses</code> del servidor de cada perfil.</li>
           </ul>
-          <p class="text-xs border-t border-border/30 pt-3">
-            Los partidos de ámbito exclusivamente autonómico (PNV, ERC, CiU, Bildu…) no tienen entrada propia en la categoría Partidos, pero sí aparecen como representantes en Congreso y Senado.
+          <p class="mt-3">
+            Una cuenta se clasifica como <strong class="text-foreground">activa</strong> si su última publicación se produjo dentro de los 30 días anteriores a la fecha de referencia de cada plataforma (indicada más abajo). El umbral se aplica sobre esa fecha fija — no sobre la fecha de consulta — para que los resultados sean estables y reproducibles entre actualizaciones. Las cuentas existentes que no publicaron en ese período se clasifican como <strong class="text-foreground">inactivas</strong>.
           </p>
         </div>
-      </div>
 
-      <!-- Verificación X/Twitter -->
-      <div class="rounded-xl border border-border/60 bg-card overflow-hidden">
-        <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30">
-          <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Verificación X / Twitter</h3>
+        <!-- 4. Fechas de referencia -->
+        <div>
+          <h3 class="text-sm font-semibold text-foreground mb-2">4. Fechas de referencia</h3>
+          <p class="mb-3">Última ejecución completa de los scripts de verificación de actividad. La actividad se mide contra estas fechas, no contra la fecha de consulta.</p>
+          <table class="text-sm border-collapse">
+            <thead>
+              <tr class="border-b border-border/40">
+                <th class="text-left font-medium text-foreground pr-8 pb-1.5">Plataforma</th>
+                <th class="text-left font-medium text-foreground pb-1.5">Fecha de referencia</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { plat: "X / Twitter", fecha: fmtDate(lu.twitter)  },
+                { plat: "Bluesky",     fecha: fmtDate(lu.bluesky)  },
+                { plat: "Mastodon",    fecha: fmtDate(lu.mastodon) },
+              ].map(({ plat, fecha }) => (
+                <tr class="border-b border-border/20">
+                  <td class="pr-8 py-1.5 text-muted-foreground">{plat}</td>
+                  <td class="py-1.5">{fecha}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <div class="px-4 py-4 space-y-3 text-sm text-muted-foreground leading-relaxed">
-          <p>
-            La actividad en X se verifica mediante <strong class="text-foreground">GetXAPI</strong>, un servicio de terceros que permite consultar datos públicos de X sin necesidad de la API oficial. Para cada nombre de usuario registrado se hace una petición al endpoint <code class="font-mono text-xs bg-muted px-1 py-0.5 rounded">GET /twitter/user/tweets</code>, que devuelve los tweets públicos más recientes. Se extrae y almacena la fecha del más reciente.
-          </p>
-          <p>
-            Las cuentas que devuelven error de tipo <em>not found</em> o <em>suspended</em> se registran con el marcador <code class="font-mono text-xs bg-muted px-1 py-0.5 rounded">404</code>. Las cuentas con tweets protegidos (visibilidad restringida) no son accesibles y pueden quedar registradas erróneamente como inactivas.
-          </p>
-          <p>
-            La verificación únicamente accede a publicaciones <strong class="text-foreground">públicas</strong>. No se infiere actividad privada ni se accede a ningún dato que requiera autenticación.
-          </p>
-        </div>
-      </div>
 
-      <!-- Verificación Bluesky y Mastodon -->
-      <div class="rounded-xl border border-border/60 bg-card overflow-hidden">
-        <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30">
-          <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Verificación Bluesky y Mastodon</h3>
-        </div>
-        <div class="px-4 py-4 space-y-4 text-sm text-muted-foreground leading-relaxed">
-          <div>
-            <p class="font-medium text-foreground mb-1.5">Bluesky — AT Protocol <span class="font-normal text-muted-foreground">(check_free.py)</span></p>
-            <p>
-              Se consulta el endpoint público <code class="font-mono text-xs bg-muted px-1 py-0.5 rounded">app.bsky.feed.getAuthorFeed</code> de la API abierta de Bluesky (<code class="font-mono text-xs bg-muted px-1 py-0.5 rounded">public.api.bsky.app</code>). Devuelve las publicaciones más recientes del usuario; se extrae la fecha de la primera. No requiere registro ni contraseña, aunque el script introduce una pausa breve entre peticiones para no saturar el servidor.
-            </p>
-            <p class="mt-2 text-xs">
-              Nota: AT Protocol no está completamente descentralizado a día de hoy — Bluesky PBC opera la infraestructura principal. A diferencia de ActivityPub, todavía no existe interoperabilidad real entre distintos servidores personales de datos (PDS).
-            </p>
-          </div>
-          <div class="border-t border-border/30 pt-3">
-            <p class="font-medium text-foreground mb-1.5">Mastodon — ActivityPub <span class="font-normal text-muted-foreground">(check_free.py)</span></p>
-            <p>
-              Se registra la URL completa del perfil (incluyendo la instancia, p.ej. <code class="font-mono text-xs bg-muted px-1 py-0.5 rounded">mastodon.social/@usuario</code>). El script extrae el dominio y el usuario de la URL, y consulta el endpoint <code class="font-mono text-xs bg-muted px-1 py-0.5 rounded">/api/v1/accounts/lookup?acct=usuario</code> del servidor correspondiente para obtener el ID numérico. Con ese ID recupera los toots recientes via <code class="font-mono text-xs bg-muted px-1 py-0.5 rounded">/api/v1/accounts/{"{id}"}/statuses</code> y anota la fecha del más reciente.
-            </p>
-            <p class="mt-2 text-xs">
-              ActivityPub es el protocolo más consolidado para redes sociales descentralizadas: cada servidor es independiente, puede hablar con los demás y puede ser gestionado por cualquier organización. El conjunto de datos no distingue entre servidores (mastodon.social, fosstodon.org, etc.); cualquier cuenta en ActivityPub cuenta igual.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Criterio de actividad -->
-      <div class="rounded-xl border border-border/60 bg-card overflow-hidden">
-        <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30">
-          <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Criterio de actividad</h3>
-        </div>
-        <div class="px-4 py-4 space-y-3 text-sm text-muted-foreground leading-relaxed">
-          <p>
-            Una cuenta se considera <strong class="text-foreground">activa</strong> si la fecha de su última publicación está dentro de los <strong class="text-foreground">30 días anteriores a la fecha de referencia de cada plataforma</strong> (las fechas que aparecen en la sección de actualización más abajo). El criterio se aplica sobre esa fecha fija, no sobre la fecha en que se consulta la web; así las cifras son <strong class="text-foreground">estables y reproducibles</strong> entre actualizaciones.
-          </p>
-          <div class="rounded-lg bg-muted/40 border border-border/40 p-3 space-y-2 text-xs">
-            <p><strong class="text-foreground">Activa</strong> — último post ≤ 30 días antes de la fecha de referencia</p>
-            <p><strong class="text-foreground">Inactiva</strong> — existe la cuenta pero no ha publicado en ese período</p>
-            <p><strong class="text-foreground text-red-600 dark:text-red-400">404</strong> — el handle no existe o fue suspendido en el momento de la consulta</p>
-            <p class="text-muted-foreground/60 pt-1">El umbral de 30 días es convencional pero razonable para instituciones públicas: una entidad que no publica durante un mes puede considerarse inactiva a efectos prácticos.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Actualización -->
-      <div class="rounded-xl border border-border/60 bg-card overflow-hidden">
-        <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30">
-          <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Última actualización</h3>
-        </div>
-        <div class="px-4 py-4 space-y-3 text-sm text-muted-foreground leading-relaxed">
-          <p>Fechas de referencia de la última ejecución completa de los scripts de verificación. La actividad se mide contra estas fechas, no contra la fecha de consulta.</p>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <!-- 5. Limitaciones -->
+        <div>
+          <h3 class="text-sm font-semibold text-foreground mb-2">5. Limitaciones</h3>
+          <ul class="space-y-2 pl-4 border-l border-border/50">
             {[
-              { plat: "X / Twitter", fecha: fmtDate(lu.twitter)  },
-              { plat: "Bluesky",     fecha: fmtDate(lu.bluesky)  },
-              { plat: "Mastodon",    fecha: fmtDate(lu.mastodon) },
-            ].map(({ plat, fecha }) => (
-              <div class="rounded-lg border border-border/50 bg-muted/20 px-3 py-2.5">
-                <p class="text-[11px] uppercase tracking-wide text-muted-foreground">{plat}</p>
-                <p class="font-medium text-foreground text-sm mt-0.5">{fecha}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <!-- Limitaciones -->
-      <div class="rounded-xl border border-border/60 bg-card overflow-hidden">
-        <div class="px-4 py-2.5 border-b border-border/40 bg-muted/30">
-          <h3 class="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">Limitaciones conocidas</h3>
-        </div>
-        <div class="px-4 py-4">
-          <ul class="space-y-2.5 text-sm text-muted-foreground">
-            {[
-              ["Tweets protegidos", "GetXAPI solo accede a tweets públicos. Las cuentas con privacidad restringida pueden registrarse como inactivas aunque publiquen regularmente."],
-              ["Dependencia de terceros (X)", "La verificación de actividad en X depende de GetXAPI, un servicio de terceros sin garantías formales de continuidad o precisión. La API oficial de X no es accesible sin suscripción de pago."],
-              ["Registro manual", "La lista se mantiene a mano: pueden existir cuentas sin registrar, sobre todo en categorías con muchos cambios (Congreso, Senado) o en plataformas de incorporación más reciente."],
-              ["Plataformas no cubiertas", "No se recogen cuentas de Instagram, Facebook, TikTok, LinkedIn, YouTube ni otras plataformas. La selección de X, Bluesky y Mastodon responde al foco en plataformas de comunicación pública institucional de texto."],
-              ["Cobertura", "No se incluyen organismos autónomos, agencias estatales, empresas públicas, ayuntamientos, diputaciones ni delegaciones territoriales. Ampliar a estos ámbitos queda fuera del alcance actual."],
-              ["Legislatura vigente", "Los datos de Congreso y Senado corresponden a la composición en el momento de la última actualización. Tras elecciones o cambios de gobierno puede haber un desfase hasta la siguiente revisión."],
-              ["Verificación de identidad", "Se asume que un enlace desde la web oficial a una cuenta es prueba suficiente de titularidad. No se han verificado de forma independiente todas las cuentas."],
+              ["Cobertura de parlamentarios", "La identificación de cuentas personales depende de su aparición en las listas de «siguiendo» de cuentas institucionales o de su localización por nombre. Pueden existir cuentas no registradas."],
+              ["Tweets protegidos", "GetXAPI accede únicamente a publicaciones públicas; las cuentas con privacidad restringida pueden quedar registradas como inactivas."],
+              ["Dependencia de GetXAPI", "La verificación en X utiliza un servicio de terceros; la API oficial de X no es accesible sin suscripción de pago."],
+              ["Plataformas no cubiertas", "No se recogen cuentas de Instagram, Facebook, TikTok, LinkedIn ni YouTube. El estudio se limita a plataformas de comunicación pública institucional basadas en texto."],
+              ["Cobertura territorial", "Se excluyen ayuntamientos, diputaciones, delegaciones territoriales y organismos sub-nacionales."],
+              ["Desfase electoral", "Los datos de Congreso y Senado reflejan la composición en el momento de la última actualización; pueden existir desfases tras cambios en la composición de las cámaras."],
+              ["Verificación de titularidad", "La asignación se basa en coincidencia de nombre y coherencia de contenido. En casos ambiguos la entrada se descarta; no se han obtenido confirmaciones formales de todos los titulares."],
             ].map(([title, desc]) => (
-              <li class="flex gap-2">
-                <span class="text-amber-500 shrink-0 mt-0.5">⚠</span>
-                <span><strong class="text-foreground">{title}:</strong> {desc}</span>
-              </li>
+              <li><strong class="text-foreground">{title}.</strong> {desc}</li>
             ))}
           </ul>
         </div>
-      </div>
 
+      </div>
     </div>
 
   </div>

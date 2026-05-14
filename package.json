@@ -7,13 +7,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "setup": "bash setup.sh",
-    "export": ".venv/bin/python parsers/export_json.py",
-    "export:dry": ".venv/bin/python parsers/export_json.py --dry-run",
-    "check:free": ".venv/bin/python parsers/check_free.py",
-    "check:twitter": ".venv/bin/python parsers/check_twitter.py",
-    "check:nitter": ".venv/bin/python parsers/check_nitter.py",
-    "format:xlsx": ".venv/bin/python parsers/format_xlsx.py"
+    "dataset": "python3 dataset/scripts/main.py",
+    "export": "python3 dataset/scripts/export.py",
+    "export:dry": "python3 dataset/scripts/export.py --dry-run"
   },
   "dependencies": {
     "@astrojs/react": "^4.4.2",
