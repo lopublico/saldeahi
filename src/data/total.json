@@ -412,7 +412,7 @@
     "nombre": "Loterías y Apuestas del Estado (SELAE)",
     "twitter": "loterias_es",
     "twitter_activo": false,
-    "bluesky": "lyadelestado",
+    "bluesky": "lyadelestado.bsky.social",
     "bluesky_activo": true,
     "mastodon": null,
     "mastodon_activo": false
@@ -1567,8 +1567,8 @@
     "nombre": "Andala Ubbi, Teslem",
     "twitter": "teshsidi",
     "twitter_activo": false,
-    "bluesky": null,
-    "bluesky_activo": false,
+    "bluesky": "teshsidi.bsky.social",
+    "bluesky_activo": true,
     "mastodon": null,
     "mastodon_activo": false
   },
@@ -4185,7 +4185,7 @@
     "nombre": "Ramírez del Río, José",
     "twitter": "joseramirezdel2",
     "twitter_activo": false,
-    "bluesky": "joseframirez.bsky.social",
+    "bluesky": null,
     "bluesky_activo": false,
     "mastodon": null,
     "mastodon_activo": false
@@ -4372,8 +4372,8 @@
     "nombre": "Rodríguez Serra, Santi",
     "twitter": "santirodriguez",
     "twitter_activo": false,
-    "bluesky": "santirodriguez.bsky.social",
-    "bluesky_activo": true,
+    "bluesky": null,
+    "bluesky_activo": false,
     "mastodon": null,
     "mastodon_activo": false
   },
@@ -5956,8 +5956,8 @@
     "nombre": "Delgado Gómez, Carla",
     "twitter": "carlaantonelli",
     "twitter_activo": false,
-    "bluesky": "carladelgado.bsky.social",
-    "bluesky_activo": false,
+    "bluesky": "carlaantonelli.bsky.social",
+    "bluesky_activo": true,
     "mastodon": null,
     "mastodon_activo": false
   },
@@ -6869,7 +6869,7 @@
     "nombre": "Martínez Antolín, Jorge Domingo",
     "twitter": null,
     "twitter_activo": false,
-    "bluesky": "jorgemtnez.bsky.social",
+    "bluesky": null,
     "bluesky_activo": false,
     "mastodon": null,
     "mastodon_activo": false
@@ -8453,7 +8453,7 @@
     "nombre": "Se Acabó La Fiesta",
     "twitter": "SeAcaboLaFiesta",
     "twitter_activo": false,
-    "bluesky": "seacabolafiesta",
+    "bluesky": "seacabolafiesta.bsky.social",
     "bluesky_activo": false,
     "mastodon": null,
     "mastodon_activo": false

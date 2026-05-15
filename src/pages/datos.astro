@@ -788,36 +788,43 @@ function pct(num: number, den: number) {
   document.addEventListener('astro:page-load', initSortableTables);
 
   // ── Tooltip para barras de adopción ──────────────────────────────────────────
-  function setupBarTooltip() {
-    const tip = document.createElement('div');
-    tip.setAttribute('id', 'bar-tip');
-    tip.setAttribute('style', [
-      'position:fixed',
-      'z-index:9999',
-      'background:#111',
-      'color:#fff',
-      'padding:4px 10px',
-      'border-radius:6px',
-      'font-size:11px',
-      'line-height:1.5',
-      'white-space:nowrap',
-      'pointer-events:none',
-      'opacity:0',
-      'transition:opacity 0.12s',
-      'box-shadow:0 2px 8px rgba(0,0,0,0.2)',
-    ].join(';'));
-    document.body.appendChild(tip);
+  // Los listeners van en document una sola vez; el div se recrea si view
+  // transitions lo elimina del body (se comprueba en cada evento).
+  const TIP_STYLE = [
+    'position:fixed', 'z-index:9999', 'background:#111', 'color:#fff',
+    'padding:4px 10px', 'border-radius:6px', 'font-size:11px',
+    'line-height:1.5', 'white-space:nowrap', 'pointer-events:none',
+    'opacity:0', 'transition:opacity 0.12s',
+    'box-shadow:0 2px 8px rgba(0,0,0,0.2)',
+  ].join(';');
+
+  function getTip() {
+    let t = document.getElementById('bar-tip');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'bar-tip';
+      t.setAttribute('style', TIP_STYLE);
+      document.body.appendChild(t);
+    }
+    return t;
+  }
+
+  function findTipEl(target) {
+    let el = target;
+    while (el && el !== document.body) {
+      if (el.dataset && el.dataset.tip) return el;
+      el = el.parentElement;
+    }
+    return null;
+  }
+
+  if (!window._barTipListeners) {
+    window._barTipListeners = true;
 
     document.addEventListener('mouseover', function (e) {
-      let el = e.target;
-      while (el && el !== document) {
-        if (el.dataset && el.dataset.tip) break;
-        el = el.parentElement;
-      }
-      if (!el || el === document || !el.dataset.tip) {
-        tip.style.opacity = '0';
-        return;
-      }
+      const el = findTipEl(e.target);
+      if (!el) { getTip().style.opacity = '0'; return; }
+      const tip = getTip();
       tip.textContent = el.dataset.tip;
       const r = el.getBoundingClientRect();
       tip.style.left = (r.left + r.width / 2) + 'px';
@@ -832,20 +839,12 @@ function pct(num: number, den: number) {
     });
 
     document.addEventListener('mouseout', function (e) {
-      let el = e.target;
-      while (el && el !== document) {
-        if (el.dataset && el.dataset.tip) break;
-        el = el.parentElement;
-      }
-      if (el && el !== document && !el.contains(e.relatedTarget)) {
-        tip.style.opacity = '0';
-      }
+      const el = findTipEl(e.target);
+      if (el && !el.contains(e.relatedTarget)) getTip().style.opacity = '0';
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setupBarTooltip);
-  } else {
-    setupBarTooltip();
-  }
+  // Garantiza que el div existe tras cada navegación (view transitions)
+  document.addEventListener('astro:page-load', getTip);
+  getTip();
 </script>

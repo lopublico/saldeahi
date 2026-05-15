@@ -1805,8 +1805,8 @@
     "grupo": "GPP",
     "twitter": null,
     "twitter_activo": null,
-    "bluesky": "jorgemtnez.bsky.social",
-    "bluesky_activo": "404",
+    "bluesky": null,
+    "bluesky_activo": null,
     "mastodon": null,
     "mastodon_activo": null,
     "email": "jdomingo.martinez@senado.es"

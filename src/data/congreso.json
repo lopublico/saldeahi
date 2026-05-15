@@ -3360,8 +3360,8 @@
     "circunscripcion": "Córdoba",
     "twitter": "joseramirezdel2",
     "twitter_activo": null,
-    "bluesky": "joseframirez.bsky.social",
-    "bluesky_activo": "404",
+    "bluesky": null,
+    "bluesky_activo": null,
     "mastodon": null,
     "mastodon_activo": null,
     "email": "jose.ramirez@congreso.es"
@@ -3581,8 +3581,8 @@
     "circunscripcion": "Barcelona",
     "twitter": "santirodriguez",
     "twitter_activo": null,
-    "bluesky": "santirodriguez.bsky.social",
-    "bluesky_activo": "2026-04-20",
+    "bluesky": null,
+    "bluesky_activo": null,
     "mastodon": null,
     "mastodon_activo": null,
     "email": "santi.rodriguez@congreso.es"
