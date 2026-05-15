@@ -4627,8 +4627,8 @@
     "twitter_activo": false,
     "bluesky": "enriquesantiago.bsky.social",
     "bluesky_activo": true,
-    "mastodon": null,
-    "mastodon_activo": false
+    "mastodon": "enriquesantiago@mastodon.social",
+    "mastodon_activo": true
   },
   {
     "categoria": "Congreso",
@@ -4726,7 +4726,7 @@
     "twitter_activo": false,
     "bluesky": "franciscosierra.bsky.social",
     "bluesky_activo": true,
-    "mastodon": null,
+    "mastodon": "franciscosierra@mastodon.social",
     "mastodon_activo": false
   },
   {
@@ -8268,8 +8268,8 @@
     "twitter_activo": false,
     "bluesky": "izquierdaunida.org",
     "bluesky_activo": true,
-    "mastodon": null,
-    "mastodon_activo": false
+    "mastodon": "izquierda_unida@mastodon.social",
+    "mastodon_activo": true
   },
   {
     "categoria": "Partidos",
