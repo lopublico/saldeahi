@@ -405,26 +405,23 @@ function pct(num: number, den: number) {
               </div>
               <div class="flex-1 space-y-1.5">
                 <div class="flex items-center gap-2">
-                  <div class="flex flex-1 h-2 overflow-hidden bg-border/20">
+                  <div class="flex flex-1 h-2 overflow-hidden bg-border/20 cursor-default" title={`X / Twitter — ${c.enX} activas, ${c.sinActX} inactivas (${c.conTwitter} con cuenta)`}>
                     <div class="h-full bg-foreground/75" style={`width:${pXA}%`} />
                     <div class="h-full bg-foreground/20" style={`width:${pXI}%`} />
                   </div>
-                  <span class="text-xs tabular-nums text-muted-foreground/50 w-6 text-right shrink-0">{c.enX}</span>
                   <span class="text-xs tabular-nums text-muted-foreground w-8 text-right shrink-0">{pXA}%</span>
                 </div>
                 <div class="flex items-center gap-2">
-                  <div class="flex flex-1 h-2 overflow-hidden bg-border/20">
+                  <div class="flex flex-1 h-2 overflow-hidden bg-border/20 cursor-default" title={`Bluesky — ${c.activoBsky} activas, ${c.conBluesky - c.activoBsky} inactivas (${c.conBluesky} con cuenta)`}>
                     <div class="h-full bg-sky-500/80" style={`width:${pBsA}%`} />
                     <div class="h-full bg-sky-500/25" style={`width:${pBsI}%`} />
                   </div>
-                  <span class="text-xs tabular-nums text-muted-foreground/50 w-6 text-right shrink-0">{c.activoBsky}</span>
                   <span class="text-xs tabular-nums text-muted-foreground w-8 text-right shrink-0">{pBsA}%</span>
                 </div>
                 <div class="flex items-center gap-2">
-                  <div class="flex flex-1 h-2 overflow-hidden bg-border/20">
+                  <div class="flex flex-1 h-2 overflow-hidden bg-border/20 cursor-default" title={`Mastodon — ${c.conMastodon} con cuenta`}>
                     <div class="h-full bg-violet-500/70" style={`width:${pMd}%`} />
                   </div>
-                  <span class="text-xs tabular-nums text-muted-foreground/50 w-6 text-right shrink-0">{c.conMastodon}</span>
                   <span class="text-xs tabular-nums text-muted-foreground w-8 text-right shrink-0">{pMd}%</span>
                 </div>
               </div>
