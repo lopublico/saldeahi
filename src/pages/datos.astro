@@ -787,32 +787,65 @@ function pct(num: number, den: number) {
 
   document.addEventListener('astro:page-load', initSortableTables);
 
-  // ── Tooltip para barras de adopción (event delegation, position:fixed) ───────
-  (function () {
+  // ── Tooltip para barras de adopción ──────────────────────────────────────────
+  function setupBarTooltip() {
     const tip = document.createElement('div');
-    tip.style.cssText = 'position:fixed;z-index:9999;background:hsl(var(--foreground));color:hsl(var(--background));padding:4px 10px;border-radius:6px;font-size:11px;line-height:1.4;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.12s ease;box-shadow:0 2px 8px rgba(0,0,0,.15)';
+    tip.setAttribute('id', 'bar-tip');
+    tip.setAttribute('style', [
+      'position:fixed',
+      'z-index:9999',
+      'background:#111',
+      'color:#fff',
+      'padding:4px 10px',
+      'border-radius:6px',
+      'font-size:11px',
+      'line-height:1.5',
+      'white-space:nowrap',
+      'pointer-events:none',
+      'opacity:0',
+      'transition:opacity 0.12s',
+      'box-shadow:0 2px 8px rgba(0,0,0,0.2)',
+    ].join(';'));
     document.body.appendChild(tip);
 
-    document.addEventListener('mouseover', (e) => {
-      const el = (e.target as Element).closest<HTMLElement>('[data-tip]');
-      if (!el) { tip.style.opacity = '0'; return; }
-      tip.textContent = el.dataset.tip!;
+    document.addEventListener('mouseover', function (e) {
+      let el = e.target;
+      while (el && el !== document) {
+        if (el.dataset && el.dataset.tip) break;
+        el = el.parentElement;
+      }
+      if (!el || el === document || !el.dataset.tip) {
+        tip.style.opacity = '0';
+        return;
+      }
+      tip.textContent = el.dataset.tip;
       const r = el.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
-      if (r.top > 50) {
-        tip.style.top  = (r.top - 8) + 'px';
+      tip.style.left = (r.left + r.width / 2) + 'px';
+      if (r.top > 60) {
+        tip.style.top = (r.top - 8) + 'px';
         tip.style.transform = 'translate(-50%,-100%)';
       } else {
-        tip.style.top  = (r.bottom + 6) + 'px';
+        tip.style.top = (r.bottom + 6) + 'px';
         tip.style.transform = 'translate(-50%,0)';
       }
-      tip.style.left = cx + 'px';
       tip.style.opacity = '1';
     });
 
-    document.addEventListener('mouseout', (e) => {
-      const el = (e.target as Element).closest('[data-tip]');
-      if (el && !el.contains(e.relatedTarget as Node)) tip.style.opacity = '0';
+    document.addEventListener('mouseout', function (e) {
+      let el = e.target;
+      while (el && el !== document) {
+        if (el.dataset && el.dataset.tip) break;
+        el = el.parentElement;
+      }
+      if (el && el !== document && !el.contains(e.relatedTarget)) {
+        tip.style.opacity = '0';
+      }
     });
-  })();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupBarTooltip);
+  } else {
+    setupBarTooltip();
+  }
 </script>
