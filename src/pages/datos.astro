@@ -414,21 +414,21 @@ function pct(num: number, den: number) {
                 <div class="text-xs text-muted-foreground/50">{c.total} entidades</div>
               </div>
               <div class="flex-1 space-y-1.5">
-                <div class="flex items-center gap-2 cursor-default" title={`X / Twitter — ${c.enX} activas, ${c.sinActX} inactivas (${c.conTwitter} con cuenta)`}>
+                <div class="flex items-center gap-2 cursor-default" data-tip={`X / Twitter — ${c.enX} activas, ${c.sinActX} inactivas (${c.conTwitter} con cuenta)`}>
                   <div class="flex flex-1 h-2 overflow-hidden bg-border/20">
                     <div class="h-full bg-foreground/75" style={`width:${pXA}%`} />
                     <div class="h-full bg-foreground/20" style={`width:${pXI}%`} />
                   </div>
                   <span class="text-xs tabular-nums text-muted-foreground w-8 text-right shrink-0">{pXA}%</span>
                 </div>
-                <div class="flex items-center gap-2 cursor-default" title={`Bluesky — ${c.activoBsky} activas, ${c.conBluesky - c.activoBsky} inactivas (${c.conBluesky} con cuenta)`}>
+                <div class="flex items-center gap-2 cursor-default" data-tip={`Bluesky — ${c.activoBsky} activas, ${c.conBluesky - c.activoBsky} inactivas (${c.conBluesky} con cuenta)`}>
                   <div class="flex flex-1 h-2 overflow-hidden bg-border/20">
                     <div class="h-full bg-sky-500/80" style={`width:${pBsA}%`} />
                     <div class="h-full bg-sky-500/25" style={`width:${pBsI}%`} />
                   </div>
                   <span class="text-xs tabular-nums text-muted-foreground w-8 text-right shrink-0">{pBsA}%</span>
                 </div>
-                <div class="flex items-center gap-2 cursor-default" title={`Mastodon — ${c.conMastodon} con cuenta`}>
+                <div class="flex items-center gap-2 cursor-default" data-tip={`Mastodon — ${c.conMastodon} con cuenta`}>
                   <div class="flex flex-1 h-2 overflow-hidden bg-border/20">
                     <div class="h-full bg-violet-500/70" style={`width:${pMd}%`} />
                   </div>
@@ -734,6 +734,33 @@ function pct(num: number, den: number) {
     font-size: 10px;
     margin-left: 2px;
     opacity: 0.5;
+  }
+
+  /* Tooltip CSS para las barras de adopción */
+  [data-tip] {
+    position: relative;
+  }
+  [data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: hsl(var(--foreground));
+    color: hsl(var(--background));
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    line-height: 1.4;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.12s ease;
+    z-index: 50;
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+  }
+  [data-tip]:hover::after {
+    opacity: 1;
   }
 </style>
 
