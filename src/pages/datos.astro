@@ -259,19 +259,19 @@ function pct(num: number, den: number) {
         <p class="text-xs font-medium text-muted-foreground mb-5 uppercase tracking-widest">Actividad <span class="font-normal normal-case">(últimos 30 días desde la fecha de referencia)</span></p>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-6">
           <div>
-            <p class="text-sm text-muted-foreground mb-1">Activas en X / Twitter</p>
+            <p class="text-sm text-muted-foreground mb-1">Entidades activas en X</p>
             <p class="text-3xl font-bold tabular-nums">{pctEnX}%<span class="text-base font-normal text-muted-foreground ml-1.5">({totales.enX})</span></p>
           </div>
           <div>
-            <p class="text-sm text-muted-foreground mb-1">Inactivas en X</p>
-            <p class="text-3xl font-bold tabular-nums">{totales.sinActX}<span class="text-base font-normal text-muted-foreground ml-1.5">(con cuenta, sin publicar)</span></p>
+            <p class="text-sm text-muted-foreground mb-1">Con cuenta en X, sin publicar</p>
+            <p class="text-3xl font-bold tabular-nums">{totales.sinActX}<span class="text-base font-normal text-muted-foreground ml-1.5">({Math.round(totales.sinActX / totales.total * 100)}%)</span></p>
           </div>
           <div>
-            <p class="text-sm text-muted-foreground mb-1">Activas en Bluesky</p>
-            <p class="text-3xl font-bold tabular-nums">{totales.activoBsky}<span class="text-base font-normal text-muted-foreground ml-1.5">({pctActivoBsky}% de con BS)</span></p>
+            <p class="text-sm text-muted-foreground mb-1">Entidades activas en Bluesky</p>
+            <p class="text-3xl font-bold tabular-nums">{totales.activoBsky}<span class="text-base font-normal text-muted-foreground ml-1.5">({pctActivoBsky}% de las que tienen cuenta)</span></p>
           </div>
           <div>
-            <p class="text-sm text-muted-foreground mb-1">Sin presencia en ninguna red</p>
+            <p class="text-sm text-muted-foreground mb-1">Sin cuenta en ninguna red</p>
             <p class="text-3xl font-bold tabular-nums">{totales.sinNinguna}<span class="text-base font-normal text-muted-foreground ml-1.5">({pctSinNinguna}%)</span></p>
           </div>
         </div>
@@ -328,9 +328,9 @@ function pct(num: number, den: number) {
           </div>
         </div>
       </div>
-      <div class="text-xs text-muted-foreground/60 mt-4 flex flex-wrap gap-x-5 gap-y-1">
-        <span>▪ oscuro: activas en los últimos 30 días</span>
-        <span>▪ claro: con cuenta, sin actividad reciente</span>
+      <div class="text-xs text-muted-foreground/60 mt-4 flex flex-wrap gap-x-5 gap-y-1.5">
+        <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-2.5 bg-foreground/75 rounded-sm shrink-0"></span> Activas en los últimos 30 días</span>
+        <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-2.5 bg-foreground/20 rounded-sm shrink-0"></span> Con cuenta, sin actividad reciente</span>
       </div>
     </div>
 
@@ -401,9 +401,19 @@ function pct(num: number, den: number) {
           );
         })}
       </div>
-      <div class="text-xs text-muted-foreground/60 mt-5 flex flex-wrap gap-x-5 gap-y-1">
-        <span>▪ X oscuro: activos · X claro: inactivos (tienen cuenta)</span>
-        <span>▪ azul: Bluesky · violeta: Mastodon</span>
+      <div class="text-xs text-muted-foreground/60 mt-5 flex flex-wrap gap-x-5 gap-y-1.5">
+        <span class="flex items-center gap-1.5">
+          <span class="inline-flex gap-px shrink-0"><span class="inline-block w-2 h-2 bg-foreground/75 rounded-sm"></span><span class="inline-block w-2 h-2 bg-foreground/20 rounded-sm"></span></span>
+          X: activas · con cuenta sin actividad
+        </span>
+        <span class="flex items-center gap-1.5">
+          <span class="inline-flex gap-px shrink-0"><span class="inline-block w-2 h-2 bg-sky-500/80 rounded-sm"></span><span class="inline-block w-2 h-2 bg-sky-500/25 rounded-sm"></span></span>
+          Bluesky: activas · con cuenta sin actividad
+        </span>
+        <span class="flex items-center gap-1.5">
+          <span class="inline-block w-2 h-2 bg-violet-500/70 rounded-sm shrink-0"></span>
+          Mastodon
+        </span>
       </div>
     </div>
 
