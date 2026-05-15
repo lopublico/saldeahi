@@ -26,9 +26,6 @@ pnpm-debug.log*
 # claude code internal
 .claude/
 
-# backups locales del dataset (generados automáticamente, no van al repo)
-dataset/backups/
-
 # archivos temporales de scripts Python
 *.bak
 *.bak2

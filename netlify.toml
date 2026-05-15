@@ -1,6 +1,13 @@
 [build]
-  command   = "npm run build"
+  # En cada despliegue: instala dependencias Python, comprueba actividad
+  # Bluesky y Mastodon (APIs gratuitas), regenera los JSON y construye Astro.
+  # Twitter NO se comprueba en build (coste API) — se actualiza manualmente.
+  command   = "python3 -m pip install -q -r dataset/requirements.txt && python3 dataset/scripts/check_activity.py --bluesky --mastodon && python3 dataset/scripts/export.py && npm run build"
   publish   = "dist"
+
+[build.environment]
+  NODE_VERSION   = "20"
+  PYTHON_VERSION = "3.11"
 
 [functions]
   directory = "netlify/functions"
