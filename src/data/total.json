@@ -920,7 +920,7 @@
     "twitter_activo": false,
     "bluesky": "margaprohens.bsky.social",
     "bluesky_activo": false,
-    "mastodon": "izquierda_unida",
+    "mastodon": null,
     "mastodon_activo": false
   },
   {
@@ -8268,8 +8268,8 @@
     "twitter_activo": false,
     "bluesky": "izquierdaunida.org",
     "bluesky_activo": true,
-    "mastodon": "izquierda_unida",
-    "mastodon_activo": true
+    "mastodon": null,
+    "mastodon_activo": false
   },
   {
     "categoria": "Partidos",

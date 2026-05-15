@@ -41,6 +41,14 @@ function isActiveDate(val: unknown, ref: number): boolean {
   return ref - new Date(val).getTime() <= THIRTY_DAYS_MS;
 }
 
+function mastodonHref(handle: string | null): string | undefined {
+  if (!handle) return undefined;
+  const h = handle.replace(/^@/, "");
+  const at = h.indexOf("@");
+  if (at === -1) return undefined;
+  return `https://${h.slice(at + 1)}/@${h.slice(0, at)}`;
+}
+
 function twitterOnX(handle: unknown, activo: unknown): boolean {
   if (!handle) return false;
   if (activo == null) return true;
@@ -133,7 +141,7 @@ function badgeProps(item: any, platform: "twitter" | "bluesky" | "mastodon") {
     tip: !item.mastodon         ? "Sin Mastodon"
        : item.mastodon_activo   ? item.mastodon
                                 : `${item.mastodon} · poco activo`,
-    href: item.mastodon ?? undefined,
+    href: mastodonHref(item.mastodon),
   };
 }
 
