@@ -138,6 +138,11 @@ const gruposStats = CONGRESO_GRUPO_ORDER
     pctBsky:  Math.round((congresoGruposMap[k].conBluesky / congresoGruposMap[k].total) * 100),
   }));
 
+const congresoTotales = gruposStats.reduce(
+  (acc, g) => ({ total: acc.total + g.total, enX: acc.enX + g.enX, fueraDeX: acc.fueraDeX + g.fueraDeX, conBluesky: acc.conBluesky + g.conBluesky, activoBsky: acc.activoBsky + g.activoBsky, conMastodon: acc.conMastodon + g.conMastodon }),
+  { total: 0, enX: 0, fueraDeX: 0, conBluesky: 0, activoBsky: 0, conMastodon: 0 }
+);
+
 // ── Senado: por grupo parlamentario ───────────────────────────────────────────
 const SENADO_GRUPO_LABELS: Record<string, string> = {
   "GPP":   "PP",
@@ -194,6 +199,11 @@ const senadoGruposStats = SENADO_GRUPO_ORDER
     pctFuera: Math.round((senadoGruposMap[k].fueraDeX / senadoGruposMap[k].total) * 100),
     pctBsky:  Math.round((senadoGruposMap[k].conBluesky / senadoGruposMap[k].total) * 100),
   }));
+
+const senadoTotales = senadoGruposStats.reduce(
+  (acc, g) => ({ total: acc.total + g.total, enX: acc.enX + g.enX, fueraDeX: acc.fueraDeX + g.fueraDeX, conBluesky: acc.conBluesky + g.conBluesky, activoBsky: acc.activoBsky + g.activoBsky, conMastodon: acc.conMastodon + g.conMastodon }),
+  { total: 0, enX: 0, fueraDeX: 0, conBluesky: 0, activoBsky: 0, conMastodon: 0 }
+);
 
 function fmtDate(d: string | undefined) {
   if (!d) return "—";
@@ -404,22 +414,22 @@ function pct(num: number, den: number) {
                 <div class="text-xs text-muted-foreground/50">{c.total} entidades</div>
               </div>
               <div class="flex-1 space-y-1.5">
-                <div class="flex items-center gap-2">
-                  <div class="flex flex-1 h-2 overflow-hidden bg-border/20 cursor-default" title={`X / Twitter — ${c.enX} activas, ${c.sinActX} inactivas (${c.conTwitter} con cuenta)`}>
+                <div class="flex items-center gap-2 cursor-default" title={`X / Twitter — ${c.enX} activas, ${c.sinActX} inactivas (${c.conTwitter} con cuenta)`}>
+                  <div class="flex flex-1 h-2 overflow-hidden bg-border/20">
                     <div class="h-full bg-foreground/75" style={`width:${pXA}%`} />
                     <div class="h-full bg-foreground/20" style={`width:${pXI}%`} />
                   </div>
                   <span class="text-xs tabular-nums text-muted-foreground w-8 text-right shrink-0">{pXA}%</span>
                 </div>
-                <div class="flex items-center gap-2">
-                  <div class="flex flex-1 h-2 overflow-hidden bg-border/20 cursor-default" title={`Bluesky — ${c.activoBsky} activas, ${c.conBluesky - c.activoBsky} inactivas (${c.conBluesky} con cuenta)`}>
+                <div class="flex items-center gap-2 cursor-default" title={`Bluesky — ${c.activoBsky} activas, ${c.conBluesky - c.activoBsky} inactivas (${c.conBluesky} con cuenta)`}>
+                  <div class="flex flex-1 h-2 overflow-hidden bg-border/20">
                     <div class="h-full bg-sky-500/80" style={`width:${pBsA}%`} />
                     <div class="h-full bg-sky-500/25" style={`width:${pBsI}%`} />
                   </div>
                   <span class="text-xs tabular-nums text-muted-foreground w-8 text-right shrink-0">{pBsA}%</span>
                 </div>
-                <div class="flex items-center gap-2">
-                  <div class="flex flex-1 h-2 overflow-hidden bg-border/20 cursor-default" title={`Mastodon — ${c.conMastodon} con cuenta`}>
+                <div class="flex items-center gap-2 cursor-default" title={`Mastodon — ${c.conMastodon} con cuenta`}>
+                  <div class="flex flex-1 h-2 overflow-hidden bg-border/20">
                     <div class="h-full bg-violet-500/70" style={`width:${pMd}%`} />
                   </div>
                   <span class="text-xs tabular-nums text-muted-foreground w-8 text-right shrink-0">{pMd}%</span>
@@ -494,6 +504,15 @@ function pct(num: number, den: number) {
                 <td data-col="mstdn" data-val={g.conMastodon} class="py-2.5 px-3 text-sm tabular-nums text-right">{g.conMastodon}</td>
               </tr>
             ))}
+            <tr data-footer class="border-t border-border bg-muted/20">
+              <td class="py-2.5 px-4 text-sm font-semibold">Total</td>
+              <td class="py-2.5 px-3 text-sm tabular-nums font-semibold text-right text-muted-foreground">{congresoTotales.total}</td>
+              <td class="py-2.5 px-3"></td>
+              <td class="py-2.5 px-3 text-sm tabular-nums font-semibold text-right">{congresoTotales.enX}</td>
+              <td class="py-2.5 px-3 text-sm tabular-nums font-semibold text-right">{congresoTotales.conBluesky}</td>
+              <td class="py-2.5 px-3 text-sm tabular-nums font-semibold text-right">{congresoTotales.activoBsky}</td>
+              <td class="py-2.5 px-3 text-sm tabular-nums font-semibold text-right">{congresoTotales.conMastodon}</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -537,6 +556,15 @@ function pct(num: number, den: number) {
                 <td data-col="mstdn" data-val={g.conMastodon} class="py-2.5 px-3 text-sm tabular-nums text-right">{g.conMastodon}</td>
               </tr>
             ))}
+            <tr data-footer class="border-t border-border bg-muted/20">
+              <td class="py-2.5 px-4 text-sm font-semibold">Total</td>
+              <td class="py-2.5 px-3 text-sm tabular-nums font-semibold text-right text-muted-foreground">{senadoTotales.total}</td>
+              <td class="py-2.5 px-3"></td>
+              <td class="py-2.5 px-3 text-sm tabular-nums font-semibold text-right">{senadoTotales.enX}</td>
+              <td class="py-2.5 px-3 text-sm tabular-nums font-semibold text-right">{senadoTotales.conBluesky}</td>
+              <td class="py-2.5 px-3 text-sm tabular-nums font-semibold text-right">{senadoTotales.activoBsky}</td>
+              <td class="py-2.5 px-3 text-sm tabular-nums font-semibold text-right">{senadoTotales.conMastodon}</td>
+            </tr>
           </tbody>
         </table>
       </div>
