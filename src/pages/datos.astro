@@ -222,6 +222,11 @@ function pct(num: number, den: number) {
     Exige a tus representantes que abandonen redes gobernadas por oligarcas.
   </h2>
 
+  <!-- Aviso pantalla pequeña -->
+  <div class="sm:hidden bg-foreground text-background text-xs px-4 py-3 text-center leading-snug">
+    Esta página muestra tablas y gráficos que pueden no verse bien en pantallas pequeñas. Se recomienda acceder desde un ordenador.
+  </div>
+
   <div class="text-left px-4 sm:px-6 max-w-screen-xl mx-auto pb-16 mt-8 space-y-12">
 
     <!-- Cabecera -->
@@ -240,18 +245,22 @@ function pct(num: number, den: number) {
           <div>
             <p class="text-sm text-muted-foreground mb-1">Entidades monitorizadas</p>
             <p class="text-3xl font-bold tabular-nums">{totales.total}</p>
+            <p class="text-sm text-muted-foreground mt-1">en 7 categorías</p>
           </div>
           <div>
-            <p class="text-sm text-muted-foreground mb-1">Con cuenta en X / Twitter</p>
-            <p class="text-3xl font-bold tabular-nums">{pctConTw}%<span class="text-base font-normal text-muted-foreground ml-1.5">({totales.conTwitter})</span></p>
+            <p class="text-sm text-muted-foreground mb-1">Con cuenta en X</p>
+            <p class="text-3xl font-bold tabular-nums">{pctConTw}%</p>
+            <p class="text-sm text-muted-foreground mt-1">{totales.conTwitter} entidades</p>
           </div>
           <div>
             <p class="text-sm text-muted-foreground mb-1">Con cuenta en Bluesky</p>
-            <p class="text-3xl font-bold tabular-nums">{pctBsky}%<span class="text-base font-normal text-muted-foreground ml-1.5">({totales.conBluesky})</span></p>
+            <p class="text-3xl font-bold tabular-nums">{pctBsky}%</p>
+            <p class="text-sm text-muted-foreground mt-1">{totales.conBluesky} entidades</p>
           </div>
           <div>
             <p class="text-sm text-muted-foreground mb-1">Con cuenta en Mastodon</p>
-            <p class="text-3xl font-bold tabular-nums">{pctMstdn}%<span class="text-base font-normal text-muted-foreground ml-1.5">({totales.conMastodon})</span></p>
+            <p class="text-3xl font-bold tabular-nums">{pctMstdn}%</p>
+            <p class="text-sm text-muted-foreground mt-1">{totales.conMastodon} entidades</p>
           </div>
         </div>
       </div>
@@ -259,21 +268,24 @@ function pct(num: number, den: number) {
         <p class="text-xs font-medium text-muted-foreground mb-5 uppercase tracking-widest">Actividad <span class="font-normal normal-case">(últimos 30 días desde la fecha de referencia)</span></p>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-6">
           <div>
-            <p class="text-sm text-muted-foreground mb-1">Entidades activas en X</p>
-            <p class="text-3xl font-bold tabular-nums">{pctEnX}%<span class="text-base font-normal text-muted-foreground ml-1.5">({totales.enX})</span></p>
+            <p class="text-sm text-muted-foreground mb-1">Activas en X</p>
+            <p class="text-3xl font-bold tabular-nums">{pctEnX}%</p>
+            <p class="text-sm text-muted-foreground mt-1">{totales.enX} entidades</p>
           </div>
           <div>
             <p class="text-sm text-muted-foreground mb-1">Con cuenta en X, sin publicar</p>
-            <p class="text-3xl font-bold tabular-nums">{totales.sinActX}<span class="text-base font-normal text-muted-foreground ml-1.5">({Math.round(totales.sinActX / totales.total * 100)}%)</span></p>
+            <p class="text-3xl font-bold tabular-nums">{totales.sinActX}</p>
+            <p class="text-sm text-muted-foreground mt-1">{Math.round(totales.sinActX / totales.total * 100)}% del total</p>
           </div>
           <div>
-            <p class="text-sm text-muted-foreground mb-1">Entidades activas en Bluesky</p>
+            <p class="text-sm text-muted-foreground mb-1">Activas en Bluesky</p>
             <p class="text-3xl font-bold tabular-nums">{totales.activoBsky}</p>
             <p class="text-sm text-muted-foreground mt-1">{pctActivoBsky}% de las que tienen cuenta</p>
           </div>
           <div>
             <p class="text-sm text-muted-foreground mb-1">Sin cuenta en ninguna red</p>
-            <p class="text-3xl font-bold tabular-nums">{totales.sinNinguna}<span class="text-base font-normal text-muted-foreground ml-1.5">({pctSinNinguna}%)</span></p>
+            <p class="text-3xl font-bold tabular-nums">{totales.sinNinguna}</p>
+            <p class="text-sm text-muted-foreground mt-1">{pctSinNinguna}% del total</p>
           </div>
         </div>
       </div>
@@ -364,16 +376,16 @@ function pct(num: number, den: number) {
       <p class="text-sm text-muted-foreground mb-6">Presencia y actividad en cada plataforma como proporción del total de entidades de la categoría. Barras a escala 0–100 %.</p>
 
       <!-- Eje de referencia -->
-      <div class="flex gap-0 mb-1 ml-[9.5rem]">
-        <div class="flex-1 flex justify-between pr-12">
+      <div class="flex gap-0 mb-1 ml-[7.5rem] sm:ml-[9.5rem]">
+        <div class="flex-1 flex justify-between pr-10 sm:pr-12">
           {[0,25,50,75,100].map(v => (
-            <span class="text-[9px] text-muted-foreground/40 tabular-nums" style={v === 0 ? "" : "transform:translateX(50%)"}>{v}%</span>
+            <span class="text-xs text-muted-foreground/40 tabular-nums" style={v === 0 ? "" : "transform:translateX(50%)"}>{v}%</span>
           ))}
         </div>
       </div>
       <!-- Líneas guía -->
       <div class="relative space-y-4">
-        <div class="absolute inset-y-0 ml-[9.5rem] right-12 pointer-events-none flex">
+        <div class="absolute inset-y-0 ml-[7.5rem] sm:ml-[9.5rem] right-10 sm:right-12 pointer-events-none flex">
           {[25,50,75].map(v => (
             <div class="absolute top-0 bottom-0 border-l border-dashed border-border/25" style={`left:${v}%`} />
           ))}
@@ -386,34 +398,34 @@ function pct(num: number, den: number) {
           const pBsI = pct(c.conBluesky - c.activoBsky, c.total);
           const pMd  = pct(c.conMastodon, c.total);
           return (
-            <div class="flex gap-3 items-start">
-              <div class="w-36 shrink-0 text-right pt-0.5">
+            <div class="flex gap-2 sm:gap-3 items-start">
+              <div class="w-28 sm:w-36 shrink-0 text-right pt-0.5">
                 <div class="text-sm font-medium leading-tight">{c.label}</div>
                 <div class="text-xs text-muted-foreground/50">{c.total} entidades</div>
               </div>
               <div class="flex-1 space-y-1.5">
                 <div class="flex items-center gap-2">
-                  <span class="text-[10px] text-muted-foreground w-14 shrink-0 text-right">X</span>
+                  <span class="text-xs text-muted-foreground w-14 shrink-0 text-right">X</span>
                   <div class="flex flex-1 h-2 overflow-hidden bg-border/20">
                     <div class="h-full bg-foreground/75" style={`width:${pXA}%`} />
                     <div class="h-full bg-foreground/20" style={`width:${pXI}%`} />
                   </div>
-                  <span class="text-[10px] tabular-nums text-muted-foreground w-8 text-right shrink-0">{pXA}%</span>
+                  <span class="text-xs tabular-nums text-muted-foreground w-8 text-right shrink-0">{pXA}%</span>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span class="text-[10px] text-muted-foreground w-14 shrink-0 text-right">Bluesky</span>
+                  <span class="text-xs text-muted-foreground w-14 shrink-0 text-right">Bluesky</span>
                   <div class="flex flex-1 h-2 overflow-hidden bg-border/20">
                     <div class="h-full bg-sky-500/80" style={`width:${pBsA}%`} />
                     <div class="h-full bg-sky-500/25" style={`width:${pBsI}%`} />
                   </div>
-                  <span class="text-[10px] tabular-nums text-muted-foreground w-8 text-right shrink-0">{pBsA}%</span>
+                  <span class="text-xs tabular-nums text-muted-foreground w-8 text-right shrink-0">{pBsA}%</span>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span class="text-[10px] text-muted-foreground w-14 shrink-0 text-right">Mastodon</span>
+                  <span class="text-xs text-muted-foreground w-14 shrink-0 text-right">Mastodon</span>
                   <div class="flex flex-1 h-2 overflow-hidden bg-border/20">
                     <div class="h-full bg-violet-500/70" style={`width:${pMd}%`} />
                   </div>
-                  <span class="text-[10px] tabular-nums text-muted-foreground w-8 text-right shrink-0">{pMd}%</span>
+                  <span class="text-xs tabular-nums text-muted-foreground w-8 text-right shrink-0">{pMd}%</span>
                 </div>
               </div>
             </div>
