@@ -10,7 +10,6 @@ Uso:
 import os
 import sys
 import subprocess
-from datetime import date
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR   = os.path.dirname(os.path.dirname(SCRIPT_DIR))   # raíz del proyecto
@@ -30,18 +29,9 @@ def run(script, *args, confirm_cost=False):
     subprocess.run(cmd, cwd=ROOT_DIR)
 
 def backup():
-    import shutil
-    from datetime import date as _date
-    today = _date.today().isoformat()
-    backup_dir = os.path.join(DATASET_DIR, "backups")
-    os.makedirs(backup_dir, exist_ok=True)
-    src = os.path.join(DATASET_DIR, "datosfinales.xlsx")
-    if os.path.exists(src):
-        dst = os.path.join(backup_dir, f"datosfinales_{today}.xlsx")
-        shutil.copy2(src, dst)
-        print(f"  Backup: dataset/backups/datosfinales_{today}.xlsx")
-    else:
-        print("  AVISO: datosfinales.xlsx no encontrado.")
+    sys.path.insert(0, SCRIPT_DIR)
+    from backup import backup_datosfinales
+    backup_datosfinales()
 
 MENU = [
     ("Exportar JSON para la web (src/data/)",        lambda: run("export.py")),

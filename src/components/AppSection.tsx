@@ -56,9 +56,8 @@ function normalizeData(data: any[], categoria: string) {
     else if (categoria === "AGE")           detalle = item.categoria || "";
     else if (categoria === "Gobierno")      detalle = item.cargo || "";
     else if (categoria === "Partidos")      detalle = item.ambito || "Nacional";
-    else if (categoria === "Autonomías")    detalle = item.partido || "";
+    else if (categoria === "Autonomías")    detalle = item.ccaa || "";
     else if (categoria === "Universidades") detalle = item.tipo || "Pública";
-    else detalle = item.categoria || item.cargo || item.tipo || "";
 
     return {
       nombre:          (item.nombre || "").trim(),

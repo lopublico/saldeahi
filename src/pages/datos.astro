@@ -84,7 +84,7 @@ const totales = catStats.reduce(
   { total: 0, conTwitter: 0, enX: 0, conBluesky: 0, activoBsky: 0, conMastodon: 0, activoMstdn: 0, sinAlternativa: 0, sinNinguna: 0 }
 );
 
-const conAlternativa = totales.total - totales.sinAlternativa;
+const conAlternativa    = totales.total - totales.sinAlternativa;
 const pctFueraDeX       = totales.total > 0 ? Math.round(((totales.total - totales.enX)  / totales.total) * 100) : 0;
 const pctConAlt         = totales.total > 0 ? Math.round((conAlternativa                  / totales.total) * 100) : 0;
 const pctEnX            = totales.total > 0 ? Math.round((totales.enX                     / totales.total) * 100) : 0;
@@ -195,11 +195,11 @@ function fmtDate(d: string | undefined) {
     Exige a tus representantes que abandonen redes gobernadas por oligarcas.
   </h2>
 
-  <div class="text-left px-4 sm:px-6 max-w-5xl mx-auto pb-16 mt-8 space-y-10">
+  <div class="text-left px-4 sm:px-6 max-w-screen-xl mx-auto pb-16 mt-8 space-y-10">
 
     <!-- Cabecera -->
     <div class="flex items-center justify-between">
-      <p class="text-xs text-muted-foreground">
+      <p class="text-sm text-muted-foreground">
         {totales.total} entidades · actualizado {fmtDate(lu.twitter)}
       </p>
       <ExportButton client:load />
@@ -208,44 +208,44 @@ function fmtDate(d: string | undefined) {
     <!-- Estadísticas clave -->
     <div class="border-y border-border/50 py-6 space-y-6">
       <div>
-        <p class="text-[11px] font-medium text-muted-foreground mb-3 uppercase tracking-wide">Presencia registrada</p>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-4">
+        <p class="text-xs font-medium text-muted-foreground mb-4 uppercase tracking-wide">Presencia registrada</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-5">
           <div>
-            <p class="text-xs text-muted-foreground mb-0.5">Entidades monitorizadas</p>
-            <p class="text-2xl font-bold tabular-nums">{totales.total}</p>
+            <p class="text-sm text-muted-foreground mb-1">Entidades monitorizadas</p>
+            <p class="text-3xl font-bold tabular-nums">{totales.total}</p>
           </div>
           <div>
-            <p class="text-xs text-muted-foreground mb-0.5">Con cuenta en X / Twitter</p>
-            <p class="text-2xl font-bold tabular-nums">{pctConTw}%<span class="text-sm font-normal text-muted-foreground ml-1.5">({totales.conTwitter})</span></p>
+            <p class="text-sm text-muted-foreground mb-1">Con cuenta en X / Twitter</p>
+            <p class="text-3xl font-bold tabular-nums">{pctConTw}%<span class="text-base font-normal text-muted-foreground ml-1.5">({totales.conTwitter})</span></p>
           </div>
           <div>
-            <p class="text-xs text-muted-foreground mb-0.5">Con cuenta en Bluesky</p>
-            <p class="text-2xl font-bold tabular-nums">{pctBsky}%<span class="text-sm font-normal text-muted-foreground ml-1.5">({totales.conBluesky})</span></p>
+            <p class="text-sm text-muted-foreground mb-1">Con cuenta en Bluesky</p>
+            <p class="text-3xl font-bold tabular-nums">{pctBsky}%<span class="text-base font-normal text-muted-foreground ml-1.5">({totales.conBluesky})</span></p>
           </div>
           <div>
-            <p class="text-xs text-muted-foreground mb-0.5">Con cuenta en Mastodon</p>
-            <p class="text-2xl font-bold tabular-nums">{pctMstdn}%<span class="text-sm font-normal text-muted-foreground ml-1.5">({totales.conMastodon})</span></p>
+            <p class="text-sm text-muted-foreground mb-1">Con cuenta en Mastodon</p>
+            <p class="text-3xl font-bold tabular-nums">{pctMstdn}%<span class="text-base font-normal text-muted-foreground ml-1.5">({totales.conMastodon})</span></p>
           </div>
         </div>
       </div>
       <div class="pt-6 border-t border-border/30">
-        <p class="text-[11px] font-medium text-muted-foreground mb-3 uppercase tracking-wide">Actividad <span class="font-normal normal-case">(últimos 30 días desde la fecha de referencia)</span></p>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-4">
+        <p class="text-xs font-medium text-muted-foreground mb-4 uppercase tracking-wide">Actividad <span class="font-normal normal-case">(últimos 30 días desde la fecha de referencia)</span></p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-5">
           <div>
-            <p class="text-xs text-muted-foreground mb-0.5">Activas en X / Twitter</p>
-            <p class="text-2xl font-bold tabular-nums">{pctEnX}%<span class="text-sm font-normal text-muted-foreground ml-1.5">({totales.enX})</span></p>
+            <p class="text-sm text-muted-foreground mb-1">Activas en X / Twitter</p>
+            <p class="text-3xl font-bold tabular-nums">{pctEnX}%<span class="text-base font-normal text-muted-foreground ml-1.5">({totales.enX})</span></p>
           </div>
           <div>
-            <p class="text-xs text-muted-foreground mb-0.5">Sin actividad en X</p>
-            <p class="text-2xl font-bold tabular-nums">{pctFueraDeX}%<span class="text-sm font-normal text-muted-foreground ml-1.5">({totales.total - totales.enX})</span></p>
+            <p class="text-sm text-muted-foreground mb-1">Sin actividad en X</p>
+            <p class="text-3xl font-bold tabular-nums">{pctFueraDeX}%<span class="text-base font-normal text-muted-foreground ml-1.5">({totales.total - totales.enX})</span></p>
           </div>
           <div>
-            <p class="text-xs text-muted-foreground mb-0.5">Activas en Bluesky</p>
-            <p class="text-2xl font-bold tabular-nums">{totales.activoBsky}<span class="text-sm font-normal text-muted-foreground ml-1.5">({pctActivoBsky}% de con BS)</span></p>
+            <p class="text-sm text-muted-foreground mb-1">Activas en Bluesky</p>
+            <p class="text-3xl font-bold tabular-nums">{totales.activoBsky}<span class="text-base font-normal text-muted-foreground ml-1.5">({pctActivoBsky}% de con BS)</span></p>
           </div>
           <div>
-            <p class="text-xs text-muted-foreground mb-0.5">Sin presencia en ninguna red</p>
-            <p class="text-2xl font-bold tabular-nums">{totales.sinNinguna}<span class="text-sm font-normal text-muted-foreground ml-1.5">({pctSinNinguna}%)</span></p>
+            <p class="text-sm text-muted-foreground mb-1">Sin presencia en ninguna red</p>
+            <p class="text-3xl font-bold tabular-nums">{totales.sinNinguna}<span class="text-base font-normal text-muted-foreground ml-1.5">({pctSinNinguna}%)</span></p>
           </div>
         </div>
       </div>
@@ -253,8 +253,13 @@ function fmtDate(d: string | undefined) {
 
     <!-- Distribución por plataforma -->
     <div>
-      <h2 class="text-base font-semibold mb-1">Distribución por plataforma</h2>
-      <p class="text-xs text-muted-foreground mb-5">Proporción de entidades con cuenta registrada (barra completa) y con actividad en los últimos 30 días (tramo oscuro) sobre el total de entidades monitorizadas.</p>
+      <h2 class="text-base font-semibold mb-1 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-muted-foreground shrink-0">
+          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/>
+        </svg>
+        Distribución por plataforma
+      </h2>
+      <p class="text-sm text-muted-foreground mb-6">Proporción de entidades con cuenta registrada (barra completa) y con actividad en los últimos 30 días (tramo oscuro) sobre el total de entidades monitorizadas.</p>
       <div class="space-y-5">
         <!-- X / Twitter -->
         <div>
@@ -274,8 +279,8 @@ function fmtDate(d: string | undefined) {
             <span class="text-xs tabular-nums text-muted-foreground shrink-0">{totales.conBluesky} con cuenta ({pctBsky}%) · {totales.activoBsky} activas ({pctActBskyOfTotal}% del total, {pctActivoBsky}% de con BS)</span>
           </div>
           <div class="flex h-2 w-full overflow-hidden bg-border/30">
-            <div class="h-full bg-foreground/75" style={`width:${pctActBskyOfTotal}%`} />
-            <div class="h-full bg-foreground/20" style={`width:${pctBsky - pctActBskyOfTotal}%`} />
+            <div class="h-full bg-sky-500/80" style={`width:${pctActBskyOfTotal}%`} />
+            <div class="h-full bg-sky-500/25" style={`width:${pctBsky - pctActBskyOfTotal}%`} />
           </div>
         </div>
         <!-- Mastodon -->
@@ -285,8 +290,8 @@ function fmtDate(d: string | undefined) {
             <span class="text-xs tabular-nums text-muted-foreground shrink-0">{totales.conMastodon} con cuenta ({pctMstdn}%) · {totales.activoMstdn} activas ({pctActMstdnOfTotal}% del total, {pctActivoMstdn}% de con MD)</span>
           </div>
           <div class="flex h-2 w-full overflow-hidden bg-border/30">
-            <div class="h-full bg-foreground/75" style={`width:${pctActMstdnOfTotal}%`} />
-            <div class="h-full bg-foreground/20" style={`width:${pctMstdn - pctActMstdnOfTotal}%`} />
+            <div class="h-full bg-violet-500/80" style={`width:${pctActMstdnOfTotal}%`} />
+            <div class="h-full bg-violet-500/25" style={`width:${pctMstdn - pctActMstdnOfTotal}%`} />
           </div>
         </div>
         <!-- Sin alternativa -->
@@ -296,11 +301,11 @@ function fmtDate(d: string | undefined) {
             <span class="text-xs tabular-nums text-muted-foreground shrink-0">{totales.sinAlternativa} ({pctNingW}%)</span>
           </div>
           <div class="flex h-2 w-full overflow-hidden bg-border/30">
-            <div class="h-full bg-foreground/40" style={`width:${pctNingW}%`} />
+            <div class="h-full bg-amber-500/60" style={`width:${pctNingW}%`} />
           </div>
         </div>
       </div>
-      <p class="text-[11px] text-muted-foreground/60 mt-3 flex gap-4">
+      <p class="text-xs text-muted-foreground/60 mt-4 flex gap-4">
         <span>▪ oscuro: activas en los últimos 30 días</span>
         <span>▪ claro: con cuenta, sin actividad reciente</span>
       </p>
@@ -308,50 +313,46 @@ function fmtDate(d: string | undefined) {
 
     <!-- Grupos parlamentarios -->
     <div>
-      <h2 class="text-base font-semibold mb-1">Presencia por grupo parlamentario</h2>
-      <p class="text-xs text-muted-foreground mb-5">XV Legislatura. Solo diputados/as y senadores/as con escaño actual; no incluye presidencia de cámara ni grupos como entidad. <em>Sin act. X</em>: sin publicación en X en los últimos 30 días. <em>BS activo</em>: con publicación en Bluesky en los últimos 30 días.</p>
+      <h2 class="text-base font-semibold mb-1 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-muted-foreground shrink-0">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Presencia por grupo parlamentario
+      </h2>
+      <p class="text-sm text-muted-foreground mb-5">XV Legislatura. Solo diputados/as y senadores/as con escaño actual; no incluye presidencia de cámara ni grupos como entidad.</p>
 
       <!-- Congreso -->
-      <p class="text-xs font-medium text-muted-foreground mb-2">Congreso de los Diputados</p>
+      <p class="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">Congreso de los Diputados</p>
       <div class="overflow-x-auto border border-border/50 mb-8">
-        <table class="w-full table-fixed" data-sortable>
-          <colgroup>
-            <col />
-            <col style="width:48px" />
-            <col style="width:140px" />
-            <col style="width:64px" />
-            <col style="width:70px" />
-            <col style="width:70px" />
-            <col style="width:72px" />
-          </colgroup>
+        <table class="w-full" data-sortable>
           <thead>
             <tr class="border-b border-border/40 bg-muted/20">
-              <th data-sort="grupo" class="sortable-th py-2 px-4 text-[11px] font-medium text-muted-foreground text-left">Grupo<span class="sort-ind"></span></th>
-              <th data-sort="total" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">N<span class="sort-ind"></span></th>
-              <th data-sort="pctFuera" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-left">Sin act. X<span class="sort-ind"></span></th>
-              <th data-sort="enX" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Act. X<span class="sort-ind"></span></th>
-              <th data-sort="bsky" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Bluesky<span class="sort-ind"></span></th>
-              <th data-sort="bskyA" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">BS activo<span class="sort-ind"></span></th>
-              <th data-sort="mstdn" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Mastodon<span class="sort-ind"></span></th>
+              <th data-sort="grupo" class="sortable-th py-2.5 px-4 text-xs font-medium text-muted-foreground text-left whitespace-nowrap">Grupo<span class="sort-ind"></span></th>
+              <th data-sort="total" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">N<span class="sort-ind"></span></th>
+              <th data-sort="pctFuera" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-left whitespace-nowrap">Sin actividad X<span class="sort-ind"></span></th>
+              <th data-sort="enX" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Activos X<span class="sort-ind"></span></th>
+              <th data-sort="bsky" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Con Bluesky<span class="sort-ind"></span></th>
+              <th data-sort="bskyA" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Activos BS<span class="sort-ind"></span></th>
+              <th data-sort="mstdn" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Mastodon<span class="sort-ind"></span></th>
             </tr>
           </thead>
           <tbody>
             {gruposStats.map((g) => (
               <tr class="border-b border-border/30 hover:bg-muted/20 transition-colors">
-                <td data-col="grupo" class="py-2 px-4 text-sm font-medium text-left truncate">{g.label}</td>
-                <td data-col="total" data-val={g.total} class="py-2 px-3 text-sm tabular-nums text-right text-muted-foreground">{g.total}</td>
-                <td data-col="pctFuera" data-val={g.pctFuera} class="py-2 px-3">
+                <td data-col="grupo" class="py-2.5 px-4 text-sm font-medium text-left whitespace-nowrap">{g.label}</td>
+                <td data-col="total" data-val={g.total} class="py-2.5 px-3 text-sm tabular-nums text-right text-muted-foreground">{g.total}</td>
+                <td data-col="pctFuera" data-val={g.pctFuera} class="py-2.5 px-3">
                   <div class="flex items-center gap-2">
-                    <div class="flex h-1.5 w-14 overflow-hidden bg-border/30 shrink-0">
+                    <div class="flex h-1.5 w-16 overflow-hidden bg-border/30 shrink-0">
                       <div class="h-full bg-foreground/40" style={`width:${g.pctFuera}%`} />
                     </div>
                     <span class="text-xs tabular-nums text-muted-foreground shrink-0">{g.pctFuera}%</span>
                   </div>
                 </td>
-                <td data-col="enX" data-val={g.enX} class="py-2 px-3 text-sm tabular-nums text-right">{g.enX}</td>
-                <td data-col="bsky" data-val={g.conBluesky} class="py-2 px-3 text-sm tabular-nums text-right">{g.conBluesky}</td>
-                <td data-col="bskyA" data-val={g.activoBsky} class="py-2 px-3 text-sm tabular-nums text-right font-medium">{g.activoBsky}</td>
-                <td data-col="mstdn" data-val={g.conMastodon} class="py-2 px-3 text-sm tabular-nums text-right">{g.conMastodon}</td>
+                <td data-col="enX" data-val={g.enX} class="py-2.5 px-3 text-sm tabular-nums text-right">{g.enX}</td>
+                <td data-col="bsky" data-val={g.conBluesky} class="py-2.5 px-3 text-sm tabular-nums text-right">{g.conBluesky}</td>
+                <td data-col="bskyA" data-val={g.activoBsky} class="py-2.5 px-3 text-sm tabular-nums text-right font-medium">{g.activoBsky}</td>
+                <td data-col="mstdn" data-val={g.conMastodon} class="py-2.5 px-3 text-sm tabular-nums text-right">{g.conMastodon}</td>
               </tr>
             ))}
           </tbody>
@@ -359,46 +360,37 @@ function fmtDate(d: string | undefined) {
       </div>
 
       <!-- Senado -->
-      <p class="text-xs font-medium text-muted-foreground mb-2">Senado de España</p>
+      <p class="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">Senado de España</p>
       <div class="overflow-x-auto border border-border/50">
-        <table class="w-full table-fixed" data-sortable>
-          <colgroup>
-            <col />
-            <col style="width:48px" />
-            <col style="width:140px" />
-            <col style="width:64px" />
-            <col style="width:70px" />
-            <col style="width:70px" />
-            <col style="width:72px" />
-          </colgroup>
+        <table class="w-full" data-sortable>
           <thead>
             <tr class="border-b border-border/40 bg-muted/20">
-              <th data-sort="grupo" class="sortable-th py-2 px-4 text-[11px] font-medium text-muted-foreground text-left">Grupo<span class="sort-ind"></span></th>
-              <th data-sort="total" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">N<span class="sort-ind"></span></th>
-              <th data-sort="pctFuera" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-left">Sin act. X<span class="sort-ind"></span></th>
-              <th data-sort="enX" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Act. X<span class="sort-ind"></span></th>
-              <th data-sort="bsky" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Bluesky<span class="sort-ind"></span></th>
-              <th data-sort="bskyA" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">BS activo<span class="sort-ind"></span></th>
-              <th data-sort="mstdn" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Mastodon<span class="sort-ind"></span></th>
+              <th data-sort="grupo" class="sortable-th py-2.5 px-4 text-xs font-medium text-muted-foreground text-left whitespace-nowrap">Grupo<span class="sort-ind"></span></th>
+              <th data-sort="total" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">N<span class="sort-ind"></span></th>
+              <th data-sort="pctFuera" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-left whitespace-nowrap">Sin actividad X<span class="sort-ind"></span></th>
+              <th data-sort="enX" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Activos X<span class="sort-ind"></span></th>
+              <th data-sort="bsky" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Con Bluesky<span class="sort-ind"></span></th>
+              <th data-sort="bskyA" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Activos BS<span class="sort-ind"></span></th>
+              <th data-sort="mstdn" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Mastodon<span class="sort-ind"></span></th>
             </tr>
           </thead>
           <tbody>
             {senadoGruposStats.map((g) => (
               <tr class="border-b border-border/30 hover:bg-muted/20 transition-colors">
-                <td data-col="grupo" class="py-2 px-4 text-sm font-medium text-left truncate">{g.label}</td>
-                <td data-col="total" data-val={g.total} class="py-2 px-3 text-sm tabular-nums text-right text-muted-foreground">{g.total}</td>
-                <td data-col="pctFuera" data-val={g.pctFuera} class="py-2 px-3">
+                <td data-col="grupo" class="py-2.5 px-4 text-sm font-medium text-left whitespace-nowrap">{g.label}</td>
+                <td data-col="total" data-val={g.total} class="py-2.5 px-3 text-sm tabular-nums text-right text-muted-foreground">{g.total}</td>
+                <td data-col="pctFuera" data-val={g.pctFuera} class="py-2.5 px-3">
                   <div class="flex items-center gap-2">
-                    <div class="flex h-1.5 w-14 overflow-hidden bg-border/30 shrink-0">
+                    <div class="flex h-1.5 w-16 overflow-hidden bg-border/30 shrink-0">
                       <div class="h-full bg-foreground/40" style={`width:${g.pctFuera}%`} />
                     </div>
                     <span class="text-xs tabular-nums text-muted-foreground shrink-0">{g.pctFuera}%</span>
                   </div>
                 </td>
-                <td data-col="enX" data-val={g.enX} class="py-2 px-3 text-sm tabular-nums text-right">{g.enX}</td>
-                <td data-col="bsky" data-val={g.conBluesky} class="py-2 px-3 text-sm tabular-nums text-right">{g.conBluesky}</td>
-                <td data-col="bskyA" data-val={g.activoBsky} class="py-2 px-3 text-sm tabular-nums text-right font-medium">{g.activoBsky}</td>
-                <td data-col="mstdn" data-val={g.conMastodon} class="py-2 px-3 text-sm tabular-nums text-right">{g.conMastodon}</td>
+                <td data-col="enX" data-val={g.enX} class="py-2.5 px-3 text-sm tabular-nums text-right">{g.enX}</td>
+                <td data-col="bsky" data-val={g.conBluesky} class="py-2.5 px-3 text-sm tabular-nums text-right">{g.conBluesky}</td>
+                <td data-col="bskyA" data-val={g.activoBsky} class="py-2.5 px-3 text-sm tabular-nums text-right font-medium">{g.activoBsky}</td>
+                <td data-col="mstdn" data-val={g.conMastodon} class="py-2.5 px-3 text-sm tabular-nums text-right">{g.conMastodon}</td>
               </tr>
             ))}
           </tbody>
@@ -408,54 +400,49 @@ function fmtDate(d: string | undefined) {
 
     <!-- Desglose por categoría -->
     <div>
-      <h2 class="text-base font-semibold mb-1">Desglose por categoría</h2>
-      <p class="text-xs text-muted-foreground mb-4"><em>Act. X</em>: activos en X en los últimos 30 días. <em>↳ total</em>: total con cuenta en X (incluyendo inactivos). <em>BS activo</em>: activos en Bluesky en los últimos 30 días. <em>Sin red</em>: sin cuenta en ninguna de las tres plataformas.</p>
+      <h2 class="text-base font-semibold mb-1 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-muted-foreground shrink-0">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>
+        </svg>
+        Desglose por categoría
+      </h2>
+      <p class="text-sm text-muted-foreground mb-4"><em>Activos X</em>: con publicación en X en los últimos 30 días. <em>Con X</em>: total con cuenta en X incluyendo inactivos. <em>Sin redes</em>: sin cuenta en ninguna de las tres plataformas.</p>
       <div class="overflow-x-auto border border-border/50">
-        <table class="w-full table-fixed" data-sortable>
-          <colgroup>
-            <col />
-            <col style="width:48px" />
-            <col style="width:64px" />
-            <col style="width:64px" />
-            <col style="width:68px" />
-            <col style="width:68px" />
-            <col style="width:68px" />
-            <col style="width:56px" />
-          </colgroup>
+        <table class="w-full" data-sortable>
           <thead>
             <tr class="border-b border-border/40 bg-muted/20">
-              <th data-sort="cat" class="sortable-th py-2 px-4 text-[11px] font-medium text-muted-foreground text-left">Categoría<span class="sort-ind"></span></th>
-              <th data-sort="total" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">N<span class="sort-ind"></span></th>
-              <th data-sort="enX" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Act. X<span class="sort-ind"></span></th>
-              <th data-sort="conTw" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">↳ total<span class="sort-ind"></span></th>
-              <th data-sort="bsky" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Bluesky<span class="sort-ind"></span></th>
-              <th data-sort="bskyA" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">BS activo<span class="sort-ind"></span></th>
-              <th data-sort="mstdn" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Mastodon<span class="sort-ind"></span></th>
-              <th data-sort="sinNada" class="sortable-th py-2 px-3 text-[11px] font-medium text-muted-foreground text-right">Sin red<span class="sort-ind"></span></th>
+              <th data-sort="cat" class="sortable-th py-2.5 px-4 text-xs font-medium text-muted-foreground text-left whitespace-nowrap">Categoría<span class="sort-ind"></span></th>
+              <th data-sort="total" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">N<span class="sort-ind"></span></th>
+              <th data-sort="enX" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Activos X<span class="sort-ind"></span></th>
+              <th data-sort="conTw" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Con X<span class="sort-ind"></span></th>
+              <th data-sort="bsky" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Con Bluesky<span class="sort-ind"></span></th>
+              <th data-sort="bskyA" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Activos BS<span class="sort-ind"></span></th>
+              <th data-sort="mstdn" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Mastodon<span class="sort-ind"></span></th>
+              <th data-sort="sinNada" class="sortable-th py-2.5 px-3 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Sin redes<span class="sort-ind"></span></th>
             </tr>
           </thead>
           <tbody>
             {catStats.map((c) => (
               <tr class="border-b border-border/30 hover:bg-muted/20 transition-colors">
-                <td data-col="cat" class="py-2 px-4 text-sm font-medium text-left truncate">{c.label}</td>
-                <td data-col="total" data-val={c.total} class="py-2 px-3 text-sm tabular-nums text-right text-muted-foreground">{c.total}</td>
-                <td data-col="enX" data-val={c.enX} class="py-2 px-3 text-sm tabular-nums text-right">{c.enX}</td>
-                <td data-col="conTw" data-val={c.conTwitter} class="py-2 px-3 text-sm tabular-nums text-right text-muted-foreground">{c.conTwitter}</td>
-                <td data-col="bsky" data-val={c.conBluesky} class="py-2 px-3 text-sm tabular-nums text-right">{c.conBluesky}</td>
-                <td data-col="bskyA" data-val={c.activoBsky} class="py-2 px-3 text-sm tabular-nums text-right font-medium">{c.activoBsky}</td>
-                <td data-col="mstdn" data-val={c.conMastodon} class="py-2 px-3 text-sm tabular-nums text-right">{c.conMastodon}</td>
-                <td data-col="sinNada" data-val={c.sinNinguna} class="py-2 px-3 text-sm tabular-nums text-right text-muted-foreground">{c.sinNinguna}</td>
+                <td data-col="cat" class="py-2.5 px-4 text-sm font-medium text-left whitespace-nowrap">{c.label}</td>
+                <td data-col="total" data-val={c.total} class="py-2.5 px-3 text-sm tabular-nums text-right text-muted-foreground">{c.total}</td>
+                <td data-col="enX" data-val={c.enX} class="py-2.5 px-3 text-sm tabular-nums text-right">{c.enX}</td>
+                <td data-col="conTw" data-val={c.conTwitter} class="py-2.5 px-3 text-sm tabular-nums text-right text-muted-foreground">{c.conTwitter}</td>
+                <td data-col="bsky" data-val={c.conBluesky} class="py-2.5 px-3 text-sm tabular-nums text-right">{c.conBluesky}</td>
+                <td data-col="bskyA" data-val={c.activoBsky} class="py-2.5 px-3 text-sm tabular-nums text-right font-medium">{c.activoBsky}</td>
+                <td data-col="mstdn" data-val={c.conMastodon} class="py-2.5 px-3 text-sm tabular-nums text-right">{c.conMastodon}</td>
+                <td data-col="sinNada" data-val={c.sinNinguna} class="py-2.5 px-3 text-sm tabular-nums text-right text-muted-foreground">{c.sinNinguna}</td>
               </tr>
             ))}
             <tr data-footer class="border-t border-border bg-muted/20">
-              <td class="py-2 px-4 text-sm font-semibold text-left">Total</td>
-              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right text-muted-foreground">{totales.total}</td>
-              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right">{totales.enX}</td>
-              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right text-muted-foreground">{totales.conTwitter}</td>
-              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right">{totales.conBluesky}</td>
-              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right">{totales.activoBsky}</td>
-              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right">{totales.conMastodon}</td>
-              <td class="py-2 px-3 text-sm tabular-nums font-semibold text-right text-muted-foreground">{totales.sinNinguna}</td>
+              <td class="py-2.5 px-4 text-sm font-semibold text-left">Total</td>
+              <td class="py-2.5 px-3 text-sm tabular-nums font-semibold text-right text-muted-foreground">{totales.total}</td>
+              <td class="py-2.5 px-3 text-sm tabular-nums font-semibold text-right">{totales.enX}</td>
+              <td class="py-2.5 px-3 text-sm tabular-nums font-semibold text-right text-muted-foreground">{totales.conTwitter}</td>
+              <td class="py-2.5 px-3 text-sm tabular-nums font-semibold text-right">{totales.conBluesky}</td>
+              <td class="py-2.5 px-3 text-sm tabular-nums font-semibold text-right">{totales.activoBsky}</td>
+              <td class="py-2.5 px-3 text-sm tabular-nums font-semibold text-right">{totales.conMastodon}</td>
+              <td class="py-2.5 px-3 text-sm tabular-nums font-semibold text-right text-muted-foreground">{totales.sinNinguna}</td>
             </tr>
           </tbody>
         </table>
@@ -464,19 +451,24 @@ function fmtDate(d: string | undefined) {
 
     <!-- Metodología -->
     <div class="pt-2 border-t border-border/40">
-      <h2 class="text-base font-semibold mb-1">Metodología</h2>
-      <p class="text-xs text-muted-foreground mb-8">Criterios de inclusión, proceso de obtención y verificación de los datos.</p>
+      <h2 class="text-base font-semibold mb-1 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-muted-foreground shrink-0">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+        </svg>
+        Metodología
+      </h2>
+      <p class="text-sm text-muted-foreground mb-8">Criterios de inclusión, proceso de obtención y verificación de los datos.</p>
 
-      <div class="space-y-8 text-sm text-muted-foreground leading-relaxed max-w-3xl">
+      <div class="space-y-8 text-sm text-muted-foreground leading-relaxed">
 
         <!-- 1. Alcance -->
         <div>
           <h3 class="text-sm font-semibold text-foreground mb-2">1. Alcance y unidad de análisis</h3>
           <p class="mb-3">
-            El estudio cubre {totales.total} entidades distribuidas en siete categorías: Administración General del Estado (ministerios y organismos con rango de secretaría), Gobierno (presidente y ministros en activo), Congreso de los Diputados (institución, presidencia, grupos parlamentarios y diputados/as con escaño), Senado (ídem para senadores/as, incluyendo designados por comunidades autónomas), Partidos políticos (cuentas orgánicas de partidos con representación en el Congreso), Comunidades Autónomas (presidencias y asambleas autonómicas) y Universidades (centros reconocidos por el Ministerio de Universidades).
+            El estudio cubre {totales.total} entidades distribuidas en siete categorías: Administración General del Estado (ministerios, principales organismos autónomos con comunicación pública activa —AEAT, AEMET, INE, SEPE, AECID, CIS, BNE, IGN, TGSS, CSD— y empresas públicas de alta visibilidad —RTVE, Renfe, Aena, Correos, Adif, etc.—), Gobierno (presidente y ministros en activo), Congreso de los Diputados (institución, presidencia, grupos parlamentarios y diputados/as con escaño), Senado (ídem para senadores/as, incluyendo designados por comunidades autónomas), Partidos políticos (cuentas orgánicas de partidos con representación en el Congreso), Comunidades Autónomas (presidencias y asambleas autonómicas) y Universidades (centros reconocidos por el Ministerio de Universidades).
           </p>
           <p>
-            Se excluyen organismos autónomos, agencias estatales, entidades locales y delegaciones territoriales. Los partidos de ámbito exclusivamente autonómico no tienen entrada propia en la categoría Partidos, aunque sus representantes sí figuran en Congreso y Senado.
+            Se excluyen organismos de perfil institucional bajo, entidades locales, delegaciones territoriales y administraciones sub-nacionales. Los partidos de ámbito exclusivamente autonómico no tienen entrada propia en la categoría Partidos, aunque sus representantes sí figuran en Congreso y Senado.
           </p>
         </div>
 
