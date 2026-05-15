@@ -736,32 +736,7 @@ function pct(num: number, den: number) {
     opacity: 0.5;
   }
 
-  /* Tooltip CSS para las barras de adopción */
-  [data-tip] {
-    position: relative;
-  }
-  [data-tip]::after {
-    content: attr(data-tip);
-    position: absolute;
-    bottom: calc(100% + 6px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: hsl(var(--foreground));
-    color: hsl(var(--background));
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 11px;
-    line-height: 1.4;
-    white-space: nowrap;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.12s ease;
-    z-index: 50;
-    box-shadow: 0 2px 8px rgba(0,0,0,.15);
-  }
-  [data-tip]:hover::after {
-    opacity: 1;
-  }
+  [data-tip] { cursor: default; }
 </style>
 
 <script>
@@ -811,4 +786,51 @@ function pct(num: number, den: number) {
   }
 
   document.addEventListener('astro:page-load', initSortableTables);
+
+  // ── Tooltip para barras de adopción ──────────────────────────────────────────
+  function initTooltips() {
+    let tip = document.getElementById('bar-tooltip');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.id = 'bar-tooltip';
+      tip.style.cssText = [
+        'position:fixed',
+        'z-index:9999',
+        'background:hsl(var(--foreground))',
+        'color:hsl(var(--background))',
+        'padding:4px 10px',
+        'border-radius:6px',
+        'font-size:11px',
+        'line-height:1.4',
+        'white-space:nowrap',
+        'pointer-events:none',
+        'opacity:0',
+        'transition:opacity 0.12s ease',
+        'box-shadow:0 2px 8px rgba(0,0,0,.15)',
+      ].join(';');
+      document.body.appendChild(tip);
+    }
+
+    document.querySelectorAll<HTMLElement>('[data-tip]').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        tip!.textContent = el.dataset.tip!;
+        const r = el.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        // Prefer above; flip below if not enough space
+        const above = r.top - 10;
+        if (above > 40) {
+          tip!.style.top = above + 'px';
+          tip!.style.transform = 'translate(-50%, -100%)';
+        } else {
+          tip!.style.top = (r.bottom + 6) + 'px';
+          tip!.style.transform = 'translate(-50%, 0)';
+        }
+        tip!.style.left = cx + 'px';
+        tip!.style.opacity = '1';
+      });
+      el.addEventListener('mouseleave', () => { tip!.style.opacity = '0'; });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initTooltips);
 </script>
