@@ -1,0 +1,310 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+---
+
+<Layout
+  title="Por qué - Sal de ahí - Lo Público"
+  description="Argumentos sobre la presencia de instituciones públicas en redes sociales controladas por empresas privadas."
+  active="por qué"
+>
+
+  <!-- Hero oscuro -->
+  <div class="porque-hero">
+    <Topbar dark active="por qué" />
+    <div class="max-w-screen-xl mx-auto px-6 sm:px-14 pt-10 pb-14">
+      <h1 class="porque-hero-h1">
+        ¿Por qué{" "}
+        <em class="porque-hero-h1-em">importa?</em>
+      </h1>
+      <p class="porque-hero-lead">
+        Los gobiernos democráticos siguen habitando espacios gobernados por oligarcas.
+      </p>
+    </div>
+  </div>
+
+  <div class="max-w-screen-xl mx-auto px-6 sm:px-14">
+    <div class="porque-layout">
+
+      <!-- Columna izquierda: artículo -->
+      <div class="porque-body space-y-8 mt-12 pb-16 text-sm leading-relaxed">
+
+        <section class="space-y-3">
+          <h2 class="porque-h2">La dependencia institucional de plataformas privadas</h2>
+          <p>
+            Las instituciones públicas españolas utilizan plataformas de comunicación controladas por corporaciones privadas como <strong>canal prioritario para relacionarse con la ciudadanía</strong>. Comunicados oficiales, información sobre servicios, alertas de emergencia y comparecencias públicas se distribuyen mayoritariamente a través de X/Twitter o Instagram: desde los avisos meteorológicos de la AEMET y las alertas de tráfico de la DGT hasta las comparecencias del Ministerio de Sanidad o los comunicados del INE.
+          </p>
+          <p>
+            Esta situación plantea interrogantes sobre la <strong>soberanía democrática del modelo</strong>, puesto que obliga a los ciudadanos a pertenecer a redes controladas por oligarcas para acceder a información de interés público.
+          </p>
+          <p>
+            Esta dependencia comunicativa no es un problema meramente técnico: implica que las condiciones bajo las cuales los ciudadanos acceden a la información pública —incluyendo qué contenido se amplifica y cuál +se limita— quedan sujetas a <strong>decisiones unilaterales de empresas privadas con intereses propios</strong>. La adquisición de Twitter por Elon Musk en 2022 y los cambios subsiguientes en la política de moderación y en el algoritmo de distribución ilustran la volatilidad de estas condiciones, fomentando además un entorno hostil donde los discursos de odio y datos falsos circulan impunemente.<sup><a href="#fn1" id="fnref1" class="porque-fn-ref">1</a></sup>
+          </p>
+          <p>
+            Este proyecto registra de forma sistemática la presencia de instituciones públicas en Twitter y otras alternativas que se han planteado en los últimos años, con el objetivo de proporcionar datos empíricos para el debate sobre soberanía digital de las administraciones públicas.
+          </p>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="porque-h2">El fediverso como alternativa estructural</h2>
+          <p>
+            Mastodon y otras aplicaciones basadas en <strong>ActivityPub</strong> —el protocolo de la W3C que rige la comunicación entre servidores del fediverso— ofrecen una arquitectura radicalmente distinta. Cada organismo puede operar su propio servidor, que se comunica con el resto de la red <strong>sin necesidad de intermediario central</strong>. No existe un propietario único con capacidad para modificar las reglas de forma unilateral o privatizar el acceso a los datos.
+          </p>
+          <p>
+            La <a class="underline" href="https://ec.social-network.europa.eu/@EUCommission" target="_blank">Comisión Europea</a> opera su propia instancia de Mastodon (<span class="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">social.network.europa.eu</span>) desde noviembre de 2022. La decisión se enmarca en una estrategia más amplia de soberanía tecnológica: <strong>la infraestructura comunicativa de una institución pública no debería estar alojada en sistemas sobre los que la institución no tiene control alguno</strong>.
+          </p>
+          <p>
+            Desde el punto de vista del ciudadano, la arquitectura federada preserva su autonomía: puede abrir cuenta en cualquier servidor —independiente, comunitario o autogestionado— y participar de igual modo en la conversación de los servidores institucionales, manteniendo también su independencia digital de los Estados. <strong>Si un servidor cambia de política, el usuario puede migrar sin perder su identidad ni sus conexiones.</strong>
+          </p>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="porque-h2">Bluesky y los límites de la descentralización parcial</h2>
+          <p>
+            Bluesky implementa el protocolo AT Protocol (atproto), diseñado con objetivos de descentralización, pero con diferencias sustanciales respecto a ActivityPub en la práctica actual. La arquitectura de atproto define un componente de relay —responsable de indexar y distribuir el contenido entre nodos— que <strong>en la práctica opera de forma centralizada</strong>: existe un número muy reducido de relays con cobertura completa de la red, todos ellos operados por Bluesky PBC.<sup><a href="#fn2" id="fnref2" class="porque-fn-ref">2</a></sup>
+          </p>
+          <p>
+            Esto significa que, aunque cualquier usuario puede alojar su propio PDS (<em>Personal Data Server</em>), la distribución del contenido sigue dependiendo de la infraestructura centralizada de Bluesky PBC. La interoperabilidad entre PDS independientes sin pasar por los relays de Bluesky es actualmente limitada, con unos <strong>costes de centralización efectiva muy superiores a Mastodon</strong>.
+          </p>
+          <p>
+            Bluesky representa una mejora respecto a X en términos de portabilidad de datos y apertura del protocolo. Sin embargo, <strong>no resuelve el problema de fondo de la dependencia institucional en la misma medida que ActivityPub</strong>. Este proyecto registra la presencia en Bluesky como indicador positivo de apertura hacia alternativas, sin equipararlo a una adopción plena de infraestructura federada.
+          </p>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="porque-h2">Marco normativo</h2>
+          <p>
+            El <a class="underline" href="https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX%3A32022R2065" target="_blank" rel="noopener">Reglamento de Servicios Digitales (DSA, Reglamento UE 2022/2065)</a> establece obligaciones de transparencia y rendición de cuentas para las grandes plataformas en línea. La Comisión Europea abrió procedimiento formal contra X en diciembre de 2023 por incumplimiento de estas obligaciones. Sin embargo, <strong>el DSA no obliga a las administraciones públicas a usar —o abandonar— ninguna plataforma en concreto</strong>: la decisión sobre qué canales de comunicación digital utilizar sigue siendo competencia de cada institución.
+          </p>
+          <p>
+            El Parlamento Europeo debatió en sesión plenaria en octubre de 2025 el impulso y protección de la soberanía digital de la UE, <strong>instando a las instituciones a reducir su dependencia de plataformas de terceros</strong> para la comunicación institucional.<sup><a href="#fn3" id="fnref3" class="porque-fn-ref">3</a></sup> La <a class="underline" href="https://digital-strategy.ec.europa.eu/en/policies/digital-services-act-package" target="_blank">Estrategia Digital Europea</a> contempla la soberanía tecnológica como uno de sus ejes, aunque sin compromisos vinculantes sobre qué canales de comunicación deben usar las administraciones.
+          </p>
+        </section>
+
+        <section class="space-y-3">
+          <h2 class="porque-h2">Lo que muestran los datos</h2>
+          <p>
+            Los datos recogidos en este proyecto permiten observar la distribución real de la presencia institucional española en las tres plataformas analizadas. Se puede constatar qué categorías de instituciones mantienen actividad en X, cuáles han abierto cuentas en plataformas alternativas, y cuáles no tienen presencia verificada en ninguna de las tres.
+          </p>
+          <p>
+            Exigir que las instituciones públicas no dependan de plataformas controladas por particulares para comunicarse con la ciudadanía no es una posición ideológica: es el mismo principio que sustenta la transparencia en contratación pública o el derecho de acceso a la información. Está además recogido en marcos normativos europeos ya vigentes. Este proyecto documenta con rigor metodológico —y con el proceso de obtención públicamente descrito— la distancia entre ese principio y la realidad actual, para que los datos puedan usarse como referencia en investigaciones sobre comunicación institucional, soberanía digital o rendición de cuentas de las administraciones públicas.
+          </p>
+        </section>
+
+        <section class="space-y-3 porque-footnotes-section" aria-label="Notas">
+          <ol class="porque-footnotes-list">
+            <li id="fn1">
+              La Comisión Europea abrió procedimiento formal contra X por incumplimiento del DSA el 18 de diciembre de 2023, por fallos en la gestión de contenidos ilegales. <a href="https://ec.europa.eu/commission/presscorner/detail/en/ip_23_6709" target="_blank" rel="noopener">ec.europa.eu ↗</a>. El Center for Countering Digital Hate documentó en su informe «The Musk Bump» (2022) aumentos significativos en publicaciones con discurso de odio tras la adquisición. <a href="https://counterhate.com/blog/the-musk-bump-quantifying-the-rise-in-hate-speech-under-elon-musk/" target="_blank" rel="noopener">counterhate.com ↗</a>
+              <a href="#fnref1" class="porque-fn-back" aria-label="Volver al texto">↩</a>
+            </li>
+            <li id="fn2">
+              Documentación oficial de AT Protocol: <a href="https://atproto.com/guides/overview" target="_blank" rel="noopener">atproto.com ↗</a>. Para un análisis crítico de la centralización práctica del relay, véase Christine Lemmer-Webber, «How decentralized is Bluesky really?»: <a href="https://dustycloud.org/blog/how-decentralized-is-bluesky-really/" target="_blank" rel="noopener">dustycloud.org ↗</a>
+              <a href="#fnref2" class="porque-fn-back" aria-label="Volver al texto">↩</a>
+            </li>
+            <li id="fn3">
+              Parlamento Europeo, sesión plenaria, octubre de 2025: <a href="https://www.europarl.europa.eu/news/es/agenda/plenary-news/2025-10-06/3/impulso-y-proteccion-de-la-soberania-digital-de-la-ue" target="_blank" rel="noopener">europarl.europa.eu ↗</a>
+              <a href="#fnref3" class="porque-fn-back" aria-label="Volver al texto">↩</a>
+            </li>
+          </ol>
+        </section>
+
+      </div>
+
+      <!-- Columna derecha: logo + referencias -->
+      <aside class="porque-sidebar">
+        <div class="porque-sidebar-inner">
+          <img src="/og-image.png" alt="" class="porque-sidebar-img" />
+          <div class="porque-refs">
+            <p class="porque-refs-label">Para más información</p>
+            <ul class="porque-refs-list">
+              <li><a href="https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX%3A32022R2065" target="_blank" rel="noopener">Reglamento de Servicios Digitales (DSA) — EUR-Lex</a></li>
+              <li><a href="https://ec.europa.eu/commission/presscorner/detail/en/ip_23_6709" target="_blank" rel="noopener">Procedimiento formal UE contra X — Comisión Europea, dic. 2023</a></li>
+              <li><a href="https://www.tchap.gouv.fr/" target="_blank" rel="noopener">Tchap — Mensajería federada del gobierno francés</a></li>
+              <li><a href="https://www.zendis.de/en" target="_blank" rel="noopener">ZenDiS — Centro para la Soberanía Digital (Alemania)</a></li>
+              <li><a href="https://www.w3.org/TR/activitypub/" target="_blank" rel="noopener">Especificación ActivityPub — W3C</a></li>
+              <li><a href="https://atproto.com/guides/overview" target="_blank" rel="noopener">Documentación AT Protocol — atproto.com</a></li>
+              <li><a href="https://dustycloud.org/blog/how-decentralized-is-bluesky-really/" target="_blank" rel="noopener">«How decentralized is Bluesky?» — Christine Lemmer-Webber</a></li>
+              <li><a href="https://ec.social-network.europa.eu/@EUCommission" target="_blank" rel="noopener">Comisión Europea en Mastodon</a></li>
+            </ul>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</Layout>
+
+<style is:global>
+/* ── porque.astro ──────────────────────────────────────────────── */
+
+.porque-hero {
+  background: #0e0e0e;
+  color: #f6f4ef;
+  min-height: var(--hero-h);
+}
+
+
+.porque-hero-h1 {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: clamp(32px, 5vw, 60px);
+  letter-spacing: -0.03em;
+  line-height: 1.06;
+  margin: 28px 0 18px;
+  color: #fff;
+}
+
+.porque-hero-h1-em {
+  font-family: 'Lora', Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.porque-hero-lead {
+  font-family: 'Lora', Georgia, serif;
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.58;
+  color: rgba(246,244,239,0.7);
+  max-width: 540px;
+  margin: 0;
+}
+
+.porque-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .porque-layout {
+    grid-template-columns: 1fr 280px;
+    gap: 64px;
+  }
+}
+
+.porque-body {
+  min-width: 0;
+}
+
+.porque-sidebar {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .porque-sidebar {
+    display: block;
+    padding-top: 48px;
+    padding-bottom: 64px;
+  }
+}
+
+.porque-sidebar-inner {
+  position: sticky;
+  top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.porque-refs {
+  border: 1px solid var(--sd-line);
+  border-radius: 8px;
+  padding: 16px 18px;
+}
+
+.porque-refs-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sd-muted);
+  margin-bottom: 12px;
+}
+
+.porque-refs-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.porque-refs-list li {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--sd-muted);
+}
+
+.porque-refs-list a {
+  color: var(--sd-fg-2);
+  text-decoration: none;
+  border-bottom: 1px solid var(--sd-line-strong);
+}
+
+.porque-refs-list a:hover {
+  border-bottom-color: var(--sd-fg-2);
+}
+
+.porque-sidebar-img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  display: block;
+}
+
+.porque-h2 {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: -0.015em;
+  color: var(--sd-fg-2);
+}
+
+.porque-fn-ref {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--sd-muted);
+  text-decoration: none;
+  vertical-align: super;
+  line-height: 0;
+  padding: 0 1px;
+  border-bottom: none;
+}
+.porque-fn-ref:hover { color: var(--sd-fg-2); }
+
+.porque-footnotes-section {
+  border-top: 1px solid var(--sd-line);
+  padding-top: 20px;
+  margin-top: 32px;
+}
+.porque-footnotes-list {
+  list-style: decimal;
+  padding-left: 20px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.porque-footnotes-list li {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1.65;
+  color: var(--sd-muted);
+}
+.porque-footnotes-list a {
+  color: var(--sd-muted);
+  border-bottom: 1px solid var(--sd-line-strong);
+  text-decoration: none;
+}
+.porque-footnotes-list a:hover { color: var(--sd-fg-2); }
+.porque-fn-back {
+  margin-left: 6px;
+  border-bottom: none !important;
+  opacity: 0.5;
+}
+.porque-fn-back:hover { opacity: 1; }
+</style>

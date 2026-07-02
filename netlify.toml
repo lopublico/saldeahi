@@ -1,0 +1,12 @@
+[build]
+  # Los checks de actividad (Bluesky, Mastodon, Twitter) los gestiona GitHub Actions
+  # el día 1 de cada mes. Netlify solo construye desde los JSON ya actualizados.
+  command   = "python3 -m pip install -q -r dataset/requirements.txt && python3 dataset/scripts/export.py && npm run build"
+  publish   = "dist"
+
+[build.environment]
+  NODE_VERSION   = "22"
+  PYTHON_VERSION = "3.11"
+
+[functions]
+  directory = "netlify/functions"

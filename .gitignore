@@ -1,0 +1,50 @@
+# build output
+dist/
+
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# entorno virtual de Python (se recrea con pip install -r dataset/requirements.txt)
+.venv/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment variables
+.env
+.env.production
+
+# macOS-specific files
+.DS_Store
+
+# herramientas locales
+.vscode/
+
+# copias de seguridad locales del Excel (recuperables desde el historial de git)
+dataset/backups/
+
+# archivos temporales de scripts Python
+*.bak
+*.bak2
+*.bak3
+*.presort
+~$*.xlsx
+bsky_results.json
+needs_review.json
+senado_tw_found.json
+dataset/data/
+**/__pycache__/
+**/*.py[cod]
+
+# notas de trabajo locales
+PENDIENTE.md
+PENDIENTE.md.old
+
+# Local Netlify folder
+.netlify

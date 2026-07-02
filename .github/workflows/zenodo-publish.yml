@@ -1,0 +1,28 @@
+name: Publicar dataset en Zenodo
+
+on:
+  workflow_run:
+    workflows: ["Actualización mensual"]
+    types: [completed]
+  workflow_dispatch:
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar requests
+        run: pip install requests
+
+      - name: Publicar en Zenodo
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+          ZENODO_DEPOSIT_ID: ${{ secrets.ZENODO_DEPOSIT_ID }}
+        run: python3 dataset/scripts/zenodo_publish.py

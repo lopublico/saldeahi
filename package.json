@@ -1,0 +1,35 @@
+{
+  "name": "saldeahiweb",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "dataset": "python3 dataset/scripts/main.py",
+    "export": "python3 dataset/scripts/export.py",
+    "export:dry": "python3 dataset/scripts/export.py --dry-run"
+  },
+  "dependencies": {
+    "@astrojs/react": "^4.4.2",
+    "@tailwindcss/vite": "^4.1.18",
+    "@tanstack/react-table": "^8.21.3",
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7",
+    "astro": "^6.1.9",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.564.0",
+    "radix-ui": "^1.4.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^4.1.18"
+  },
+  "devDependencies": {
+    "shadcn": "^3.8.4",
+    "shadcn-ui": "^0.9.5",
+    "tw-animate-css": "^1.4.0"
+  }
+}

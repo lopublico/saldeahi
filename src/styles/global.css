@@ -1,0 +1,270 @@
+/* ──────────────────────────────────────────────────────────
+   Tailwind v4 + (opcional) extras
+   ────────────────────────────────────────────────────────── */
+@import "tailwindcss";
+
+/* Si usas animaciones utilitarias adicionales: */
+@import "tw-animate-css";
+/* Si tu preset de shadcn trae hoja de estilos base: */
+@import "shadcn/tailwind.css";
+
+/* ──────────────────────────────────────────────────────────
+   Modo oscuro (Tailwind v4): por clase .dark en <html>
+   ────────────────────────────────────────────────────────── */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ──────────────────────────────────────────────────────────
+   Mapeo de tokens de Tailwind → variables propias
+   (Tailwind v4 usa --color-xxx; aquí los enlazamos a tus vars)
+   ────────────────────────────────────────────────────────── */
+@theme inline {
+  /* Tipografías */
+  --font-sans: "Geist", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+               Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+  --font-title: "Lora", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
+  /* Radios derivados del radio base */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  /* Colores de Tailwind v4 (canónicos) enlazados a tus tokens */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Opcionales (charts / sidebar) */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* ──────────────────────────────────────────────────────────
+   Tema CLARO (tokens base)
+   ────────────────────────────────────────────────────────── */
+:root {
+  --radius: 0.625rem;
+
+  /* Base neutra clara */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+
+  --destructive: oklch(0.577 0.245 27.325);
+
+  --border: oklch(0.922 0 0);
+  --input:  oklch(0.922 0 0);
+  --ring:   oklch(0.708 0 0);
+
+  /* Opcionales: si no usas charts, puedes eliminarlos */
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6   0.118 184.704);
+  --chart-3: oklch(0.398 0.07  227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+/* ──────────────────────────────────────────────────────────
+   Tema OSCURO (gris neutro muy oscuro, casi negro)
+   ────────────────────────────────────────────────────────── */
+.dark {
+  /* Fondo y texto */
+  --background: oklch(0.07 0 0);   /* casi negro, neutro (sin tinte) */
+  --foreground: oklch(0.98 0 0);
+
+  /* Superficies */
+  --card: oklch(0.09 0 0);
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.09 0 0);
+  --popover-foreground: oklch(0.98 0 0);
+
+  /* Acciones / énfasis */
+  --primary: oklch(0.90 0 0);      /* blanco/gris claro para botones/links */
+  --primary-foreground: oklch(0.08 0 0);
+
+  /* Escalas neutras */
+  --secondary: oklch(0.16 0 0);
+  --secondary-foreground: oklch(0.96 0 0);
+  --muted: oklch(0.16 0 0);
+  --muted-foreground: oklch(0.70 0 0);
+  --accent: oklch(0.16 0 0);
+  --accent-foreground: oklch(0.96 0 0);
+
+  /* Bordes / inputs / ring */
+  --border: oklch(0.20 0 0 / 45%);
+  --input:  oklch(0.20 0 0 / 45%);
+  --ring:   oklch(0.65 0 0);
+
+  /* (Opcionales) Gráficos neutros */
+  --chart-1: oklch(0.28 0 0);
+  --chart-2: oklch(0.40 0 0);
+  --chart-3: oklch(0.55 0 0);
+  --chart-4: oklch(0.70 0 0);
+  --chart-5: oklch(0.80 0 0);
+
+  /* Sidebar */
+  --sidebar: oklch(0.09 0 0);
+  --sidebar-foreground: oklch(0.98 0 0);
+  --sidebar-primary: oklch(0.16 0 0);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.16 0 0);
+  --sidebar-accent-foreground: oklch(0.98 0 0);
+  --sidebar-border: oklch(0.20 0 0 / 45%);
+  --sidebar-ring: oklch(0.65 0 0);
+}
+
+/* ──────────────────────────────────────────────────────────
+   Capa base (sin duplicados) + tipografías
+   ────────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans, system-ui, sans-serif);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+/* ── Scroll sin barra visible ── */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Overrides mínimos para neutralizar el tinte azulado de slate ── */
+/* Nivel alto (texto/íconos intensos, fondos muy oscuros) */
+:root {
+  --color-slate-900: oklch(0.15 0 0);  /* gris muy oscuro, sin tinte */
+  --color-slate-800: oklch(0.20 0 0);
+  --color-slate-700: oklch(0.28 0 0);
+}
+
+/* En modo oscuro, aún más profundos */
+.dark {
+  --color-slate-900: oklch(0.2 0 0);
+  --color-slate-800: oklch(0.14 0 0);
+  --color-slate-700: oklch(0.20 0 0);
+}
+
+/* ── Tokens de diseño "sal de ahí" (paleta Guirnalda de flores) ── */
+:root {
+  --hero-h: 340px;
+  --sd-sky: #8FBECC;
+  --sd-sky-ink: #2e6577;
+  --sd-sky-soft: rgba(143, 190, 204, 0.22);
+  --sd-mastodon: #9B8EC4;
+  --sd-mastodon-ink: #4a3580;
+  --sd-mastodon-soft: rgba(155, 142, 196, 0.22);
+  --sd-ochre: #CC9F5A;
+  --sd-line: #e5e5e5;
+  --sd-line-strong: #d4d4d4;
+  --sd-fg-2: #1a1a1a;
+  --sd-muted: #6f6f6f;
+  --sd-muted-2: #a3a3a3;
+  --sd-rose: #E4BECE;
+  --sd-rose-pink: #bf3535;
+  --sd-red-soft: rgba(191, 53, 53, 0.12);
+}
+
+/* Wordmark "sal de ahí" con la X tachada */
+.sd-wordmark {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.18em;
+  color: inherit;
+}
+.sd-wordmark .x-mark {
+  position: relative;
+  display: inline-block;
+  width: 0.82em;
+  text-align: center;
+  font-family: 'Lora', Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+}
+.sd-wordmark .x-mark::after {
+  content: '';
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: 0.42em;
+  border-top: 1.5px solid currentColor;
+  transform: rotate(-18deg);
+}
+
+/* Regla horizontal del sistema editorial */
+.sd-rule { border: none; border-top: 1px solid var(--sd-fg-2); }
+.sd-rule.thin { border-top-color: var(--sd-line); }

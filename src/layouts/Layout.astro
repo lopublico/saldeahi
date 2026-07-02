@@ -1,0 +1,192 @@
+---
+import "../styles/global.css";
+import { ClientRouter } from 'astro:transitions';
+import lastUpdateData from "@/data/lastUpdate.json";
+
+const {
+  title       = "Sal de ahí",
+  description = "Los gobiernos democráticos siguen habitando espacios gobernados por oligarcas.",
+  image       = "/og-image.png",
+  active      = "índice",
+} = Astro.props;
+
+const lu = lastUpdateData as any;
+const lastUpdateISO = [lu.twitter, lu.bluesky, lu.mastodon].filter(Boolean).sort().at(-1) ?? "";
+const lastUpdate = lastUpdateISO
+  ? new Date(lastUpdateISO + "T00:00:00Z")
+      .toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })
+  : "";
+
+const siteBase  = Astro.site?.toString().replace(/\/$/, '') ?? 'https://saldeahi.es';
+const ogImage   = image.startsWith('http') ? image : `${siteBase}${image}`;
+const canonical = siteBase;
+---
+
+<!doctype html>
+<html lang="es" class="h-full antialiased">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <link rel="icon" href="/favicon.png" sizes="any" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <!-- OpenGraph -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:url"         content={canonical} />
+    <meta property="og:title"       content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image"        content={ogImage} />
+    <meta property="og:image:width"  content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale"       content="es_ES" />
+    <meta property="og:site_name"    content="Sal de ahí - Lo Público" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image"       content={ogImage} />
+
+    <!-- Fuentes: Geist (sans) + JetBrains Mono + Lora (serif) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap"
+      rel="stylesheet"
+    />
+    <ClientRouter />
+
+  </head>
+
+  <body class="min-h-svh overflow-x-hidden grid grid-rows-[1fr_auto] bg-background text-foreground">
+
+    <main class="relative">
+      <slot />
+    </main>
+
+    <footer class="lo-footer">
+      <div class="lo-footer-inner">
+
+        <a href="https://lopublico.es" class="lo-footer-brand" target="_blank" rel="noopener">
+          <div class="tool-logo" id="footer-logo">
+            <img src="/logos/logo1.png" alt="">
+            <img src="/logos/logo2.png" alt="">
+            <img src="/logos/logo3.png" alt="">
+            <img src="/logos/logo4.png" alt="">
+            <img src="/logos/logo5.png" alt="">
+            <img src="/logos/logo6.png" alt="">
+            <img src="/logos/logo7.png" alt="">
+            <img src="/logos/logo8.png" alt="">
+            <img src="/logos/logo9.png" alt="">
+            <img src="/logos/logo10.png" alt="">
+          </div>
+          <div class="lo-footer-brand-text">
+            <span class="lo-footer-wordmark">Lo público<span class="lo-footer-dot">.</span></span>
+            <span class="lo-footer-tagline">La administración en datos</span>
+          </div>
+        </a>
+
+        <div class="lo-footer-right">
+          <span>Por <a href="https://avelrom.es" class="lo-footer-link" target="_blank" rel="noopener">avelrom</a></span>
+          <a href="https://creativecommons.org/licenses/by/4.0/deed.es" class="lo-footer-license" target="_blank" rel="noopener license" title="Licencia Creative Commons Atribución 4.0 Internacional">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/>
+              <text x="10" y="14.5" text-anchor="middle" font-size="7.5" font-weight="700" fill="currentColor" font-family="system-ui,sans-serif">CC</text>
+            </svg>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/>
+              <text x="10" y="14.5" text-anchor="middle" font-size="7.5" font-weight="700" fill="currentColor" font-family="system-ui,sans-serif">BY</text>
+            </svg>
+            <span>4.0</span>
+          </a>
+        </div>
+
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        const logo = document.getElementById('footer-logo');
+        if (!logo) return;
+        const imgs = [...logo.querySelectorAll('img')];
+        for (let i = imgs.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          logo.appendChild(imgs[j]);
+          [imgs[i], imgs[j]] = [imgs[j], imgs[i]];
+        }
+      })();
+    </script>
+
+  </body>
+</html>
+
+<style is:global>
+.lo-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+.lo-footer-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+@media (min-width: 640px) {
+  .lo-footer-inner { padding: 24px 48px; }
+}
+.lo-footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+.lo-footer-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.lo-footer-wordmark {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  color: var(--sd-fg-2);
+}
+.lo-footer-dot { color: var(--sd-fg-2); }
+.lo-footer-tagline {
+  font-family: 'Lora', Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--sd-muted);
+}
+.lo-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--sd-muted);
+}
+.lo-footer-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
+}
+.lo-footer-license {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.75;
+}
+.lo-footer-license:hover { opacity: 1; }
+</style>

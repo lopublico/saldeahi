@@ -1,0 +1,211 @@
+---
+interface Props {
+  dark?: boolean;
+  active?: string;
+}
+const { dark = false, active = 'índice' } = Astro.props;
+---
+
+<div class={`topbar ${dark ? 'topbar--dark' : ''}`}>
+  <div class="topbar-inner">
+
+    <!-- Logo + tool name (Lo público design system: tool-title-row) -->
+    <div class="tool-title-row">
+      <a href="/" class="tool-logo">
+        <img src="/logos/logo1.png" alt="">
+        <img src="/logos/logo2.png" alt="">
+        <img src="/logos/logo3.png" alt="">
+        <img src="/logos/logo4.png" alt="">
+        <img src="/logos/logo5.png" alt="">
+        <img src="/logos/logo6.png" alt="">
+        <img src="/logos/logo7.png" alt="">
+        <img src="/logos/logo8.png" alt="">
+        <img src="/logos/logo9.png" alt="">
+        <img src="/logos/logo10.png" alt="">
+      </a>
+      <div class="tool-title-text">
+        <a href="/" class="tool-title-name">Sal de ahí</a>
+        <a href="/" class="tool-title-parent">Lo público</a>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="topbar-nav">
+      <a href="/"                      class={`topbar-nav-link ${active === 'índice'  ? 'is-active' : ''}`}>Índice</a>
+      <a href="/datos"                 class={`topbar-nav-link ${active === 'datos'   ? 'is-active' : ''}`}>Datos</a>
+      <a href="/porque"                class={`topbar-nav-link ${active === 'por qué' ? 'is-active' : ''}`}>Por qué</a>
+      <a href="https://lopublico.es" target="_blank" class="topbar-nav-link">Lo público ↗</a>
+    </nav>
+
+  </div>
+</div>
+
+<style is:global>
+/* ═══════════════════════════════════════════════════════════════════
+   Topbar – shared across all pages
+   tool-title-row pattern from Lo público design system
+═══════════════════════════════════════════════════════════════════ */
+
+.topbar {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--sd-fg-2);
+}
+
+.topbar-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 24px 48px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@media (max-width: 767px) {
+  .topbar-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 20px 0;
+  }
+  .tool-title-name { font-size: 17px; }
+  .tool-title-parent { font-size: 13px; }
+  .tool-title-text { height: 38px; }
+  .topbar-nav { gap: 2px; flex-wrap: wrap; }
+  .topbar-nav-link { font-size: 12px; padding: 4px 8px; }
+}
+
+/* ── tool-title-row: Lo público logo + tool name ─────────────────── */
+.tool-title-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+/* Rotating logo crossfade (10 images, 40s cycle) */
+.tool-logo {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: block;
+}
+
+.tool-logo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  animation: logo-cycle 40s infinite;
+}
+
+.tool-logo img:nth-child(1)  { animation-delay:  0s; }
+.tool-logo img:nth-child(2)  { animation-delay:  4s; }
+.tool-logo img:nth-child(3)  { animation-delay:  8s; }
+.tool-logo img:nth-child(4)  { animation-delay: 12s; }
+.tool-logo img:nth-child(5)  { animation-delay: 16s; }
+.tool-logo img:nth-child(6)  { animation-delay: 20s; }
+.tool-logo img:nth-child(7)  { animation-delay: 24s; }
+.tool-logo img:nth-child(8)  { animation-delay: 28s; }
+.tool-logo img:nth-child(9)  { animation-delay: 32s; }
+.tool-logo img:nth-child(10) { animation-delay: 36s; }
+
+@keyframes logo-cycle {
+  0%    { opacity: 0; }
+  2.5%  { opacity: 1; }
+  10%   { opacity: 1; }
+  12.5% { opacity: 0; }
+  100%  { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tool-logo img              { animation: none; }
+  .tool-logo img:nth-child(1) { opacity: 1; }
+}
+
+/* Text block: tool name + parent brand */
+.tool-title-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 44px;
+  padding-left: 12px;
+  border-left: 1px solid #d4d4d4;
+}
+
+.tool-title-name {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--sd-fg-2);
+  text-decoration: none;
+}
+
+.tool-title-parent {
+  font-family: 'Lora', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--sd-muted);
+  text-decoration: none;
+}
+
+/* ── Nav links ───────────────────────────────────────────────────── */
+.topbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.topbar-nav-link {
+  padding: 5px 10px;
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  text-decoration: none;
+  color: var(--sd-fg-2);
+  border-radius: 4px;
+  transition: color 0.12s, background 0.12s;
+  white-space: nowrap;
+}
+
+.topbar-nav-link:hover {
+  color: var(--sd-fg);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.topbar-nav-link.is-active {
+  color: var(--sd-fg);
+  font-weight: 600;
+}
+
+/* ── Dark variant (used in dark hero) ───────────────────────────── */
+.topbar--dark                        { color: rgba(246,244,239,0.85); }
+.topbar--dark .tool-title-name       { color: rgba(246,244,239,0.9); }
+.topbar--dark .tool-title-parent     { color: rgba(246,244,239,0.5); }
+.topbar--dark .tool-title-text       { border-left-color: rgba(246,244,239,0.2); }
+.topbar--dark .topbar-nav-link       { color: rgba(246,244,239,0.85); }
+.topbar--dark .topbar-nav-link:hover { background: rgba(255,255,255,0.1); color: rgba(246,244,239,1); }
+.topbar--dark .topbar-nav-link.is-active { color: rgba(246,244,239,1); }
+</style>
+
+<script>
+  /* Shuffle logo order on each page load so every visit shows a different logo first */
+  (function () {
+    const logo = document.querySelector('.topbar .tool-logo');
+    if (!logo) return;
+    const imgs = [...logo.querySelectorAll('img')];
+    for (let i = imgs.length - 1; i > 1; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      logo.appendChild(imgs[j]);
+      [imgs[i], imgs[j]] = [imgs[j], imgs[i]];
+    }
+  })();
+</script>

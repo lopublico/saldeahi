@@ -1,0 +1,493 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import { AppSection } from "@/components/AppSection";
+
+import ageData from "@/data/age.json";
+import gobiernoData from "@/data/gobierno.json";
+import congresoData from "@/data/congreso.json";
+import senadoData from "@/data/senado.json";
+import partidosData from "@/data/partidos.json";
+import autonomiasData from "@/data/autonomias.json";
+import universidadesData from "@/data/universidades.json";
+import lastUpdateData from "@/data/lastUpdate.json";
+
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+function platformRef(d: string | undefined) {
+  return d ? new Date(d + "T00:00:00Z").getTime() : Date.now();
+}
+const lastUpdate = lastUpdateData as any;
+const TWITTER_REF  = platformRef(lastUpdate.twitter);
+const BLUESKY_REF  = platformRef(lastUpdate.bluesky);
+const MASTODON_REF = platformRef(lastUpdate.mastodon);
+
+function isActiveDate(val: unknown, ref: number): boolean {
+  if (!val || typeof val !== "string") return false;
+  if (!/^\d{4}-\d{2}-\d{2}/.test(val)) return false;
+  return ref - new Date(val).getTime() <= THIRTY_DAYS_MS;
+}
+function twitterOnX(handle: unknown, activo: unknown): boolean {
+  if (!handle) return false;
+  if (activo == null) return true;
+  return isActiveDate(activo, TWITTER_REF);
+}
+function normalizeItem(item: any) {
+  return {
+    twitter_activo:  twitterOnX(item.twitter, item.twitter_activo),
+    bluesky_activo:  isActiveDate(item.bluesky_activo, BLUESKY_REF),
+    mastodon_activo: isActiveDate(item.mastodon_activo, MASTODON_REF),
+    mastodon:        item.mastodon || null,
+    bluesky:         item.bluesky  || null,
+  };
+}
+
+// Datos completos para el índice interactivo
+const allData = [
+  ...ageData.map(normalizeItem),
+  ...gobiernoData.map(normalizeItem),
+  ...congresoData.map(normalizeItem),
+  ...senadoData.map(normalizeItem),
+  ...partidosData.map(normalizeItem),
+  ...autonomiasData.map(normalizeItem),
+  ...universidadesData.map(normalizeItem),
+];
+
+// Para el hero: solo instituciones (sin diputados, senadores ni ministros individuales)
+const institucionesHero = [
+  ...ageData.map(normalizeItem),
+  ...partidosData.map(normalizeItem),
+  ...autonomiasData.map(normalizeItem),
+  ...universidadesData.map(normalizeItem),
+];
+
+const total = institucionesHero.length;
+let enX = 0, conBluesky = 0, conMastodon = 0, sinAlternativa = 0;
+for (const item of institucionesHero) {
+  if (item.twitter_activo) enX++;
+  if (item.bluesky)  conBluesky++;
+  if (item.mastodon) conMastodon++;
+  if (!item.bluesky && !item.mastodon) sinAlternativa++;
+}
+const fueraDeX = total - enX;
+
+// Stats completas para AppSection
+let enXTotal = 0, conBlueskyTotal = 0, conMastodonTotal = 0,
+    conAlternativaTotal = 0, sinAlternativaTotal = 0;
+for (const item of allData) {
+  if (item.twitter_activo) enXTotal++;
+  if (item.bluesky)  conBlueskyTotal++;
+  if (item.mastodon) conMastodonTotal++;
+  if (item.bluesky || item.mastodon) conAlternativaTotal++;
+  else sinAlternativaTotal++;
+}
+const fueraDeXTotal = allData.length - enXTotal;
+
+const pctX   = total > 0 ? Math.round((enX            / total) * 100) : 0;
+const pctB   = total > 0 ? Math.round((conBluesky     / total) * 100) : 0;
+const pctM   = total > 0 ? Math.round((conMastodon    / total) * 100) : 0;
+const pctSin = total > 0 ? Math.round((sinAlternativa / total) * 100) : 0;
+const pctFuera = total > 0 ? Math.round((fueraDeX     / total) * 100) : 0;
+
+// Donut math para stat-band
+const DONUT_R = 15, DONUT_C = 2 * Math.PI * DONUT_R;
+const donutDash = (pct: number) => `${(Math.max(0, Math.min(100, pct)) / 100) * DONUT_C} ${DONUT_C}`;
+
+const updatedDate = lastUpdate.twitter
+  ? new Date(lastUpdate.twitter + "T00:00:00Z").toLocaleDateString("es-ES", {
+      day: "numeric", month: "long", year: "numeric", timeZone: "UTC",
+    })
+  : "";
+---
+
+<Layout title="Sal de ahí - Lo Público" description="Los gobiernos democráticos siguen habitando espacios gobernados por oligarcas.">
+
+  <!-- ── HERO OSCURO ──────────────────────────────────────────────── -->
+  <div class="sd-hero">
+    <Topbar dark active="índice" />
+
+    <div class="sd-hero-inner max-w-screen-xl mx-auto px-6 sm:px-14 pt-12 pb-10 sm:pt-14 sm:pb-12">
+
+      <!-- Headline -->
+      <h1 class="sd-hero-h1 text-5xl sm:text-7xl lg:text-[88px]">
+        <span class="sd-hero-h1-num">{enX}</span>
+        {" "}de{" "}
+        <span class="sd-hero-h1-denom">{total}</span>
+        <br class="max-sm:hidden" />
+        {" "}instituciones públicas
+        <br />
+        <span class="sd-hero-h1-serif">
+siguen publicando en 
+  <img src="/xlogo.png" alt="X" class="sd-hero-x-logo">
+  .
+</span>
+      </h1>
+
+      <!-- Manifesto + dark stats -->
+      <div class="grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-8 md:gap-12 mt-12 md:mt-14 items-start">
+        <p class="sd-hero-manifesto max-md:text-base">
+          Los gobiernos democráticos habitan espacios gobernados por oligarcas.
+        </p>
+
+        <!-- Stats laterales oscuras -->
+        <div class="sd-dark-stats">
+          {[
+            { label: "Con cuenta en Bluesky",       value: `${conBluesky} · ${pctB} %`,                    accentMod: "sky"     },
+            { label: "Con cuenta en Mastodon",       value: `${conMastodon} · ${pctM === 0 ? '< 1' : pctM} %`, accentMod: "mastodon" },
+            { label: "Sin alternativa a X",          value: `${sinAlternativa} · ${pctSin} %`,              accentMod: "rose", strong: true },
+            { label: "Sin presencia en ninguna red", value: `${fueraDeX} · ${pctFuera} %`,                  accentMod: "outline" },
+          ].map(({ label, value, accentMod, strong }) => (
+            <div class="sd-dark-stat-row">
+              <span class={`sd-dark-stat-label ${strong ? "sd-dark-stat-label--strong" : ""}`}>
+                <span class={`sd-dark-stat-accent sd-dark-stat-accent--${accentMod}`}></span>
+                {label}
+              </span>
+              <span class="sd-dark-stat-value">{value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Última actualización -->
+      <div class="sd-hero-date">
+        <p class="sd-hero-date-title">Última actualización: {updatedDate}</p>
+        <p class="sd-hero-date-desc">
+          Por institución entendemos: ministerios y organismos del Estado, partidos con representación parlamentaria, comunidades autónomas y universidades públicas.
+          Una entidad se considera activa si publicó en los últimos 30 días antes de esta fecha.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BANDA DE ESTADÍSTICAS ────────────────────────────────────── -->
+  <div class="sd-stat-band max-w-screen-xl mx-auto px-6 sm:px-14">
+    <div class="sd-sband-grid grid grid-cols-2 md:grid-cols-4 py-9 gap-8 md:gap-0">
+      <!-- Divisores verticales (desktop) -->
+      <div class="hidden md:block sd-sband-divider sd-sband-divider-q1"></div>
+      <div class="hidden md:block sd-sband-divider sd-sband-divider-half"></div>
+      <div class="hidden md:block sd-sband-divider sd-sband-divider-q3"></div>
+
+      <!-- Col 1: X -->
+      <div class="sd-sband-col md:pr-8">
+        <div class="sd-sband-label">Con cuenta en X</div>
+        <div class="sd-sband-num-row">
+          <svg class="sd-sband-donut" width="42" height="42" viewBox="0 0 42 42">
+            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-line)" stroke-width="5"/>
+            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="#1a1a1a" stroke-width="5"
+              stroke-dasharray={donutDash(pctX)}
+              class="sd-sband-donut-x"
+              transform="rotate(-90 21 21)"
+            />
+          </svg>
+          <span class="sd-sband-num text-4xl md:text-[46px]">{pctX}&#x202F;%</span>
+        </div>
+        <div class="sd-sband-sub">{enX} de {total} instituciones</div>
+      </div>
+
+      <!-- Col 2: Bluesky -->
+      <div class="sd-sband-col md:px-8">
+        <div class="sd-sband-label">Con cuenta en Bluesky</div>
+        <div class="sd-sband-num-row">
+          <svg class="sd-sband-donut" width="42" height="42" viewBox="0 0 42 42">
+            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-line)" stroke-width="5"/>
+            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-sky)" stroke-width="5"
+              stroke-dasharray={donutDash(pctB)}
+              transform="rotate(-90 21 21)"
+            />
+          </svg>
+          <span class="sd-sband-num text-4xl md:text-[46px]">{pctB}&#x202F;%</span>
+        </div>
+        <div class="sd-sband-sub">{conBluesky} instituciones</div>
+      </div>
+
+      <!-- Col 3: Mastodon -->
+      <div class="sd-sband-col md:px-8">
+        <div class="sd-sband-label">Con cuenta en Mastodon</div>
+        <div class="sd-sband-num-row">
+          <svg class="sd-sband-donut" width="42" height="42" viewBox="0 0 42 42">
+            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-line)" stroke-width="5"/>
+            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-mastodon)" stroke-width="5"
+              stroke-dasharray={donutDash(pctM === 0 && conMastodon > 0 ? 1 : pctM)}
+              transform="rotate(-90 21 21)"
+            />
+          </svg>
+          <span class="sd-sband-num text-4xl md:text-[46px]">
+            {pctM === 0 ? '< 1' : pctM}&#x202F;%
+          </span>
+        </div>
+        <div class="sd-sband-sub">{conMastodon} instituciones</div>
+      </div>
+
+      <!-- Col 4: Sin alternativa -->
+      <div class="sd-sband-col md:pl-8">
+        <div class="sd-sband-label">Sin alternativa a X</div>
+        <div class="sd-sband-num-row">
+          <svg class="sd-sband-donut" width="42" height="42" viewBox="0 0 42 42">
+            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-line)" stroke-width="5"/>
+            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(  --sd-rose-pink)" stroke-width="5"
+              stroke-dasharray={donutDash(pctSin)}
+              transform="rotate(-90 21 21)"
+            />
+          </svg>
+          <span class="sd-sband-num text-4xl md:text-[46px]">{pctSin}&#x202F;%</span>
+        </div>
+        <div class="sd-sband-sub sd-sband-sub--em">
+          {sinAlternativa} instituciones
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ÍNDICE (tabla interactiva) ──────────────────────────────── -->
+  <div class="sd-index max-w-screen-xl mx-auto pb-16 pt-4" transition:persist="app-section">
+    <AppSection
+      client:load
+      initialStats={{
+        enX: enXTotal,
+        fueraDeX: fueraDeXTotal,
+        conBluesky: conBlueskyTotal,
+        conMastodon: conMastodonTotal,
+        conAlternativa: conAlternativaTotal,
+        sinAlternativa: sinAlternativaTotal,
+      }}
+    />
+  </div>
+
+</Layout>
+
+<style is:global>
+/* ═══════════════════════════════════════════════════════════════════
+   index.astro – Hero & stat-band styles
+   All sd-hero-* and sd-sband-* classes are defined here.
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── Hero ──────────────────────────────────────────────────────── */
+
+.sd-hero {
+  position: relative;
+  overflow: hidden;
+  color: #f6f4ef;
+  padding-bottom: 4px;
+}
+
+/* imagen con blur */
+.sd-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: black;
+  /*
+  background: url('/public/delicias.jpg') center 50% / cover no-repeat; */
+  filter: blur(4px);
+  transform: scale(1.06);
+  z-index: 0;
+  animation: heroKenBurns 28s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes heroKenBurns {
+  0%   { transform: scale(1.08) translate(0,     0);      }
+  25%  { transform: scale(1.16) translate(-2.5%, 1.8%);   }
+  50%  { transform: scale(1.12) translate(2%,   -1.5%);   }
+  75%  { transform: scale(1.18) translate(-1.5%, 2.5%);   }
+  100% { transform: scale(1.13) translate(2.5%, -1%);     }
+}
+
+/* capa oscura (casi negro) */
+.sd-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 1;
+}
+
+/* contenido por encima */
+.sd-hero > * {
+  position: relative;
+  z-index: 2;
+}
+
+
+.sd-hero-h1 {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-weight: 600;
+  line-height: 1.03;
+  letter-spacing: -0.035em;
+  color: #fff;
+  margin: 0;
+  max-width: 1040px;
+}
+
+.sd-hero-h1-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+.sd-hero-h1-denom {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: rgba(255,255,255,0.45);
+}
+
+.sd-hero-h1-serif {
+  font-family: 'Lora', Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.sd-hero-x-logo {
+  height: .9em;
+  width: auto;
+  vertical-align: -0.1em;
+  display: inline-block;
+}
+
+.sd-hero-manifesto {
+  font-family: 'Lora', Georgia, serif;
+  font-style: italic;
+  font-size: 19px;
+  line-height: 1.55;
+  color: rgba(246,244,239,0.85);
+  margin: 0;
+}
+
+/* ── Dark stat sidebar ─────────────────────────────────────────── */
+.sd-dark-stats {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1;
+  color: rgba(246,244,239,0.75);
+  letter-spacing: 0.02em;
+}
+
+.sd-dark-stat-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  padding: 11px 0;
+  gap: 16px;
+}
+
+.sd-dark-stat-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(246,244,239,0.7);
+}
+
+.sd-dark-stat-label--strong {
+  color: #fff;
+}
+
+.sd-dark-stat-accent {
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.sd-dark-stat-accent--outline  { background: transparent; border: 1.5px solid rgba(246,244,239,0.38); }
+.sd-dark-stat-accent--sky      { background: var(--sd-sky); }
+.sd-dark-stat-accent--mastodon { background: var(--sd-mastodon); }
+.sd-dark-stat-accent--rose     { background: var(--sd-rose-pink); }
+
+.sd-dark-stat-value {
+  color: #fff;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ── Hero date footer ──────────────────────────────────────────── */
+.sd-hero-date {
+  margin-top: 28px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.sd-hero-date-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(246,244,239,0.55);
+  margin: 0;
+}
+
+.sd-hero-date-desc {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: rgba(246,244,239,0.42);
+  margin: 6px 0 0;
+  letter-spacing: 0.01em;
+  line-height: 1.6;
+}
+
+/* ── Stat-band ─────────────────────────────────────────────────── */
+.sd-stat-band {
+  border-bottom: 1px solid var(--sd-line);
+}
+
+.sd-sband-grid {
+  position: relative;
+}
+
+.sd-sband-divider {
+  position: absolute;
+  top: 36px;
+  bottom: 36px;
+  width: 1px;
+  background: var(--sd-line);
+}
+
+.sd-sband-divider-q1   { left: 25%; }
+.sd-sband-divider-half { left: 50%; }
+.sd-sband-divider-q3   { left: 75%; }
+
+.sd-sband-col {
+  /* column container */
+}
+
+.sd-sband-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--sd-muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.sd-sband-num-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.sd-sband-donut {
+  flex-shrink: 0;
+  display: block;
+}
+
+.sd-sband-num {
+  font-family: 'Geist', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--sd-fg-2);
+  white-space: nowrap;
+}
+
+.sd-sband-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--sd-muted);
+}
+
+.sd-sband-sub--em {
+  color: var(--sd-rose-pink);
+  font-weight: 500;
+}
+</style>
