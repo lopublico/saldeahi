@@ -1,6 +1,6 @@
 import { Download, ExternalLink } from "lucide-react";
 
-const ZENODO_RECORD = "https://zenodo.org/records/20692812";
+const ZENODO_RECORD = "https://zenodo.org/records/21297253";
 const ZENODO_CSV    = `${ZENODO_RECORD}/files/dataset.csv?download=1`;
 const ZENODO_JSON   = `${ZENODO_RECORD}/files/dataset.json?download=1`;
 const ZENODO_XLSX   = `${ZENODO_RECORD}/files/dataset.xlsx?download=1`;
