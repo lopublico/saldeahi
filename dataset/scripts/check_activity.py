@@ -136,6 +136,7 @@ def main():
     ap.add_argument('--twitter',  action='store_true')
     ap.add_argument('--token',        default=GETXAPI_TOKEN, help='Token GetXAPI')
     ap.add_argument('--skip-updated', action='store_true', help='Saltar cuentas con fecha del mes actual')
+    ap.add_argument('--only-missing', action='store_true', help='Solo cuentas sin fecha de actividad registrada (altas nuevas)')
     ap.add_argument('--dry-run',      action='store_true')
     args = ap.parse_args()
 
@@ -164,7 +165,7 @@ def main():
 
         if args.bluesky:
             bsky = ws.cell(row, C_BS).value
-            if bsky:
+            if bsky and not (args.only_missing and ws.cell(row, C_BS_A).value):
                 result = bsky_last_post(bsky)
                 if result is not None:
                     ws.cell(row, C_BS_A).value = result
@@ -174,7 +175,7 @@ def main():
 
         if args.mastodon:
             md = ws.cell(row, C_MD).value
-            if md:
+            if md and not (args.only_missing and ws.cell(row, C_MD_A).value):
                 result = mastodon_last_post(md)
                 if result is not None:
                     ws.cell(row, C_MD_A).value = result
@@ -193,6 +194,8 @@ def main():
                     # Saltar si ya tiene fecha de este mes (actualizada en este ciclo)
                     if args.skip_updated and isinstance(existing, str) and existing.startswith(today[:7]):
                         print(f"  TW {nombre}: ya actualizado ({existing}), saltando", flush=True)
+                    elif args.only_missing and existing:
+                        pass
                     else:
                         result = twitter_last_post(tw, args.token)
                         if result is not None:
