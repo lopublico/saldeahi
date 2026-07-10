@@ -5,7 +5,7 @@
     "twitter": "UAM_Madrid",
     "twitter_activo": "2026-07-01",
     "bluesky": "uam.es",
-    "bluesky_activo": "2026-06-29",
+    "bluesky_activo": "2026-07-07",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "informacion.general@uam.es"
@@ -16,7 +16,7 @@
     "twitter": "uc3m",
     "twitter_activo": "2026-07-01",
     "bluesky": "uc3m.es",
-    "bluesky_activo": "2026-06-29",
+    "bluesky_activo": "2026-07-07",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "info@uc3m.es"
@@ -27,7 +27,7 @@
     "twitter": "unicomplutense",
     "twitter_activo": "2026-07-01",
     "bluesky": "ucm.es",
-    "bluesky_activo": "2026-06-30",
+    "bluesky_activo": "2026-07-07",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "infocom@ucm.es"
@@ -71,7 +71,7 @@
     "twitter": "UNED",
     "twitter_activo": "2026-07-01",
     "bluesky": "uneduniv.bsky.social",
-    "bluesky_activo": "2026-06-30",
+    "bluesky_activo": "2026-07-07",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "infouned@adm.uned.es"
@@ -82,7 +82,7 @@
     "twitter": "pablodeolavide",
     "twitter_activo": "2025-02-03",
     "bluesky": "pablodeolavide.upo.es",
-    "bluesky_activo": "2026-06-17",
+    "bluesky_activo": "2026-07-07",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "orientacionupo@upo.es"
@@ -104,7 +104,7 @@
     "twitter": "La_UPM",
     "twitter_activo": "2026-07-01",
     "bluesky": "upm.es",
-    "bluesky_activo": "2026-06-30",
+    "bluesky_activo": "2026-07-07",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "acceso.universidad@upm.es"
@@ -126,7 +126,7 @@
     "twitter": "urjc",
     "twitter_activo": "2026-07-01",
     "bluesky": "urjc.bsky.social",
-    "bluesky_activo": "2026-06-30",
+    "bluesky_activo": "2026-07-07",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "info@urjc.es"
@@ -148,7 +148,7 @@
     "twitter": "UA_Universidad",
     "twitter_activo": "2026-02-17",
     "bluesky": "ua.es",
-    "bluesky_activo": "2026-06-26",
+    "bluesky_activo": "2026-07-08",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "informacion@ua.es"
@@ -170,7 +170,7 @@
     "twitter": "UBUEstudiantes",
     "twitter_activo": "2026-06-30",
     "bluesky": "universidadburgos.bsky.social",
-    "bluesky_activo": "2026-06-30",
+    "bluesky_activo": "2026-07-06",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "info@ubu.es"
@@ -180,7 +180,7 @@
     "tipo": "Cantabria",
     "twitter": "unican",
     "twitter_activo": "2026-07-01",
-    "bluesky": null,
+    "bluesky": "univcantabria.bsky.social",
     "bluesky_activo": null,
     "mastodon": null,
     "mastodon_activo": null,
@@ -192,7 +192,7 @@
     "twitter": "uclm_es",
     "twitter_activo": "2026-07-01",
     "bluesky": "uclm.es",
-    "bluesky_activo": "2026-06-29",
+    "bluesky_activo": "2026-07-06",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "informacion@uclm.es"
@@ -214,7 +214,7 @@
     "twitter": "Univcordoba",
     "twitter_activo": "2025-01-20",
     "bluesky": "uco.es",
-    "bluesky_activo": "2026-06-30",
+    "bluesky_activo": "2026-07-07",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "informacion@uco.es"
@@ -236,7 +236,7 @@
     "twitter": "CanalUGR",
     "twitter_activo": "2026-07-01",
     "bluesky": "universidadgranada.bsky.social",
-    "bluesky_activo": "2026-06-30",
+    "bluesky_activo": "2026-07-08",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "informacion.general@ugr.es"
@@ -291,7 +291,7 @@
     "twitter": "ULPGC",
     "twitter_activo": null,
     "bluesky": "ulpgc.es",
-    "bluesky_activo": "404",
+    "bluesky_activo": "2026-07-06",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "universidad@ulpgc.es"
@@ -313,7 +313,7 @@
     "twitter": "UMU",
     "twitter_activo": "2026-07-01",
     "bluesky": "um.es",
-    "bluesky_activo": "2026-07-01",
+    "bluesky_activo": "2026-07-03",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "cau@um.es"
@@ -324,7 +324,7 @@
     "twitter": "infouma",
     "twitter_activo": "2026-07-01",
     "bluesky": "univmalaga.bsky.social",
-    "bluesky_activo": "2026-06-30",
+    "bluesky_activo": "2026-07-08",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "info@uma.es"
@@ -335,7 +335,7 @@
     "twitter": "UniOviedo",
     "twitter_activo": "2011-11-15",
     "bluesky": "universidadoviedo.bsky.social",
-    "bluesky_activo": "2026-07-01",
+    "bluesky_activo": "2026-07-08",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "rectorado@uniovi.es"
@@ -346,7 +346,7 @@
     "twitter": "usal",
     "twitter_activo": "2026-07-01",
     "bluesky": "usaloficial.bsky.social",
-    "bluesky_activo": "2026-06-30",
+    "bluesky_activo": "2026-07-07",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "informacion@usal.es"
@@ -357,7 +357,7 @@
     "twitter": "unisevilla",
     "twitter_activo": "2025-01-24",
     "bluesky": "unisevilla.us.es",
-    "bluesky_activo": "2026-06-25",
+    "bluesky_activo": "2026-07-08",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "rector@us.es"
@@ -368,7 +368,7 @@
     "twitter": "uva_es",
     "twitter_activo": "2026-07-01",
     "bluesky": "uva-es.bsky.social",
-    "bluesky_activo": "2026-06-29",
+    "bluesky_activo": "2026-07-03",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "soporte@uva.es"
@@ -379,7 +379,7 @@
     "twitter": "unizar",
     "twitter_activo": "2026-05-05",
     "bluesky": "unizar.es",
-    "bluesky_activo": "2026-06-30",
+    "bluesky_activo": "2026-07-08",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "ciu@unizar.es"
@@ -401,7 +401,7 @@
     "twitter": "UDC_gal",
     "twitter_activo": "2025-01-31",
     "bluesky": "udc.gal",
-    "bluesky_activo": "2026-07-01",
+    "bluesky_activo": "2026-07-07",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "servizo.estudantes@udc.gal"
@@ -412,7 +412,7 @@
     "twitter": "UniversidadeUSC",
     "twitter_activo": "2024-12-05",
     "bluesky": "buscusc.bsky.social",
-    "bluesky_activo": "2026-06-30",
+    "bluesky_activo": "2026-07-06",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "oiusec@usc.es"
@@ -423,7 +423,7 @@
     "twitter": "uvigo",
     "twitter_activo": "2026-07-01",
     "bluesky": "uvigo.bsky.social",
-    "bluesky_activo": "2026-06-28",
+    "bluesky_activo": "2026-07-07",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "informacion@uvigo.gal"
@@ -434,7 +434,7 @@
     "twitter": "UABBarcelona",
     "twitter_activo": "2025-02-24",
     "bluesky": "uab.cat",
-    "bluesky_activo": "2026-06-30",
+    "bluesky_activo": "2026-07-08",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "informacio@uab.cat"
@@ -445,7 +445,7 @@
     "twitter": "UJIuniversitat",
     "twitter_activo": "2025-01-17",
     "bluesky": "uji.es",
-    "bluesky_activo": "2026-06-29",
+    "bluesky_activo": "2026-07-07",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "info@uji.es"
@@ -478,7 +478,7 @@
     "twitter": "UPFBarcelona",
     "twitter_activo": "2026-02-11",
     "bluesky": "upf.edu",
-    "bluesky_activo": "2026-07-01",
+    "bluesky_activo": "2026-07-08",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "comunicacio@upf.edu"
@@ -489,7 +489,7 @@
     "twitter": "universitatURV",
     "twitter_activo": "2026-07-01",
     "bluesky": "urv.cat",
-    "bluesky_activo": "2026-07-01",
+    "bluesky_activo": "2026-07-08",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "ofes@urv.cat"
@@ -500,7 +500,7 @@
     "twitter": "UniBarcelona",
     "twitter_activo": "2024-11-20",
     "bluesky": "ub.edu",
-    "bluesky_activo": "2026-06-30",
+    "bluesky_activo": "2026-07-07",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "sae@ub.edu"
@@ -522,7 +522,7 @@
     "twitter": "UdL_info",
     "twitter_activo": "2026-07-01",
     "bluesky": "udl.cat",
-    "bluesky_activo": "2026-06-30",
+    "bluesky_activo": "2026-07-07",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "info@udl.cat"
@@ -533,7 +533,7 @@
     "twitter": "UV_EG",
     "twitter_activo": "2026-07-01",
     "bluesky": "uv.es",
-    "bluesky_activo": "2026-06-30",
+    "bluesky_activo": "2026-07-08",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "smc@uv.es"
@@ -544,7 +544,7 @@
     "twitter": "UIBuniversitat",
     "twitter_activo": "2024-12-02",
     "bluesky": "uib.cat",
-    "bluesky_activo": "2026-06-30",
+    "bluesky_activo": "2026-07-08",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "informacio@uib.es"
