@@ -12,12 +12,14 @@ Directorio de instituciones públicas españolas y su presencia en redes sociale
 
 | Categoría | Descripción |
 |-----------|-------------|
-| Administración General del Estado | Ministerios y organismos con rango de secretaría |
+| Administración General del Estado | Ministerios, secretarías de Estado, delegaciones del Gobierno, Fuerzas Armadas y cuerpos de seguridad, y el sector público institucional estatal completo según el Inventario de Entes (Invente/IGAE): organismos autónomos, agencias, autoridades independientes, EPEs, entidades gestoras de la S.S., fundaciones y sociedades mercantiles estatales (matrices) |
+| Órganos del Estado | Casa Real, Tribunal Constitucional, CGPJ, Fiscalía, Defensor del Pueblo, Tribunal de Cuentas y otros órganos constitucionales |
 | Gobierno | Presidente y ministros en activo |
 | Congreso de los Diputados | Institución, grupos parlamentarios y diputados/as |
 | Senado | Institución, grupos parlamentarios y senadores/as |
 | Partidos políticos | Cuentas orgánicas de partidos con representación en el Congreso |
-| Comunidades autónomas | Presidencias y asambleas autonómicas |
+| Autonomías | Presidencias, gobiernos y asambleas legislativas de las 17 comunidades autónomas |
+| Organismos autonómicos | Entes públicos, agencias, entidades públicas empresariales y organismos autónomos de las 17 CCAA y Ceuta/Melilla, según el Invente (radiotelevisiones autonómicas, agencias tributarias regionales, servicios de aguas, etc.) |
 | Universidades | Centros reconocidos por el Ministerio de Universidades |
 
 ---
@@ -41,7 +43,8 @@ saldeahi/
 │       ├── export.py            # datosfinales.xlsx → src/data/*.json
 │       ├── check_activity.py    # Comprueba últimas publicaciones por plataforma
 │       ├── infer_social.py      # Infiere handles nuevos via follows + fuzzy match
-│       └── update_chamber.py   # Actualiza Congreso/Senado tras elecciones
+│       ├── update_chamber.py    # Actualiza Congreso/Senado tras elecciones
+│       └── audit_invente.py     # Audita formas jurídicas y altas/bajas contra la API de Invente (IGAE)
 ├── netlify/
 │   └── functions/
 │       └── report.js            # Procesa reportes de ciudadanos → GitHub Issue
@@ -90,7 +93,7 @@ datosfinales.xlsx
 
 | Col | Campo | Descripción |
 |-----|-------|-------------|
-| A | Categoría | AGE / Gobierno / Congreso / Senado / Partidos / Autonomías / Universidades |
+| A | Categoría | AGE / Órganos del Estado / Gobierno / Congreso / Senado / Partidos / Autonomías / Universidades |
 | B | Nombre | Nombre oficial de la entidad |
 | C | Twitter | Handle sin @ (ej. `MAECgob`) |
 | D | Twitter Activo | Fecha de última publicación o `404` si la cuenta no existe |
@@ -105,6 +108,7 @@ datosfinales.xlsx
 | M | Circunscripción | Provincia de elección |
 | N | CCAA | Comunidad autónoma |
 | O | Partido | Partido político |
+| P | Invente | Código del ente en el Inventario de Entes del Sector Público (IGAE), para sincronizar altas/bajas con la API de Invente |
 
 ---
 
@@ -147,7 +151,7 @@ git commit -m "datos: actualización mensual"
 git push
 ```
 
-Twitter se actualiza a criterio (coste por petición). Con ~820 entidades, una comprobación completa cuesta aprox. **0,82 €**.
+Twitter se actualiza a criterio (coste por petición). El dataset tiene 1.395 entidades, de las cuales ~1.107 tienen cuenta en X; una comprobación completa de todas ellas cuesta aprox. **1,10 €**.
 
 ---
 

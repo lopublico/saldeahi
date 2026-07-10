@@ -4,6 +4,7 @@ import Topbar from "@/components/Topbar.astro";
 import { ExportButton } from "@/components/ExportButton";
 import lastUpdateData from "@/data/lastUpdate.json";
 import ageData from "@/data/age.json";
+import organosData from "@/data/organos.json";
 import gobiernoData from "@/data/gobierno.json";
 import congresoData from "@/data/congreso.json";
 import senadoData from "@/data/senado.json";
@@ -45,13 +46,35 @@ function normalizeItem(item: any) {
   };
 }
 
+const ADMIN_TIPOS = new Set([
+  "Presidencia del Gobierno", "Ministerio", "Secretaría de Estado",
+  "Delegación del Gobierno", "Seguridad y Defensa",
+]);
+const EMPRESAS_TIPOS = new Set([
+  "Entidad Pública Empresarial", "Sociedad Mercantil Estatal", "Fundación Estatal",
+]);
+const ageAdministracion = (ageData as any[]).filter((x) => ADMIN_TIPOS.has(x.categoria));
+const ageEmpresas       = (ageData as any[]).filter((x) => EMPRESAS_TIPOS.has(x.categoria));
+const ageOrganismos     = (ageData as any[]).filter(
+  (x) => !ADMIN_TIPOS.has(x.categoria) && !EMPRESAS_TIPOS.has(x.categoria));
+
+const AUTONOMIAS_INSTITUCIONAL_TIPOS = new Set(["Presidente/a", "Gobierno", "Parlamento"]);
+const autonomiasInstitucional = (autonomiasData as any[]).filter(
+  (x) => AUTONOMIAS_INSTITUCIONAL_TIPOS.has(x.tipo));
+const organismosAutonomicos = (autonomiasData as any[]).filter(
+  (x) => !AUTONOMIAS_INSTITUCIONAL_TIPOS.has(x.tipo));
+
 const CATEGORIES = [
-  { key: "age",           label: "Administración",  data: ageData           },
+  { key: "administracion", label: "Administración",         data: ageAdministracion },
+  { key: "organismos",     label: "Organismos públicos",    data: ageOrganismos     },
+  { key: "empresas",       label: "Empresas y fundaciones", data: ageEmpresas       },
+  { key: "organos",       label: "Órganos del Estado", data: organosData    },
   { key: "gobierno",      label: "Gobierno",         data: gobiernoData      },
   { key: "congreso",      label: "Congreso",         data: congresoData      },
   { key: "senado",        label: "Senado",           data: senadoData        },
   { key: "partidos",      label: "Partidos",         data: partidosData      },
-  { key: "autonomias",    label: "Autonomías",       data: autonomiasData    },
+  { key: "autonomias",    label: "Autonomías",       data: autonomiasInstitucional },
+  { key: "organismosautonomicos", label: "Organismos autonómicos", data: organismosAutonomicos },
   { key: "universidades", label: "Universidades",    data: universidadesData },
 ];
 
@@ -65,11 +88,14 @@ const catStats = CATEGORIES.map(({ key, label, data }) => {
   const activoBsky     = items.filter(x => x.bluesky_activo).length;
   const conMastodon    = items.filter(x => x.mastodon).length;
   const activoMstdn    = items.filter(x => x.mastodon_activo).length;
-  const sinAlternativa = items.filter(x => !x.bluesky && !x.mastodon).length;
+  const sinAlternativa = items.filter(x => x.twitter && !x.bluesky && !x.mastodon).length;
   const sinNinguna     = items.filter(x => !x.twitter && !x.bluesky && !x.mastodon).length;
-  const pctFuera       = total > 0 ? Math.round(((total - enX) / total) * 100) : 0;
-  const pctBsky        = total > 0 ? Math.round((conBluesky / total) * 100) : 0;
-  return { key, label, total, conTwitter, enX, sinActX, conBluesky, activoBsky, conMastodon, activoMstdn, sinAlternativa, sinNinguna, pctFuera, pctBsky };
+  // Base de las estadísticas de elección de plataforma: excluye las entidades sin
+  // presencia en ninguna red (no participaron de la elección X/Bluesky/Mastodon).
+  const base           = total - sinNinguna;
+  const pctFuera       = base > 0 ? Math.round(((base - enX) / base) * 100) : 0;
+  const pctBsky        = base > 0 ? Math.round((conBluesky / base) * 100) : 0;
+  return { key, label, total, base, conTwitter, enX, sinActX, conBluesky, activoBsky, conMastodon, activoMstdn, sinAlternativa, sinNinguna, pctFuera, pctBsky };
 });
 
 const totales = catStats.reduce(
@@ -89,6 +115,10 @@ const totales = catStats.reduce(
 );
 
 const conAlternativa    = totales.total - totales.sinAlternativa;
+// Base de las estadísticas de elección de plataforma en todo el sitio: excluye
+// las entidades sin presencia en ninguna red (no participaron de la elección
+// X/Bluesky/Mastodon), tal y como hace el paper. Siguen apareciendo en las tablas.
+const totalesBase       = totales.total - totales.sinNinguna;
 
 const allNormalizedItems = CATEGORIES.flatMap(({ data }) => (data as any[]).map(normalizeItem));
 const sustFuncionalTotal = allNormalizedItems.filter(x => !x.twitter_activo && (x.bluesky_activo || x.mastodon_activo)).length;
@@ -105,19 +135,19 @@ function pctNum(num: number, den: number) {
   return v === 0 && num > 0 ? "~0" : `${v}`;
 }
 
-const pctFueraDeX       = pctVal(totales.total - totales.enX, totales.total);
-const pctEnX            = pctVal(totales.enX,        totales.total);
-const pctConTw          = pctVal(totales.conTwitter, totales.total);
-const pctBsky           = pctVal(totales.conBluesky, totales.total);
+const pctFueraDeX       = pctVal(totalesBase - totales.enX, totalesBase);
+const pctEnX            = pctVal(totales.enX,        totalesBase);
+const pctConTw          = pctVal(totales.conTwitter, totalesBase);
+const pctBsky           = pctVal(totales.conBluesky, totalesBase);
 const pctActivoBsky     = pctVal(totales.activoBsky, totales.conBluesky);
-const pctMstdn          = pctVal(totales.conMastodon, totales.total);
+const pctMstdn          = pctVal(totales.conMastodon, totalesBase);
 const pctActivoMstdn    = pctVal(totales.activoMstdn, totales.conMastodon);
 const pctSinNinguna     = pctVal(totales.sinNinguna,  totales.total);
-const pctNingW          = pctVal(totales.sinAlternativa, totales.total);
-const pctSinActX        = pctVal(totales.sinActX,     totales.total);
-const pctActBskyOfTotal = pctVal(totales.activoBsky,  totales.total);
-const pctActMstdnOfTotal= pctVal(totales.activoMstdn, totales.total);
-const pctSustFunc       = pctVal(sustFuncionalTotal,  totales.total);
+const pctNingW          = pctVal(totales.sinAlternativa, totalesBase);
+const pctSinActX        = pctVal(totales.sinActX,     totalesBase);
+const pctActBskyOfTotal = pctVal(totales.activoBsky,  totalesBase);
+const pctActMstdnOfTotal= pctVal(totales.activoMstdn, totalesBase);
+const pctSustFunc       = pctVal(sustFuncionalTotal,  totalesBase);
 
 // ── Stats de error 404 en Twitter (para metodología) ─────────────────────────
 const allItems = CATEGORIES.flatMap(({ data }) => data as any[]);
@@ -141,14 +171,14 @@ const CONGRESO_GRUPO_LABELS: Record<string, string> = {
   "Grupo Parlamentario Vasco (EAJ-PNV)":          "PNV",
 };
 
-type GrupoStat = { total: number; enX: number; fueraDeX: number; conBluesky: number; activoBsky: number; conMastodon: number; sinAlternativa: number };
+type GrupoStat = { total: number; enX: number; fueraDeX: number; conBluesky: number; activoBsky: number; conMastodon: number; sinAlternativa: number; sinNinguna: number };
 
 const congresoGruposMap: Record<string, GrupoStat> = {};
 
 for (const raw of congresoData as any[]) {
   if (raw.tipo !== "Diputado/a" || !raw.grupo) continue;
   const label = CONGRESO_GRUPO_LABELS[raw.grupo] ?? raw.grupo;
-  if (!congresoGruposMap[label]) congresoGruposMap[label] = { total: 0, enX: 0, fueraDeX: 0, conBluesky: 0, activoBsky: 0, conMastodon: 0, sinAlternativa: 0 };
+  if (!congresoGruposMap[label]) congresoGruposMap[label] = { total: 0, enX: 0, fueraDeX: 0, conBluesky: 0, activoBsky: 0, conMastodon: 0, sinAlternativa: 0, sinNinguna: 0 };
   const g = congresoGruposMap[label];
   const item = normalizeItem(raw);
   g.total++;
@@ -156,7 +186,8 @@ for (const raw of congresoData as any[]) {
   if (item.bluesky)        g.conBluesky++;
   if (item.bluesky_activo) g.activoBsky++;
   if (item.mastodon)       g.conMastodon++;
-  if (!item.bluesky && !item.mastodon) g.sinAlternativa++;
+  if (item.twitter && !item.bluesky && !item.mastodon) g.sinAlternativa++;
+  if (!item.twitter && !item.bluesky && !item.mastodon) g.sinNinguna++;
 }
 
 const CONGRESO_GRUPO_ORDER = ["PP", "PSOE", "VOX", "SUMAR", "ERC", "EH Bildu", "Junts", "PNV", "Mixto"];
@@ -164,20 +195,21 @@ const gruposStats = CONGRESO_GRUPO_ORDER
   .filter(k => congresoGruposMap[k])
   .map(k => {
     const g = congresoGruposMap[k];
+    const base = g.total - g.sinNinguna;
     return {
-      label: k, ...g,
-      pctFuera:  Math.round((g.fueraDeX       / g.total) * 100),
-      pctBsky:   Math.round((g.conBluesky      / g.total) * 100),
-      pctEnX:    Math.round((g.enX             / g.total) * 100),
-      pctBskyA:  Math.round((g.activoBsky      / g.total) * 100),
-      pctMstdn:  Math.round((g.conMastodon     / g.total) * 100),
-      pctSinAlt: Math.round((g.sinAlternativa  / g.total) * 100),
+      label: k, ...g, base,
+      pctFuera:  pct(g.fueraDeX,       base),
+      pctBsky:   pct(g.conBluesky,     base),
+      pctEnX:    pct(g.enX,            base),
+      pctBskyA:  pct(g.activoBsky,     base),
+      pctMstdn:  pct(g.conMastodon,    base),
+      pctSinAlt: pct(g.sinAlternativa, base),
     };
   });
 
 const congresoTotales = gruposStats.reduce(
-  (acc, g) => ({ total: acc.total + g.total, enX: acc.enX + g.enX, fueraDeX: acc.fueraDeX + g.fueraDeX, conBluesky: acc.conBluesky + g.conBluesky, activoBsky: acc.activoBsky + g.activoBsky, conMastodon: acc.conMastodon + g.conMastodon, sinAlternativa: acc.sinAlternativa + g.sinAlternativa }),
-  { total: 0, enX: 0, fueraDeX: 0, conBluesky: 0, activoBsky: 0, conMastodon: 0, sinAlternativa: 0 }
+  (acc, g) => ({ total: acc.total + g.total, base: acc.base + g.base, enX: acc.enX + g.enX, fueraDeX: acc.fueraDeX + g.fueraDeX, conBluesky: acc.conBluesky + g.conBluesky, activoBsky: acc.activoBsky + g.activoBsky, conMastodon: acc.conMastodon + g.conMastodon, sinAlternativa: acc.sinAlternativa + g.sinAlternativa }),
+  { total: 0, base: 0, enX: 0, fueraDeX: 0, conBluesky: 0, activoBsky: 0, conMastodon: 0, sinAlternativa: 0 }
 );
 
 // ── Senado: por grupo parlamentario ───────────────────────────────────────────
@@ -218,7 +250,7 @@ const senadoGruposMap: Record<string, GrupoStat> = {};
 for (const raw of senadoData as any[]) {
   if (raw.tipo !== "Senador/a" || !raw.grupo) continue;
   const label = SENADO_GRUPO_LABELS[raw.grupo] ?? raw.grupo;
-  if (!senadoGruposMap[label]) senadoGruposMap[label] = { total: 0, enX: 0, fueraDeX: 0, conBluesky: 0, activoBsky: 0, conMastodon: 0, sinAlternativa: 0 };
+  if (!senadoGruposMap[label]) senadoGruposMap[label] = { total: 0, enX: 0, fueraDeX: 0, conBluesky: 0, activoBsky: 0, conMastodon: 0, sinAlternativa: 0, sinNinguna: 0 };
   const g = senadoGruposMap[label];
   const item = normalizeItem(raw);
   g.total++;
@@ -226,7 +258,8 @@ for (const raw of senadoData as any[]) {
   if (item.bluesky)        g.conBluesky++;
   if (item.bluesky_activo) g.activoBsky++;
   if (item.mastodon)       g.conMastodon++;
-  if (!item.bluesky && !item.mastodon) g.sinAlternativa++;
+  if (item.twitter && !item.bluesky && !item.mastodon) g.sinAlternativa++;
+  if (!item.twitter && !item.bluesky && !item.mastodon) g.sinNinguna++;
 }
 
 const SENADO_GRUPO_ORDER = ["PP", "PSOE", "ERC / EH Bildu", "Izq. Confederal", "Plural", "PNV", "Mixto"];
@@ -234,20 +267,21 @@ const senadoGruposStats = SENADO_GRUPO_ORDER
   .filter(k => senadoGruposMap[k])
   .map(k => {
     const g = senadoGruposMap[k];
+    const base = g.total - g.sinNinguna;
     return {
-      label: k, ...g,
-      pctFuera:  Math.round((g.fueraDeX       / g.total) * 100),
-      pctBsky:   Math.round((g.conBluesky      / g.total) * 100),
-      pctEnX:    Math.round((g.enX             / g.total) * 100),
-      pctBskyA:  Math.round((g.activoBsky      / g.total) * 100),
-      pctMstdn:  Math.round((g.conMastodon     / g.total) * 100),
-      pctSinAlt: Math.round((g.sinAlternativa  / g.total) * 100),
+      label: k, ...g, base,
+      pctFuera:  pct(g.fueraDeX,       base),
+      pctBsky:   pct(g.conBluesky,     base),
+      pctEnX:    pct(g.enX,            base),
+      pctBskyA:  pct(g.activoBsky,     base),
+      pctMstdn:  pct(g.conMastodon,    base),
+      pctSinAlt: pct(g.sinAlternativa, base),
     };
   });
 
 const senadoTotales = senadoGruposStats.reduce(
-  (acc, g) => ({ total: acc.total + g.total, enX: acc.enX + g.enX, fueraDeX: acc.fueraDeX + g.fueraDeX, conBluesky: acc.conBluesky + g.conBluesky, activoBsky: acc.activoBsky + g.activoBsky, conMastodon: acc.conMastodon + g.conMastodon, sinAlternativa: acc.sinAlternativa + g.sinAlternativa }),
-  { total: 0, enX: 0, fueraDeX: 0, conBluesky: 0, activoBsky: 0, conMastodon: 0, sinAlternativa: 0 }
+  (acc, g) => ({ total: acc.total + g.total, base: acc.base + g.base, enX: acc.enX + g.enX, fueraDeX: acc.fueraDeX + g.fueraDeX, conBluesky: acc.conBluesky + g.conBluesky, activoBsky: acc.activoBsky + g.activoBsky, conMastodon: acc.conMastodon + g.conMastodon, sinAlternativa: acc.sinAlternativa + g.sinAlternativa }),
+  { total: 0, base: 0, enX: 0, fueraDeX: 0, conBluesky: 0, activoBsky: 0, conMastodon: 0, sinAlternativa: 0 }
 );
 
 // ── Gradiente ideológico (orden izq→der) ──────────────────────────────────────
@@ -299,7 +333,7 @@ function kpiDash(p: number) {
       <div class="datos-hero-meta">
         <div class="datos-hero-meta-text">
           <span class="datos-hero-meta-highlight">{totales.total} entidades</span>
-          {" · "}7 categorías{" · "}Actualizado {fmtDate(lastUpdate.twitter)}
+          {" · "}{CATEGORIES.length} categorías{" · "}Actualizado {fmtDate(lastUpdate.twitter)}
         </div>
         <ExportButton client:load dark />
       </div>
@@ -321,7 +355,7 @@ function kpiDash(p: number) {
 
   <!-- Panel: Datos -->
   <div id="datos-panel-datos" class="datos-panel">
-  <div class="text-left px-4 sm:px-6 max-w-screen-xl mx-auto pb-16 mt-10 space-y-12">
+  <div class="text-left px-4 sm:px-6 max-w-screen-xl mx-auto pb-8 mt-6 space-y-8">
 
     <!-- ── Presencia registrada ──────────────────────────────────────────── -->
     <div class="datos-section">
@@ -338,7 +372,23 @@ function kpiDash(p: number) {
             </svg>
             <div class="datos-kpi-text">
               <p class="datos-kpi-num">{totales.total}</p>
-              <p class="datos-kpi-sub">en 7 categorías</p>
+              <p class="datos-kpi-sub">en {CATEGORIES.length} categorías</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Base de las estadísticas de elección de plataforma -->
+        <div class="datos-kpi-card">
+          <p class="datos-kpi-desc">Con alguna presencia social</p>
+          <div class="datos-kpi-body">
+            <svg class="datos-kpi-donut" width="54" height="54" viewBox="0 0 54 54">
+              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-line)" stroke-width="5"/>
+              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-fg-2)" stroke-width="5"
+                stroke-dasharray={kpiDash(100 - pctSinNinguna)} transform="rotate(-90 27 27)"/>
+            </svg>
+            <div class="datos-kpi-text">
+              <p class="datos-kpi-num">{totalesBase}</p>
+              <p class="datos-kpi-sub">base de los % siguientes</p>
             </div>
           </div>
         </div>
@@ -353,8 +403,8 @@ function kpiDash(p: number) {
                 stroke-dasharray={kpiDash(pctConTw)} transform="rotate(-90 27 27)"/>
             </svg>
             <div class="datos-kpi-text">
-              <p class="datos-kpi-num"><span>{pctNum(totales.conTwitter, totales.total)}</span><span>%</span></p>
-              <p class="datos-kpi-sub">{totales.conTwitter}/{totales.total}</p>
+              <p class="datos-kpi-num"><span>{pctNum(totales.conTwitter, totalesBase)}</span><span>%</span></p>
+              <p class="datos-kpi-sub">{totales.conTwitter}/{totalesBase}</p>
             </div>
           </div>
         </div>
@@ -369,8 +419,8 @@ function kpiDash(p: number) {
                 stroke-dasharray={kpiDash(pctBsky)} transform="rotate(-90 27 27)"/>
             </svg>
             <div class="datos-kpi-text">
-              <p class="datos-kpi-num"><span>{pctNum(totales.conBluesky, totales.total)}</span><span>%</span></p>
-              <p class="datos-kpi-sub">{totales.conBluesky}/{totales.total}</p>
+              <p class="datos-kpi-num"><span>{pctNum(totales.conBluesky, totalesBase)}</span><span>%</span></p>
+              <p class="datos-kpi-sub">{totales.conBluesky}/{totalesBase}</p>
             </div>
           </div>
         </div>
@@ -385,8 +435,8 @@ function kpiDash(p: number) {
                 stroke-dasharray={kpiDash(pctMstdn)} transform="rotate(-90 27 27)"/>
             </svg>
             <div class="datos-kpi-text">
-              <p class="datos-kpi-num"><span>{pctNum(totales.conMastodon, totales.total)}</span><span>%</span></p>
-              <p class="datos-kpi-sub">{totales.conMastodon}/{totales.total}</p>
+              <p class="datos-kpi-num"><span>{pctNum(totales.conMastodon, totalesBase)}</span><span>%</span></p>
+              <p class="datos-kpi-sub">{totales.conMastodon}/{totalesBase}</p>
             </div>
           </div>
         </div>
@@ -395,7 +445,7 @@ function kpiDash(p: number) {
     </div>
 
     <div class="datos-callout">
-      <p class="datos-callout-text">El <strong>{pctConTw}%</strong> de las entidades monitorizadas tiene cuenta en X/Twitter. Solo el <strong>{pctEnX}%</strong> publicó algo en los últimos 30 días.</p>
+      <p class="datos-callout-text">El <strong>{pctConTw}%</strong> de las {totalesBase} entidades con presencia en alguna red social tiene cuenta en X/Twitter. Solo el <strong>{pctEnX}%</strong> publicó algo en los últimos 30 días.</p>
     </div>
 
     <!-- ── Actividad ──────────────────────────────────────────────────────── -->
@@ -412,8 +462,8 @@ function kpiDash(p: number) {
                 stroke-dasharray={kpiDash(pctEnX)} transform="rotate(-90 27 27)"/>
             </svg>
             <div class="datos-kpi-text">
-              <p class="datos-kpi-num"><span>{pctNum(totales.enX, totales.total)}</span><span>%</span></p>
-              <p class="datos-kpi-sub">{totales.enX}/{totales.total}</p>
+              <p class="datos-kpi-num"><span>{pctNum(totales.enX, totalesBase)}</span><span>%</span></p>
+              <p class="datos-kpi-sub">{totales.enX}/{totalesBase}</p>
             </div>
           </div>
         </div>
@@ -428,8 +478,8 @@ function kpiDash(p: number) {
                 stroke-dasharray={kpiDash(pctNingW)} transform="rotate(-90 27 27)"/>
             </svg>
             <div>
-              <p class="datos-kpi-num datos-kpi-num--alert"><span>{pctNum(totales.sinAlternativa, totales.total)}</span><span>%</span></p>
-              <p class="datos-kpi-sub">{totales.sinAlternativa}/{totales.total}</p>
+              <p class="datos-kpi-num datos-kpi-num--alert"><span>{pctNum(totales.sinAlternativa, totalesBase)}</span><span>%</span></p>
+              <p class="datos-kpi-sub">{totales.sinAlternativa}/{totalesBase}</p>
             </div>
           </div>
         </div>
@@ -444,8 +494,8 @@ function kpiDash(p: number) {
                 stroke-dasharray={kpiDash(pctActBskyOfTotal)} transform="rotate(-90 27 27)"/>
             </svg>
             <div class="datos-kpi-text">
-              <p class="datos-kpi-num"><span>{pctNum(totales.activoBsky, totales.total)}</span><span>%</span></p>
-              <p class="datos-kpi-sub">{totales.activoBsky}/{totales.total}</p>
+              <p class="datos-kpi-num"><span>{pctNum(totales.activoBsky, totalesBase)}</span><span>%</span></p>
+              <p class="datos-kpi-sub">{totales.activoBsky}/{totalesBase}</p>
             </div>
           </div>
         </div>
@@ -483,17 +533,17 @@ function kpiDash(p: number) {
       <p class="datos-section-label datos-section-label--activity">
         Distribución por plataforma
       </p>
-      <p class="datos-dist-desc mb-6">Proporción del total de {totales.total} entidades con cuenta registrada (barra completa) y con actividad en los últimos 30 días (tramo oscuro).</p>
+      <p class="datos-dist-desc mb-6">Proporción de las {totalesBase} entidades con presencia en alguna red social (se excluyen las {totales.sinNinguna} sin ninguna cuenta) con cuenta registrada (barra completa) y con actividad en los últimos 30 días (tramo oscuro).</p>
       {sustFuncionalTotal > 0 && (
         <div class="datos-callout">
           <p class="datos-callout-text"><strong>{sustFuncionalTotal}</strong> entidades han migrado funcionalmente: están inactivas en X pero activas en una plataforma federada.</p>
         </div>
       )}
-      <div class="space-y-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 mb-3">
         <div>
           <div class="dist-bar-row">
             <span class="dist-bar-label">X / Twitter</span>
-            <span class="dist-bar-stats">{totales.conTwitter} con cuenta ({pctFmt(totales.conTwitter, totales.total)}) · {totales.enX} activas ({pctFmt(totales.enX, totales.total)}) · {totales.sinActX} inactivas</span>
+            <span class="dist-bar-stats">{totales.conTwitter} con cuenta ({pctFmt(totales.conTwitter, totalesBase)}) · {totales.enX} act.</span>
           </div>
           <div class="dist-bar-track">
             <div class="dist-bar-seg dist-bar-seg--x-act" data-pct={pctEnX}></div>
@@ -503,7 +553,7 @@ function kpiDash(p: number) {
         <div>
           <div class="dist-bar-row">
             <span class="dist-bar-label">Bluesky</span>
-            <span class="dist-bar-stats">{totales.conBluesky} con cuenta ({pctFmt(totales.conBluesky, totales.total)}) · {totales.activoBsky} activas ({pctFmt(totales.activoBsky, totales.total)} del total)</span>
+            <span class="dist-bar-stats">{totales.conBluesky} con cuenta ({pctFmt(totales.conBluesky, totalesBase)}) · {totales.activoBsky} act.</span>
           </div>
           <div class="dist-bar-track">
             <div class="dist-bar-seg dist-bar-seg--bsky-act" data-pct={pctActBskyOfTotal}></div>
@@ -513,24 +563,24 @@ function kpiDash(p: number) {
         <div>
           <div class="dist-bar-row">
             <span class="dist-bar-label">Mastodon</span>
-            <span class="dist-bar-stats">{totales.conMastodon} con cuenta ({pctFmt(totales.conMastodon, totales.total)}) · {totales.activoMstdn} activas ({pctFmt(totales.activoMstdn, totales.total)} del total)</span>
+            <span class="dist-bar-stats">{totales.conMastodon} con cuenta ({pctFmt(totales.conMastodon, totalesBase)}) · {totales.activoMstdn} act.</span>
           </div>
           <div class="dist-bar-track">
             <div class="dist-bar-seg dist-bar-seg--mstdn-act" data-pct={pctActMstdnOfTotal}></div>
             <div class="dist-bar-seg dist-bar-seg--mstdn-inact" data-pct={pctMstdn - pctActMstdnOfTotal}></div>
           </div>
         </div>
-        <p class="datos-proto-note"><strong>Nota:</strong> Bluesky (AT Protocol) y Mastodon (ActivityPub) son protocolos distintos con diferente nivel de apertura. ActivityPub es un estándar del W3C sin propietario comercial; AT Protocol está controlado por Bluesky Social PBC, una empresa privada con financiación de capital riesgo. <a href="/porque" class="datos-meto-link">Más información</a>.</p>
         <div>
           <div class="dist-bar-row">
             <span class="dist-bar-label dist-bar-label--alert">Sin alternativa a X <span class="dist-bar-label-note">(sin Bluesky ni Mastodon)</span></span>
-            <span class="dist-bar-stats">{totales.sinAlternativa} ({pctFmt(totales.sinAlternativa, totales.total)})</span>
+            <span class="dist-bar-stats">{totales.sinAlternativa} ({pctFmt(totales.sinAlternativa, totalesBase)})</span>
           </div>
           <div class="dist-bar-track">
             <div class="dist-bar-seg dist-bar-seg--sin-alt" data-pct={pctNingW}></div>
           </div>
         </div>
       </div>
+      <p class="datos-proto-note mb-4"><strong>Nota:</strong> Bluesky (AT Protocol) y Mastodon (ActivityPub) son protocolos distintos con diferente nivel de apertura. ActivityPub es un estándar del W3C sin propietario comercial; AT Protocol está controlado por Bluesky Social PBC, una empresa privada con financiación de capital riesgo. <a href="/porque" class="datos-meto-link">Más información</a>.</p>
       <div class="dist-legend">
         <span class="dist-legend-item">
           <span class="dist-legend-swatches">
@@ -592,11 +642,11 @@ function kpiDash(p: number) {
         </div>
 
         {catStats.map(c => {
-          const pXA  = pct(c.enX, c.total);
-          const pXI  = pct(c.sinActX, c.total);
-          const pBsA = pct(c.activoBsky, c.total);
-          const pBsI = pct(c.conBluesky - c.activoBsky, c.total);
-          const pMd  = pct(c.conMastodon, c.total);
+          const pXA  = pct(c.enX, c.base);
+          const pXI  = pct(c.sinActX, c.base);
+          const pBsA = pct(c.activoBsky, c.base);
+          const pBsI = pct(c.conBluesky - c.activoBsky, c.base);
+          const pMd  = pct(c.conMastodon, c.base);
           return (
             <div class="flex gap-2 sm:gap-3 items-start">
               <div class="w-28 sm:w-36 shrink-0 text-right pt-0.5">
@@ -655,28 +705,25 @@ function kpiDash(p: number) {
             <div class="heatmap-col-head heatmap-col-head--bsky">Bluesky</div>
             <div class="heatmap-col-head heatmap-col-head--mstdn">Mastodon</div>
             {catStats.map(c => {
-              const pX  = pct(c.enX,         c.total);
-              const pBs = pct(c.activoBsky,   c.total);
-              const pMd = pct(c.activoMstdn,  c.total);
-              const aX  = (0.05 + (pX  / 100) * 0.50).toFixed(3);
-              const aBs = (0.05 + (pBs / 100) * 0.55).toFixed(3);
-              const aMd = (0.05 + (pMd / 100) * 0.55).toFixed(3);
+              const pX  = pct(c.enX,         c.base);
+              const pBs = pct(c.activoBsky,   c.base);
+              const pMd = pct(c.activoMstdn,  c.base);
               return <>
                 <div class="heatmap-row-lbl">
                   <span class="heatmap-row-name">{c.label}</span>
                   <span class="heatmap-row-n">{c.total}</span>
                 </div>
-                <div class="heatmap-cell" style={`background:rgba(20,20,20,${aX})`}>
+                <div class="heatmap-cell" style={`background: color-mix(in srgb, var(--sd-fg-2) ${Math.round(5 + pX * 0.50)}%, transparent)`}>
                   <span class="heatmap-val">{pX}%</span>
-                  <span class="heatmap-sub">{c.enX}/{c.total}</span>
+                  <span class="heatmap-sub">{c.enX}/{c.base}</span>
                 </div>
-                <div class="heatmap-cell" style={`background:rgba(0,133,255,${aBs})`}>
+                <div class="heatmap-cell" style={`background: color-mix(in srgb, var(--sd-sky) ${Math.round(5 + pBs * 0.55)}%, transparent)`}>
                   <span class="heatmap-val">{pBs}%</span>
-                  <span class="heatmap-sub">{c.activoBsky}/{c.total}</span>
+                  <span class="heatmap-sub">{c.activoBsky}/{c.base}</span>
                 </div>
-                <div class="heatmap-cell" style={`background:rgba(115,90,220,${aMd})`}>
+                <div class="heatmap-cell" style={`background: color-mix(in srgb, var(--sd-mastodon) ${Math.round(5 + pMd * 0.55)}%, transparent)`}>
                   <span class="heatmap-val">{pMd}%</span>
-                  <span class="heatmap-sub">{c.activoMstdn}/{c.total}</span>
+                  <span class="heatmap-sub">{c.activoMstdn}/{c.base}</span>
                 </div>
               </>;
             })}
@@ -687,7 +734,7 @@ function kpiDash(p: number) {
       <!-- Panel: tabla numérica (Desglose por categoría) -->
       <div id="cat-panel-tabla" class="cat-panel cat-panel--hidden">
       <p class="text-sm text-muted-foreground mb-4"><em>Activos X</em>: con publicación en X en los últimos 30 días. <em>Sin act. X</em>: con cuenta pero sin publicar en ese período. <em>Con X</em>: total con cuenta en X. <em>Sin redes</em>: sin cuenta en ninguna plataforma.</p>
-      <div class="overflow-x-auto border border-border/50">
+      <div class="datos-table-wrap">
         <table class="w-full" data-sortable>
           <thead>
             <tr class="border-b border-border/40 bg-muted/20">
@@ -758,102 +805,107 @@ function kpiDash(p: number) {
 
       <!-- Congreso -->
       <div id="parl-panel-congreso" class="parl-panel">
+      <div class="grid grid-cols-1 lg:grid-cols-[1.45fr_1fr] gap-6 items-start">
 
-      <!-- Gradiente ideológico -->
-      <div class="gradiente-wrap mb-8">
-        <p class="gradiente-title">Adopción de Bluesky por grupo parlamentario (Congreso)</p>
-        <p class="gradiente-subtitle">% de diputados con cuenta en Bluesky. De izquierda a derecha según orientación ideológica habitual.</p>
-        <div class="gradiente-chart">
-          {gruposGradiente.map(g => (
-            <div class="gradiente-row">
-              <span class="gradiente-label">{g.label}</span>
-              <div class="gradiente-bar-track">
-                <div class="gradiente-bar-fill" style={`width:${g.pctBsky}%`}></div>
-              </div>
-              <span class="gradiente-pct">{g.pctBsky}%</span>
-            </div>
-          ))}
+        <div class="order-last lg:order-first">
+          <div class="datos-table-wrap">
+            <table class="w-full" data-sortable>
+              <thead>
+                <tr class="border-b border-border/40 bg-muted/20">
+                  <th data-sort="grupo"    class="datos-sortable-th py-3 px-5 text-xs font-medium text-muted-foreground text-left whitespace-nowrap">Grupo<span class="datos-sort-ind"></span></th>
+                  <th data-sort="total"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Total<span class="datos-sort-ind"></span></th>
+                  <th data-sort="sinAlt"  class="datos-sortable-th py-3 px-4 text-xs font-medium text-right whitespace-nowrap datos-th--alert">Sin alternativa<span class="datos-sort-ind"></span></th>
+                  <th data-sort="pctFuera" class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-left whitespace-nowrap">Sin actividad en X<span class="datos-sort-ind"></span></th>
+                  <th data-sort="enX"     class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Activos X<span class="datos-sort-ind"></span></th>
+                  <th data-sort="bsky"    class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Bluesky<span class="datos-sort-ind"></span></th>
+                  <th data-sort="mstdn"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Mastodon<span class="datos-sort-ind"></span></th>
+                </tr>
+              </thead>
+              <tbody>
+                {gruposStats.map((g) => (
+                  <tr class="border-b border-border/30 hover:bg-muted/20 transition-colors">
+                    <td data-col="grupo" class="py-3 px-5 text-left">
+                      <div class="text-sm font-medium">{g.label}</div>
+                      {CONGRESO_GRUPO_FULLNAMES[g.label] && (
+                        <div class="text-xs text-muted-foreground/60 font-normal mt-0.5">{CONGRESO_GRUPO_FULLNAMES[g.label]}</div>
+                      )}
+                    </td>
+                    <td data-col="total"  data-val={g.total} class="py-3 px-4 text-sm tabular-nums text-right text-muted-foreground">{g.total}</td>
+                    <td data-col="sinAlt" data-val={g.pctSinAlt} class={`py-3 px-4 text-right ${g.sinAlternativa > 0 ? 'datos-td--alert' : 'text-muted-foreground'}`}>
+                      <div class="grup-pct">{g.pctSinAlt}%</div>
+                      <div class="grup-abs">{g.sinAlternativa}</div>
+                    </td>
+                    <td data-col="pctFuera" data-val={g.pctFuera} class="py-3 px-4">
+                      <div class="flex items-center gap-2">
+                        <div class="grupo-bar-track shrink-0">
+                          <div class="grupo-bar-seg" data-pct={g.pctFuera}></div>
+                        </div>
+                        <span class="text-xs tabular-nums text-muted-foreground shrink-0">{g.pctFuera}%</span>
+                      </div>
+                    </td>
+                    <td data-col="enX"   data-val={g.pctEnX}   class="py-3 px-4 text-right">
+                      <div class="grup-pct">{g.pctEnX}%</div>
+                      <div class="grup-abs">{g.enX}</div>
+                    </td>
+                    <td data-col="bsky"  data-val={g.pctBsky}  class="py-3 px-4 text-right">
+                      <div class="grup-pct font-semibold">{g.pctBsky}%</div>
+                      <div class="grup-abs">{g.conBluesky}</div>
+                    </td>
+                    <td data-col="mstdn" data-val={g.pctMstdn} class="py-3 px-4 text-right">
+                      <div class="grup-pct">{g.pctMstdn}%</div>
+                      <div class="grup-abs">{g.conMastodon}</div>
+                    </td>
+                  </tr>
+                ))}
+                <tr data-footer class="border-t border-border bg-muted/20">
+                  <td class="py-3 px-5 text-sm font-semibold">Total</td>
+                  <td class="py-3 px-4 text-sm tabular-nums font-semibold text-right text-muted-foreground">{congresoTotales.total}</td>
+                  <td class="py-3 px-4 text-right font-semibold datos-td--alert">
+                    <div class="grup-pct">{pct(congresoTotales.sinAlternativa, congresoTotales.base)}%</div>
+                    <div class="grup-abs">{congresoTotales.sinAlternativa}</div>
+                  </td>
+                  <td class="py-3 px-4"></td>
+                  <td class="py-3 px-4 text-right font-semibold">
+                    <div class="grup-pct">{pct(congresoTotales.enX, congresoTotales.base)}%</div>
+                    <div class="grup-abs">{congresoTotales.enX}</div>
+                  </td>
+                  <td class="py-3 px-4 text-right font-semibold">
+                    <div class="grup-pct">{pct(congresoTotales.conBluesky, congresoTotales.base)}%</div>
+                    <div class="grup-abs">{congresoTotales.conBluesky}</div>
+                  </td>
+                  <td class="py-3 px-4 text-right font-semibold">
+                    <div class="grup-pct">{pct(congresoTotales.conMastodon, congresoTotales.base)}%</div>
+                    <div class="grup-abs">{congresoTotales.conMastodon}</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      <div class="overflow-x-auto border border-border/50 mb-8">
-        <table class="w-full" data-sortable>
-          <thead>
-            <tr class="border-b border-border/40 bg-muted/20">
-              <th data-sort="grupo"    class="datos-sortable-th py-3 px-5 text-xs font-medium text-muted-foreground text-left whitespace-nowrap">Grupo<span class="datos-sort-ind"></span></th>
-              <th data-sort="total"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Total<span class="datos-sort-ind"></span></th>
-              <th data-sort="sinAlt"  class="datos-sortable-th py-3 px-4 text-xs font-medium text-right whitespace-nowrap datos-th--alert">Sin alternativa<span class="datos-sort-ind"></span></th>
-              <th data-sort="pctFuera" class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-left whitespace-nowrap">Sin actividad en X<span class="datos-sort-ind"></span></th>
-              <th data-sort="enX"     class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Activos X<span class="datos-sort-ind"></span></th>
-              <th data-sort="bsky"    class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Bluesky<span class="datos-sort-ind"></span></th>
-              <th data-sort="mstdn"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Mastodon<span class="datos-sort-ind"></span></th>
-            </tr>
-          </thead>
-          <tbody>
-            {gruposStats.map((g) => (
-              <tr class="border-b border-border/30 hover:bg-muted/20 transition-colors">
-                <td data-col="grupo" class="py-3 px-5 text-left">
-                  <div class="text-sm font-medium">{g.label}</div>
-                  {CONGRESO_GRUPO_FULLNAMES[g.label] && (
-                    <div class="text-xs text-muted-foreground/60 font-normal mt-0.5">{CONGRESO_GRUPO_FULLNAMES[g.label]}</div>
-                  )}
-                </td>
-                <td data-col="total"  data-val={g.total} class="py-3 px-4 text-sm tabular-nums text-right text-muted-foreground">{g.total}</td>
-                <td data-col="sinAlt" data-val={g.pctSinAlt} class={`py-3 px-4 text-right ${g.sinAlternativa > 0 ? 'datos-td--alert' : 'text-muted-foreground'}`}>
-                  <div class="grup-pct">{g.pctSinAlt}%</div>
-                  <div class="grup-abs">{g.sinAlternativa}</div>
-                </td>
-                <td data-col="pctFuera" data-val={g.pctFuera} class="py-3 px-4">
-                  <div class="flex items-center gap-2">
-                    <div class="grupo-bar-track shrink-0">
-                      <div class="grupo-bar-seg" data-pct={g.pctFuera}></div>
-                    </div>
-                    <span class="text-xs tabular-nums text-muted-foreground shrink-0">{g.pctFuera}%</span>
-                  </div>
-                </td>
-                <td data-col="enX"   data-val={g.pctEnX}   class="py-3 px-4 text-right">
-                  <div class="grup-pct">{g.pctEnX}%</div>
-                  <div class="grup-abs">{g.enX}</div>
-                </td>
-                <td data-col="bsky"  data-val={g.pctBsky}  class="py-3 px-4 text-right">
-                  <div class="grup-pct font-semibold">{g.pctBsky}%</div>
-                  <div class="grup-abs">{g.conBluesky}</div>
-                </td>
-                <td data-col="mstdn" data-val={g.pctMstdn} class="py-3 px-4 text-right">
-                  <div class="grup-pct">{g.pctMstdn}%</div>
-                  <div class="grup-abs">{g.conMastodon}</div>
-                </td>
-              </tr>
+        <!-- Gradiente ideológico -->
+        <div class="gradiente-wrap border border-border/40 rounded-lg p-4 bg-muted/10 w-full">
+          <p class="gradiente-title">Adopción de Bluesky por grupo (Congreso)</p>
+          <p class="gradiente-subtitle">% de diputados con cuenta en Bluesky. De izquierda a derecha ideológicamente.</p>
+          <div class="gradiente-chart">
+            {gruposGradiente.map(g => (
+              <div class="gradiente-row">
+                <span class="gradiente-label">{g.label}</span>
+                <div class="gradiente-bar-track">
+                  <div class="gradiente-bar-fill" style={`width:${g.pctBsky}%`}></div>
+                </div>
+                <span class="gradiente-pct">{g.pctBsky}%</span>
+              </div>
             ))}
-            <tr data-footer class="border-t border-border bg-muted/20">
-              <td class="py-3 px-5 text-sm font-semibold">Total</td>
-              <td class="py-3 px-4 text-sm tabular-nums font-semibold text-right text-muted-foreground">{congresoTotales.total}</td>
-              <td class="py-3 px-4 text-right font-semibold datos-td--alert">
-                <div class="grup-pct">{pct(congresoTotales.sinAlternativa, congresoTotales.total)}%</div>
-                <div class="grup-abs">{congresoTotales.sinAlternativa}</div>
-              </td>
-              <td class="py-3 px-4"></td>
-              <td class="py-3 px-4 text-right font-semibold">
-                <div class="grup-pct">{pct(congresoTotales.enX, congresoTotales.total)}%</div>
-                <div class="grup-abs">{congresoTotales.enX}</div>
-              </td>
-              <td class="py-3 px-4 text-right font-semibold">
-                <div class="grup-pct">{pct(congresoTotales.conBluesky, congresoTotales.total)}%</div>
-                <div class="grup-abs">{congresoTotales.conBluesky}</div>
-              </td>
-              <td class="py-3 px-4 text-right font-semibold">
-                <div class="grup-pct">{pct(congresoTotales.conMastodon, congresoTotales.total)}%</div>
-                <div class="grup-abs">{congresoTotales.conMastodon}</div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+          </div>
+        </div>
+
       </div>
       </div>
 
       <!-- Senado -->
       <div id="parl-panel-senado" class="parl-panel parl-panel--hidden">
-      <div class="overflow-x-auto border border-border/50">
+      <div class="datos-table-wrap">
         <table class="w-full" data-sortable>
           <thead>
             <tr class="border-b border-border/40 bg-muted/20">
@@ -906,20 +958,20 @@ function kpiDash(p: number) {
               <td class="py-3 px-5 text-sm font-semibold">Total</td>
               <td class="py-3 px-4 text-sm tabular-nums font-semibold text-right text-muted-foreground">{senadoTotales.total}</td>
               <td class="py-3 px-4 text-right font-semibold datos-td--alert">
-                <div class="grup-pct">{pct(senadoTotales.sinAlternativa, senadoTotales.total)}%</div>
+                <div class="grup-pct">{pct(senadoTotales.sinAlternativa, senadoTotales.base)}%</div>
                 <div class="grup-abs">{senadoTotales.sinAlternativa}</div>
               </td>
               <td class="py-3 px-4"></td>
               <td class="py-3 px-4 text-right font-semibold">
-                <div class="grup-pct">{pct(senadoTotales.enX, senadoTotales.total)}%</div>
+                <div class="grup-pct">{pct(senadoTotales.enX, senadoTotales.base)}%</div>
                 <div class="grup-abs">{senadoTotales.enX}</div>
               </td>
               <td class="py-3 px-4 text-right font-semibold">
-                <div class="grup-pct">{pct(senadoTotales.conBluesky, senadoTotales.total)}%</div>
+                <div class="grup-pct">{pct(senadoTotales.conBluesky, senadoTotales.base)}%</div>
                 <div class="grup-abs">{senadoTotales.conBluesky}</div>
               </td>
               <td class="py-3 px-4 text-right font-semibold">
-                <div class="grup-pct">{pct(senadoTotales.conMastodon, senadoTotales.total)}%</div>
+                <div class="grup-pct">{pct(senadoTotales.conMastodon, senadoTotales.base)}%</div>
                 <div class="grup-abs">{senadoTotales.conMastodon}</div>
               </td>
             </tr>
@@ -935,7 +987,7 @@ function kpiDash(p: number) {
 
   <!-- Panel: Metodología -->
   <div id="datos-panel-metodologia" class="datos-panel datos-panel--hidden">
-  <div class="text-left px-4 sm:px-6 max-w-screen-xl mx-auto pb-16 mt-10">
+  <div class="text-left px-4 sm:px-6 max-w-screen-xl mx-auto pb-8 mt-6">
     <div class="datos-meto datos-meto--panel">
       <h2 class="datos-meto-h2">Metodología</h2>
       <p class="datos-meto-lead">Criterios de inclusión, proceso de obtención y verificación de los datos.</p>
@@ -945,17 +997,142 @@ function kpiDash(p: number) {
         <div class="datos-meto-section">
           <h3 class="datos-meto-h3">1. Alcance y unidad de análisis</h3>
           <p class="datos-meto-p">
-            El estudio cubre {totales.total} entidades distribuidas en siete categorías: Administración General del Estado (ministerios, principales organismos autónomos con comunicación pública activa —AEAT, AEMET, INE, SEPE, AECID, CIS, BNE, IGN, TGSS, CSD— y empresas públicas de alta visibilidad —RTVE, Renfe, Aena, Correos, Adif, etc.—), Gobierno (presidente y ministros en activo), Congreso de los Diputados (institución, presidencia y diputados/as con escaño), Senado (ídem para senadores/as, incluyendo designados por comunidades autónomas), Partidos políticos (cuentas orgánicas de partidos con representación en el Congreso), Comunidades Autónomas (presidencias, ejecutivos autonómicos y asambleas legislativas) y Universidades públicas.
+            El estudio cubre {totales.total} entidades. El perímetro estatal no se construye por selección discrecional, sino a partir del <a href="https://www.pap.hacienda.gob.es/invente2/pagMenuPrincipalV2.aspx" class="datos-meto-link" target="_blank" rel="noopener">Inventario de Entes del Sector Público (Invente)</a> que mantiene la IGAE en cumplimiento del art. 82 de la Ley 40/2015, consultado mediante su API pública y filtrado al ámbito estatal por código DIR3. De ese inventario se incluyen íntegramente las siguientes formas jurídicas: organismos autónomos, agencias estatales, autoridades administrativas independientes, entidades públicas empresariales, otros organismos de derecho público (incluidas las 28 autoridades portuarias y las 9 confederaciones hidrográficas), entidades gestoras y servicios comunes de la Seguridad Social, mutuas colaboradoras con la Seguridad Social, fundaciones del sector público estatal y sociedades mercantiles estatales. Cada entidad incluida tiene fila propia <strong class="datos-meto-strong">tenga o no cuenta en las plataformas analizadas</strong>: la ausencia de presencia es también un dato.
           </p>
           <p class="datos-meto-p">
-            Con el fin de simplificar el proyecto, se han excluido organismos locales, delegaciones territoriales y otras administraciones de nivel subnacional. Los partidos de ámbito exclusivamente autonómico no tienen entrada propia en la categoría Partidos, aunque sus representantes sí figuran en Congreso y Senado.
+            Del ámbito autonómico del mismo inventario (código DIR3 con prefijo «A», 872 entes vivos) se incluyen los entes públicos, las entidades públicas empresariales, las agencias y los organismos autónomos (en sus tres variantes) de las 17 comunidades autónomas y las ciudades autónomas de Ceuta y Melilla: agencias tributarias regionales, radiotelevisiones autonómicas, servicios de aguas, agencias de innovación y turismo, etc. La comunidad autónoma de cada ente se deriva del propio código DIR3 (que codifica la comunidad con el mismo criterio numérico que usa el INE), no de una clasificación manual.
+          </p>
+          <p class="datos-meto-p">
+            A ese universo se añaden órganos y unidades sin personalidad jurídica propia pero con comunicación pública diferenciada: Presidencia del Gobierno, ministerios, secretarías de Estado, delegaciones del Gobierno en las 17 CCAA y en Ceuta y Melilla, Fuerzas Armadas y Fuerzas y Cuerpos de Seguridad del Estado. Los órganos constitucionales y de relevancia constitucional (Casa Real, Tribunal Constitucional, CGPJ, Fiscalía, Defensor del Pueblo, Tribunal de Cuentas, Consejo de Estado, CES y Junta Electoral Central) forman una categoría propia por no pertenecer a la Administración. Completan el estudio: Gobierno (presidente y ministros en activo), Congreso de los Diputados, Senado, Partidos políticos con representación en el Congreso, presidencias/ejecutivos/asambleas legislativas de las comunidades autónomas (categoría «Autonomías», distinta de los organismos autonómicos descritos arriba) y Universidades públicas.
+          </p>
+          <p class="datos-meto-p">
+            <strong class="datos-meto-strong">Exclusiones expresas:</strong> en el ámbito estatal, los consorcios (28) y los fondos sin personalidad jurídica (16 fondos de financiación y garantía gestionados por un ministerio o entidad matriz —Tesoro, ICO/Axis, Puertos del Estado—, sin comunicación pública propia); las filiales de grupos empresariales públicos (se registra una fila por matriz: Renfe pero no Renfe Viajeros, Cesce pero no sus filiales latinoamericanas); las entidades en liquidación; y las micro-entidades instrumentales sin actividad comunicativa pública (vehículos patrimoniales, agrarios o financieros como Expasa, La Almoraima, SAECA o fundaciones portuarias menores). En el ámbito autonómico, quedan fuera —por ahora— las sociedades mercantiles, fundaciones, consorcios y fondos de titularidad autonómica: el volumen y la necesidad de curar matrices frente a filiales (mismo problema que a nivel estatal, agravado por el número de entes) desaconsejan incluirlos sin una revisión específica. También se excluyen, en ambos ámbitos, las administraciones locales, la red exterior (embajadas y consulados) y las entidades de nivel subnacional no clasificadas. Los partidos de ámbito exclusivamente autonómico no tienen entrada propia en la categoría Partidos, aunque sus representantes sí figuran en Congreso y Senado.
+          </p>
+        </div>
+
+        <div class="datos-meto-section">
+          <h3 class="datos-meto-h3">1bis. Cobertura del Invente</h3>
+          <p class="datos-meto-p">
+            El <a href="https://www.pap.hacienda.gob.es/invente2/pagMenuPrincipalV2.aspx" class="datos-meto-link" target="_blank" rel="noopener">Inventario de Entes del Sector Público</a> registraba <strong class="datos-meto-strong">4.789 entes vivos</strong> a fecha de la última consulta (2026-07-08). La figura y la tabla siguientes resumen qué parte de ese universo cubre este proyecto, en qué ámbito y forma jurídica se concentra, y por qué se excluye el resto.
+          </p>
+
+          <p class="cov-fig-label">Reparto del inventario completo por ámbito administrativo</p>
+          <div class="cov-bar-track cov-bar-track--lvl1">
+            <div class="cov-bar-seg cov-bar-seg--estatal" data-pct="7.2" title="Estatal: 344 entes (7,2%)"></div>
+            <div class="cov-bar-seg cov-bar-seg--ccaa" data-pct="18.2" title="Comunidades Autónomas: 872 entes (18,2%)"></div>
+            <div class="cov-bar-seg cov-bar-seg--universidades" data-pct="2.9" title="Universidades: 141 entes (2,9%)"></div>
+            <div class="cov-bar-seg cov-bar-seg--local" data-pct="24.9" title="Entidades Locales: 1.193 entes (24,9%)"></div>
+            <div class="cov-bar-seg cov-bar-seg--otros" data-pct="46.8" title="Otros / no clasificado: 2.239 entes (46,8%)"></div>
+          </div>
+          <div class="dist-legend cov-legend">
+            <span class="dist-legend-item"><span class="dist-legend-swatch cov-swatch--estatal"></span>Estatal · 344</span>
+            <span class="dist-legend-item"><span class="dist-legend-swatch cov-swatch--ccaa"></span>Comunidades Autónomas · 872</span>
+            <span class="dist-legend-item"><span class="dist-legend-swatch cov-swatch--universidades"></span>Universidades · 141</span>
+            <span class="dist-legend-item"><span class="dist-legend-swatch cov-swatch--local"></span>Entidades Locales · 1.193</span>
+            <span class="dist-legend-item"><span class="dist-legend-swatch cov-swatch--otros"></span>Otros / no clasificado · 2.239</span>
+          </div>
+
+          <p class="cov-fig-label cov-fig-label--lvl2">Dentro de cada ámbito cubierto, qué proporción de entes entra en el estudio</p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 mb-2">
+            <div>
+              <div class="dist-bar-row">
+                <span class="dist-bar-label">Estatal</span>
+                <span class="dist-bar-stats">207 de 344 (60%)</span>
+              </div>
+              <div class="dist-bar-track">
+                <div class="cov-bar-seg cov-bar-seg--estatal" data-pct="60.2"></div>
+                <div class="cov-bar-seg cov-bar-seg--estatal-excluido" data-pct="39.8"></div>
+              </div>
+            </div>
+            <div>
+              <div class="dist-bar-row">
+                <span class="dist-bar-label">CCAA</span>
+                <span class="dist-bar-stats">314 de 872 (36%)</span>
+              </div>
+              <div class="dist-bar-track">
+                <div class="cov-bar-seg cov-bar-seg--ccaa" data-pct="36.0"></div>
+                <div class="cov-bar-seg cov-bar-seg--ccaa-excluido" data-pct="64.0"></div>
+              </div>
+            </div>
+            <div>
+              <div class="dist-bar-row">
+                <span class="dist-bar-label">Universidades</span>
+                <span class="dist-bar-stats">50 de 141 (35%)</span>
+              </div>
+              <div class="dist-bar-track">
+                <div class="cov-bar-seg cov-bar-seg--universidades" data-pct="35.5"></div>
+                <div class="cov-bar-seg cov-bar-seg--universidades-excluido" data-pct="64.5"></div>
+              </div>
+            </div>
+          </div>
+
+          <p class="datos-meto-p mt-6">
+            Bajando un nivel más: dentro de Estatal y Comunidades Autónomas la cobertura no es pareja entre formas jurídicas — se incluyen enteramente unas (organismos autónomos, agencias, EPE…) y se excluyen otras enteramente (consorcios, fondos), con las sociedades mercantiles como caso intermedio (solo las matrices, no las filiales). La tabla siguiente es la vista exacta, forma por forma:
+          </p>
+          <table class="datos-meto-table">
+            <thead>
+              <tr class="datos-meto-table-head-row">
+                <th class="datos-meto-th">Ámbito</th>
+                <th class="datos-meto-th">Forma jurídica</th>
+                <th class="datos-meto-th">En Invente</th>
+                <th class="datos-meto-th">Cubiertos</th>
+                <th class="datos-meto-th">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { amb: "Estatal", forma: "Organismo Autónomo", inv: 55, cub: 54 },
+                { amb: "Estatal", forma: "Agencia", inv: 12, cub: 12 },
+                { amb: "Estatal", forma: "Autoridad Independiente", inv: 7, cub: 7 },
+                { amb: "Estatal", forma: "Entidad Pública Empresarial", inv: 15, cub: 15 },
+                { amb: "Estatal", forma: "Entidad de Derecho Público", inv: 52, cub: 51 },
+                { amb: "Estatal", forma: "Entidad Gestora S.S.", inv: 6, cub: 6 },
+                { amb: "Estatal", forma: "Mutua Colaboradora S.S.", inv: 2, cub: 2 },
+                { amb: "Estatal", forma: "Fundación", inv: 33, cub: 27 },
+                { amb: "Estatal", forma: "Sociedad Mercantil", inv: 114, cub: 33 },
+                { amb: "Estatal", forma: "Consorcio", inv: 28, cub: 0 },
+                { amb: "Estatal", forma: "Fondo sin personalidad jurídica", inv: 16, cub: 0 },
+                { amb: "CCAA", forma: "Organismo Autónomo", inv: 133, cub: 133 },
+                { amb: "CCAA", forma: "Agencia", inv: 28, cub: 28 },
+                { amb: "CCAA", forma: "Entidad Pública Empresarial", inv: 32, cub: 32 },
+                { amb: "CCAA", forma: "Ente Público", inv: 121, cub: 121 },
+                { amb: "CCAA", forma: "Fundación", inv: 219, cub: 0 },
+                { amb: "CCAA", forma: "Sociedad Mercantil", inv: 214, cub: 0 },
+                { amb: "CCAA", forma: "Consorcio", inv: 123, cub: 0 },
+                { amb: "CCAA", forma: "Fondo sin personalidad jurídica", inv: 2, cub: 0 },
+                { amb: "Universidades", forma: "Universidad pública", inv: 49, cub: 50 },
+                { amb: "Universidades", forma: "Fundación universitaria", inv: 33, cub: 0 },
+                { amb: "Universidades", forma: "Consorcio (centros UNED, etc.)", inv: 52, cub: 0 },
+                { amb: "Universidades", forma: "Sociedad Mercantil", inv: 7, cub: 0 },
+              ].map(({ amb, forma, inv, cub }) => (
+                <tr class="datos-meto-table-row">
+                  <td class="datos-meto-td datos-meto-td--label">{amb}</td>
+                  <td class="datos-meto-td">{forma}</td>
+                  <td class="datos-meto-td">{inv}</td>
+                  <td class="datos-meto-td">{cub}</td>
+                  <td class="datos-meto-td">
+                    {cub === 0
+                      ? <span class="cov-status cov-status--excluido">✗ Excluida</span>
+                      : cub >= inv
+                        ? <span class="cov-status cov-status--completo">✓ Completa</span>
+                        : <span class="cov-status cov-status--parcial">◐ Solo matrices</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p class="datos-meto-p">
+            La fila «Universidad pública» del ámbito Universidades muestra 50 cubiertas sobre 49 en el Invente: la diferencia es la UIMP (Universidad Internacional Menéndez Pelayo), que en el inventario figura como organismo autónomo de ámbito estatal, no como universidad, pero se incluye aquí junto al resto por coherencia temática.
+          </p>
+          <p class="datos-meto-p">
+            Fuera de esta tabla quedan, además, las categorías del estudio que no proceden del Invente por no ser «entes del sector público» en su sentido estricto: Gobierno, Congreso, Senado, Partidos políticos, las presidencias/ejecutivos/asambleas de las comunidades autónomas y los órganos constitucionales. Tampoco aparecen aquí las Entidades Locales (1.193 entes) ni el bloque «Otros / no clasificado» (2.239, mayoritariamente participaciones minoritarias del Estado): ninguno de los dos tiene todavía cobertura alguna en el proyecto.
           </p>
         </div>
 
         <div class="datos-meto-section">
           <h3 class="datos-meto-h3">2. Obtención y verificación de handles</h3>
           <p class="datos-meto-p">
-            La identificación de perfiles oficiales en cada plataforma se ha realizado mediante una combinación de métodos automatizados y revisión manual, dependiendo de la categoría. En el caso de Administración, Gobierno, Partidos, Autonomías y Universidades, se ha realizado una búsqueda manual en las webs oficiales de cada entidad y contraste con las cuentas verificadas en cada plataforma. Tanto el <a href="https://www.congreso.es/en/datos-abiertos" class="datos-meto-link" target="_blank" rel="noopener">Congreso de los Diputados</a> como el <a href="https://www.senado.es/legis15/senadores/csv/SenadoresRedesSociales.csv" class="datos-meto-link" target="_blank" rel="noopener">Senado</a> publican datos abiertos con información de sus miembros —incluyendo en el caso del Senado un listado específico de redes sociales en formato CSV— que se utilizan como fuentes adicionales de verificación. Estas fuentes oficiales no están exentas de errores: la web del Congreso publica handles incorrectos para al menos 8 diputados, detectados mediante contraste con sus cuentas reales (p. ej. <code class="datos-meto-code">@oscarramis</code> en lugar de <code class="datos-meto-code">@OscarRamajoPra</code>); y la <a href="https://web.archive.org/web/20260518151510/https://www.seacabolafiesta.com/" class="datos-meto-link" target="_blank" rel="noopener">web oficial de Se Acabó La Fiesta</a> enlaza a una cuenta inexistente (<code class="datos-meto-code">@alvise_oficial_</code>) en lugar de a la cuenta institucional del partido (<code class="datos-meto-code">@salf_es</code>, creada en febrero de 2026). En ambos casos la cuenta correcta se localizó mediante contraste cruzado: análisis de biografías, listas de seguidos y seguidores, y referencias cruzadas entre plataformas, lo que ilustra la necesidad de contraste cruzado incluso con fuentes institucionales.
+            La identificación de perfiles oficiales en cada plataforma se ha realizado mediante una combinación de métodos automatizados y revisión manual, dependiendo de la categoría. En el caso de Administración, Organismos públicos, Empresas y fundaciones, Gobierno, Partidos, Autonomías y Universidades, se ha realizado una búsqueda manual en las webs oficiales de cada entidad y contraste con las cuentas verificadas en cada plataforma; en Bluesky se emplea además la búsqueda de actores de la API pública y el grafo de seguidos entre cuentas institucionales ya verificadas, exigiendo que el nombre visible o la biografía identifiquen inequívocamente a la entidad (los handles verificados por dominio propio, como <code class="datos-meto-code">policia.es</code> o <code class="datos-meto-code">bde.es</code>, se consideran de máxima confianza). Tanto el <a href="https://www.congreso.es/en/datos-abiertos" class="datos-meto-link" target="_blank" rel="noopener">Congreso de los Diputados</a> como el <a href="https://www.senado.es/legis15/senadores/csv/SenadoresRedesSociales.csv" class="datos-meto-link" target="_blank" rel="noopener">Senado</a> publican datos abiertos con información de sus miembros —incluyendo en el caso del Senado un listado específico de redes sociales en formato CSV— que se utilizan como fuentes adicionales de verificación. Estas fuentes oficiales no están exentas de errores: la web del Congreso publica handles incorrectos para al menos 8 diputados, detectados mediante contraste con sus cuentas reales (p. ej. <code class="datos-meto-code">@oscarramis</code> en lugar de <code class="datos-meto-code">@OscarRamajoPra</code>); y la <a href="https://web.archive.org/web/20260518151510/https://www.seacabolafiesta.com/" class="datos-meto-link" target="_blank" rel="noopener">web oficial de Se Acabó La Fiesta</a> enlaza a una cuenta inexistente (<code class="datos-meto-code">@alvise_oficial_</code>) en lugar de a la cuenta institucional del partido (<code class="datos-meto-code">@salf_es</code>, creada en febrero de 2026). En ambos casos la cuenta correcta se localizó mediante contraste cruzado: análisis de biografías, listas de seguidos y seguidores, y referencias cruzadas entre plataformas, lo que ilustra la necesidad de contraste cruzado incluso con fuentes institucionales.
           </p>
           <p class="datos-meto-p">
             Las cuentas pertenecientes al Congreso y Senado, dado el elevado número de perfiles, siguen un proceso de dos fases. En la <strong class="datos-meto-strong">fase automatizada</strong> se extraen las listas de «siguiendo» de cuentas semilla ya verificadas. En <strong class="datos-meto-strong">X / Twitter</strong>, mediante GetXAPI, se consultan las cuentas <a href="https://x.com/GPSSenado" class="datos-meto-link" target="_blank" rel="noopener">@GPSSenado</a>, <a href="https://x.com/GPSCongreso" class="datos-meto-link" target="_blank" rel="noopener">@GPSCongreso</a>, <a href="https://x.com/GPPopular" class="datos-meto-link" target="_blank" rel="noopener">@GPPopular</a> y <a href="https://x.com/PPSenado" class="datos-meto-link" target="_blank" rel="noopener">@PPSenado</a>. En <strong class="datos-meto-strong">Bluesky</strong>, mediante la API pública <code class="datos-meto-code">public.api.bsky.app</code> (endpoint <code class="datos-meto-code">app.bsky.graph.getFollows</code>), se consultan <a href="https://bsky.app/profile/gpssenado.bsky.social" class="datos-meto-link" target="_blank" rel="noopener">@gpssenado.bsky.social</a> y <a href="https://bsky.app/profile/gpscongreso.bsky.social" class="datos-meto-link" target="_blank" rel="noopener">@gpscongreso.bsky.social</a>. Posteriormente, se aplica coincidencia aproximada (<em>fuzzy matching</em>) entre los nombres normalizados de cada entidad y el nombre de display de cada perfil candidato para establecer un nivel de confianza aproximado.
@@ -1010,10 +1187,11 @@ function kpiDash(p: number) {
           <h3 class="datos-meto-h3">5. Limitaciones</h3>
           <ul class="datos-meto-ul">
             {[
+              ["Base de los porcentajes", `Todos los porcentajes de esta página (adopción de X/Bluesky/Mastodon, actividad, "sin alternativa") se calculan sobre las ${totalesBase} entidades con presencia registrada en alguna red social. Las ${totales.sinNinguna} entidades sin ninguna cuenta quedan excluidas de estos cálculos, por resultar irrelevantes para el estudio de la elección entre plataformas, aunque siguen apareciendo listadas en las tablas y en el índice general.`],
               ["Foto fija sin serie temporal", "Los datos reflejan la presencia en el momento de la última actualización. No existe serie histórica, por lo que los cambios en la adopción de plataformas son inferencias, no observaciones longitudinales."],
               ["Presencia ≠ actividad real", "Tener cuenta registrada no equivale a usarla activamente, y estar activo en sentido técnico (haber publicado en los últimos 30 días) no implica alcance ni impacto comunicativo real. Los datos no incluyen métricas de audiencia ni engagement."],
               ["Cobertura de parlamentarios", "La identificación de cuentas personales depende de su aparición en las listas de «siguiendo» de cuentas semilla institucionales o de su localización por nombre. Pueden existir cuentas no registradas."],
-              ["Cuentas en error o protegidas", "Las 12 cuentas de X que devuelven error 4XX (1,7 % de las 707 registradas) pueden corresponder a cuentas suspendidas, eliminadas o privadas; no es posible distinguir entre estos casos. Adicionalmente, las cuentas privadas que devuelven respuesta vacía en lugar de error quedan registradas como inactivas sin posibilidad de identificarlas. El impacto conjunto es marginal."],
+              ["Cuentas en error o protegidas", `Las ${tw404Count} cuentas de X que devuelven error 4XX (${tw404Pct} % de las ${twTotal} registradas) pueden corresponder a cuentas suspendidas, eliminadas o privadas; no es posible distinguir entre estos casos. Adicionalmente, las cuentas privadas que devuelven respuesta vacía en lugar de error quedan registradas como inactivas sin posibilidad de identificarlas. El impacto conjunto es marginal.`],
               ["Dependencia de GetXAPI", "La verificación en X utiliza un servicio de terceros; la API oficial de X no es accesible sin suscripción de pago, con un coste muy superior al del servicio elegido para el desarrollo de esta plataforma."],
               ["Plataformas no cubiertas", "No se recogen cuentas de Instagram, Facebook, TikTok, LinkedIn ni YouTube. El estudio se limita a plataformas de comunicación pública institucional basadas en texto."],
               ["Cobertura territorial", "Se excluyen ayuntamientos, diputaciones, delegaciones territoriales y organismos sub-nacionales."],
@@ -1129,18 +1307,24 @@ function kpiDash(p: number) {
 .datos-kpi-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem 2rem;
+  gap: 1rem;
   padding-bottom: 2rem;
 }
 
 @media (min-width: 640px) {
-  .datos-kpi-grid { grid-template-columns: repeat(4, 1fr); }
+  .datos-kpi-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
 }
 
 .datos-kpi-card {
+  background: transparent;
+  border: none;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
 .datos-kpi-body {
@@ -1157,17 +1341,23 @@ function kpiDash(p: number) {
 
 .datos-kpi-donut {
   flex-shrink: 0;
-  display: none;
+  width: 36px;
+  height: 36px;
+  display: block;
 }
 
 @media (min-width: 640px) {
-  .datos-kpi-body { gap: 12px; }
-  .datos-kpi-donut { display: block; }
+  .datos-kpi-body { gap: 10px; }
+  .datos-kpi-donut {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 .datos-kpi-desc {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 10px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--sd-muted);
@@ -1175,8 +1365,8 @@ function kpiDash(p: number) {
 
 .datos-kpi-num {
   font-family: 'Geist', system-ui, sans-serif;
-  font-weight: 600;
-  font-size: 22px;
+  font-weight: 700;
+  font-size: 20px;
   letter-spacing: -0.02em;
   line-height: 1;
   color: var(--sd-fg-2);
@@ -1187,14 +1377,14 @@ function kpiDash(p: number) {
   gap: 1px;
 }
 @media (min-width: 640px) {
-  .datos-kpi-num { font-size: 28px; }
+  .datos-kpi-num { font-size: 26px; }
 }
 
 .datos-kpi-sub {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--sd-muted);
-  margin-top: 6px;
+  margin-top: 2px;
 }
 
 /* KPI num alert variant */
@@ -1203,10 +1393,10 @@ function kpiDash(p: number) {
 /* Distribution section */
 .datos-dist-desc {
   color: var(--sd-muted);
-  font-family: 'Lora', Georgia, serif;
-  font-style: italic;
+  font-family: var(--font-sans);
   font-size: 13px;
-  text-align: center;
+  text-align: left;
+  line-height: 1.5;
 }
 
 .dist-bar-row   { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 6px; }
@@ -1215,7 +1405,14 @@ function kpiDash(p: number) {
 .dist-bar-label-note { font-weight: 400; color: var(--sd-muted); }
 .dist-bar-stats { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--sd-muted); flex-shrink: 0; }
 
-.dist-bar-track { display: flex; height: 10px; width: 100%; overflow: hidden; background: var(--sd-line); border-radius: 0; }
+.dist-bar-track {
+  display: flex;
+  height: 6px;
+  width: 100%;
+  overflow: hidden;
+  background: var(--sd-line);
+  border-radius: 999px;
+}
 .dist-bar-seg   { height: 100%; width: 0; }
 
 .dist-bar-seg--x-act      { background: var(--sd-fg-2); opacity: 0.75; }
@@ -1226,7 +1423,7 @@ function kpiDash(p: number) {
 .dist-bar-seg--mstdn-inact{ background: var(--sd-mastodon-soft); }
 .dist-bar-seg--sin-alt    { background: var(--sd-rose-pink); opacity: 0.7; }
 
-.dist-legend        { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--sd-muted); margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.dist-legend        { font-size: 12px; font-family: var(--font-sans); color: var(--sd-muted); margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px 20px; }
 .dist-legend-item   { display: flex; align-items: center; gap: 6px; }
 .dist-legend-swatches { display: inline-flex; gap: 2px; flex-shrink: 0; }
 .dist-legend-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; }
@@ -1238,13 +1435,45 @@ function kpiDash(p: number) {
 .dist-legend-swatch--mstdn-inact{ background: var(--sd-mastodon-soft); }
 .dist-legend-swatch--sin-alt    { background: var(--sd-rose-pink); opacity: 0.7; }
 
+/* Figura de cobertura del Invente (sección 1bis) */
+.cov-fig-label { font-size: 13px; font-weight: 500; color: var(--sd-muted); margin: 20px 0 8px; }
+.cov-fig-label--lvl2 { margin-top: 28px; }
+
+.cov-bar-track {
+  display: flex; width: 100%; overflow: hidden;
+  background: var(--sd-line); border-radius: 999px;
+}
+.cov-bar-track--lvl1 { height: 22px; margin-bottom: 8px; }
+.cov-bar-seg { height: 100%; width: 0; }
+
+.cov-bar-seg--estatal              { background: #4a5aa0; }
+.cov-bar-seg--estatal-excluido     { background: #4a5aa0; opacity: 0.20; }
+.cov-bar-seg--ccaa                 { background: #2f8f68; }
+.cov-bar-seg--ccaa-excluido        { background: #2f8f68; opacity: 0.20; }
+.cov-bar-seg--universidades        { background: var(--sd-ochre); }
+.cov-bar-seg--universidades-excluido { background: var(--sd-ochre); opacity: 0.25; }
+.cov-bar-seg--local                { background: #a8623f; }
+.cov-bar-seg--otros                { background: var(--sd-muted-2); }
+
+.cov-legend { margin-top: 4px; margin-bottom: 4px; }
+.cov-swatch--estatal       { background: #4a5aa0; }
+.cov-swatch--ccaa          { background: #2f8f68; }
+.cov-swatch--universidades { background: var(--sd-ochre); }
+.cov-swatch--local         { background: #a8623f; }
+.cov-swatch--otros         { background: var(--sd-muted-2); }
+
+.cov-status { font-size: 12px; font-weight: 500; white-space: nowrap; }
+.cov-status--completo { color: #2f8f68; }
+.cov-status--parcial  { color: var(--sd-ochre); }
+.cov-status--excluido { color: var(--sd-muted); }
+
 /* Comparativa por categoría */
 .cat-axis-label        { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--sd-muted); opacity: 0.4; }
 .cat-axis-label--shift { transform: translateX(50%); }
 .cat-guide-line        { position: absolute; top: 0; bottom: 0; border-left: 1px dashed var(--sd-line); pointer-events: none; }
 
 /* Tablas de grupos parlamentarios */
-.grupo-bar-track { display: flex; height: 6px; width: 64px; overflow: hidden; background: var(--sd-line); flex-shrink: 0; }
+.grupo-bar-track { display: flex; height: 6px; width: 64px; overflow: hidden; background: var(--sd-line); flex-shrink: 0; border-radius: 999px; }
 .grupo-bar-seg   { height: 100%; width: 0; background: var(--sd-fg-2); opacity: 0.4; }
 
 .grup-pct { font-family: 'Geist', system-ui, sans-serif; font-size: 14px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.1; }
@@ -1260,9 +1489,10 @@ function kpiDash(p: number) {
 }
 .heatmap-col-head {
   text-align: center;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-sans);
   font-size: 11px;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 0 4px 10px;
 }
@@ -1275,30 +1505,32 @@ function kpiDash(p: number) {
   justify-content: center;
   padding: 4px 12px 4px 0;
 }
-.heatmap-row-name { font-size: 13px; font-weight: 500; line-height: 1.2; }
+.heatmap-row-name { font-size: 14px; font-weight: 500; line-height: 1.2; }
 .heatmap-row-n { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--sd-muted); margin-top: 2px; }
 .heatmap-cell {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 10px 6px;
+  padding: 6px 4px;
   text-align: center;
-  min-height: 54px;
+  min-height: 40px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
 }
 .heatmap-val {
   font-family: 'Geist', system-ui, sans-serif;
-  font-weight: 600;
-  font-size: 18px;
+  font-weight: 700;
+  font-size: 15px;
   letter-spacing: -0.02em;
   color: var(--sd-fg-2);
   line-height: 1;
 }
 .heatmap-sub {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 9px;
   color: var(--sd-muted);
-  margin-top: 3px;
+  margin-top: 1px;
 }
 
 /* ── Metodología ─────────────────────────────────────────────────── */
@@ -1321,11 +1553,11 @@ function kpiDash(p: number) {
 }
 
 .datos-meto-lead {
-  font-family: 'Lora', Georgia, serif;
-  font-style: italic;
+  font-family: var(--font-sans);
   font-size: 16px;
   color: var(--sd-muted);
   margin: 0 0 40px;
+  line-height: 1.6;
 }
 
 .datos-meto-sections {
@@ -1376,7 +1608,21 @@ function kpiDash(p: number) {
 
 .datos-meto-table { border-collapse: collapse; margin-top: 16px; }
 .datos-meto-table-head-row { border-bottom: 1px solid var(--sd-line-strong); }
-.datos-meto-th { text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--sd-muted); font-weight: 500; padding: 0 32px 10px 0; }
+.datos-meto-th { text-align: left; font-family: var(--font-sans); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--sd-muted); padding: 0 32px 10px 0; }
+
+/* Table wrapper */
+.datos-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  margin-bottom: 1.25rem;
+}
+.datos-table-wrap td,
+.datos-table-wrap th {
+  padding: 6px 12px !important;
+  font-size: 13px !important;
+}
 .datos-meto-table-row { border-bottom: 1px solid var(--sd-line); }
 .datos-meto-td { padding: 12px 32px 12px 0; font-size: 15px; color: var(--sd-fg-2); }
 .datos-meto-td--label { color: var(--sd-muted); }
@@ -1418,34 +1664,38 @@ function kpiDash(p: number) {
 .datos-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  background: #f4f4f5;
-  border-radius: 6px;
+  gap: 4px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
   padding: 3px;
 }
 
 .datos-toggle-btn {
   display: block;
-  padding: 5px 14px;
-  font-family: 'Geist', system-ui, sans-serif;
-  font-size: 13px;
+  padding: 4px 12px;
+  font-family: var(--font-sans);
+  font-size: 12px;
   font-weight: 500;
   border: none;
   background: transparent;
   cursor: pointer;
-  color: #71717a;
-  border-radius: 4px;
-  transition: background 0.12s, color 0.12s;
+  color: var(--sd-muted);
+  border-radius: 6px;
+  transition: all 0.15s ease;
   white-space: nowrap;
 }
 
-.datos-toggle-btn:hover { background: #e4e4e7; color: #09090b; }
+.datos-toggle-btn:hover {
+  background: var(--border);
+  color: var(--sd-fg-2);
+}
 
 .datos-toggle-btn.is-active {
-  background: #fff;
-  color: #09090b;
+  background: var(--sd-fg-2);
+  color: var(--background);
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 /* ── Panels ──────────────────────────────────────────────────────── */
@@ -1461,16 +1711,17 @@ function kpiDash(p: number) {
 
 /* Callout editorial */
 .datos-callout {
+  border: 1px solid var(--border);
   border-left: 3px solid var(--sd-sky);
-  padding: 10px 16px;
-  background: rgba(0,133,255,0.04);
-  margin: 12px 0 20px;
+  padding: 8px 12px;
+  background: var(--muted);
+  margin: 8px 0 16px;
+  border-radius: 6px;
 }
 .datos-callout-text {
-  font-family: 'Lora', Georgia, serif;
-  font-style: italic;
-  font-size: 15px;
-  line-height: 1.5;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.4;
   color: var(--sd-fg-2);
   margin: 0;
 }
@@ -1493,7 +1744,7 @@ function kpiDash(p: number) {
 
 /* Gradiente ideológico chart */
 .gradiente-wrap {
-  padding: 20px 0 4px;
+  padding: 16px;
 }
 .gradiente-title {
   font-family: 'Geist', system-ui, sans-serif;
@@ -1514,31 +1765,32 @@ function kpiDash(p: number) {
 }
 .gradiente-row {
   display: grid;
-  grid-template-columns: 72px 1fr 36px;
+  grid-template-columns: 80px 1fr 36px;
   align-items: center;
   gap: 10px;
 }
 .gradiente-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
   color: var(--sd-fg-2);
   text-align: right;
   white-space: nowrap;
 }
 .gradiente-bar-track {
-  height: 14px;
+  height: 8px;
   background: var(--sd-line);
-  border-radius: 2px;
+  border-radius: 999px;
   overflow: hidden;
 }
 .gradiente-bar-fill {
   height: 100%;
   background: var(--sd-sky);
-  border-radius: 2px;
+  border-radius: 999px;
   min-width: 2px;
 }
 .gradiente-pct {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   color: var(--sd-muted);
   text-align: right;
@@ -1553,6 +1805,7 @@ function kpiDash(p: number) {
   background: rgba(0,133,255,0.05);
   border: 1px solid rgba(0,133,255,0.18);
   border-left: 3px solid var(--sd-sky);
+  border-radius: 6px;
 }
 .sustfunc-num {
   font-family: 'Geist', system-ui, sans-serif;

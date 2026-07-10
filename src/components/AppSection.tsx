@@ -1,10 +1,10 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, Fragment } from "react";
 import {
   Table, TableBody, TableCell, TableHead,
   TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Mail, Search, ChevronUp, ChevronDown } from "lucide-react";
+import { Search, ChevronUp, ChevronDown } from "lucide-react";
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
@@ -13,6 +13,7 @@ import { ReportButton } from "@/components/ReportModal";
 import "@/styles/sd-app.css";
 
 import ageData from "@/data/age.json";
+import organosData from "@/data/organos.json";
 import gobiernoData from "@/data/gobierno.json";
 import congresoData from "@/data/congreso.json";
 import senadoData from "@/data/senado.json";
@@ -56,14 +57,42 @@ function twitterOnX(handle: unknown, activo: unknown): boolean {
 
 // ── Etiqueta de columna por pestaña ───────────────────────────────────────
 
+// ── Partición de la AGE en tres pestañas ──────────────────────────────────
+
+const ADMIN_TIPOS = new Set([
+  "Presidencia del Gobierno", "Ministerio", "Secretaría de Estado",
+  "Delegación del Gobierno", "Seguridad y Defensa",
+]);
+const EMPRESAS_TIPOS = new Set([
+  "Entidad Pública Empresarial", "Sociedad Mercantil Estatal", "Fundación Estatal",
+]);
+
+const ageAdministracion = (ageData as any[]).filter((x) => ADMIN_TIPOS.has(x.categoria));
+const ageEmpresas       = (ageData as any[]).filter((x) => EMPRESAS_TIPOS.has(x.categoria));
+const ageOrganismos     = (ageData as any[]).filter(
+  (x) => !ADMIN_TIPOS.has(x.categoria) && !EMPRESAS_TIPOS.has(x.categoria));
+
+// ── Partición de Autonomías: institucional vs. organismos autonómicos ─────
+
+const AUTONOMIAS_INSTITUCIONAL_TIPOS = new Set(["Presidente/a", "Gobierno", "Parlamento"]);
+
+const autonomiasInstitucional = (autonomiasData as any[]).filter(
+  (x) => AUTONOMIAS_INSTITUCIONAL_TIPOS.has(x.tipo));
+const organismosAutonomicos = (autonomiasData as any[]).filter(
+  (x) => !AUTONOMIAS_INSTITUCIONAL_TIPOS.has(x.tipo));
+
 const DETALLE_LABEL: Record<string, string> = {
-  total:         "Detalle",
-  age:           "Categoría",
+  total:          "Detalle",
+  administracion: "Tipo",
+  organismos:     "Tipo",
+  empresas:       "Tipo",
+  organos:        "Tipo",
   gobierno:      "Cargo",
   congreso:      "Grupo",
   senado:        "Grupo",
   partidos:      "Ámbito",
   autonomias:    "CC.AA.",
+  organismosautonomicos: "CC.AA.",
   universidades: "Tipo",
 };
 
@@ -117,10 +146,14 @@ function normalizeData(data: any[], categoria: string) {
       detalle    = item.grupo || "";
       grupoShort = (SENADO_ABBREV[detalle] ?? detalle) || null;
       grupoFull  = grupoShort ? (GRUPO_FULLNAME[grupoShort] ?? `Grupo ${grupoShort}`) : detalle;
-    } else if (categoria === "AGE")           detalle = item.categoria || "";
+    } else if (categoria === "Administración")          detalle = item.categoria || "";
+    else if (categoria === "Organismos públicos")       detalle = item.categoria || "";
+    else if (categoria === "Empresas y fundaciones")    detalle = item.categoria || "";
+    else if (categoria === "Órganos del Estado") detalle = item.categoria || "";
     else if (categoria === "Gobierno")        detalle = item.cargo || "";
     else if (categoria === "Partidos")        detalle = item.ambito || "Nacional";
     else if (categoria === "Autonomías")      detalle = item.ccaa || "";
+    else if (categoria === "Organismos autonómicos") detalle = item.ccaa || "";
     else if (categoria === "Universidades")   detalle = item.tipo || "Pública";
 
     return {
@@ -144,16 +177,17 @@ function normalizeData(data: any[], categoria: string) {
 
 function calculateStats(data: any[]) {
   if (data.length === 0)
-    return { enX: 0, fueraDeX: 0, conBluesky: 0, conMastodon: 0, conAlternativa: 0, sinAlternativa: 0 };
-  let enX = 0, conBluesky = 0, conMastodon = 0, conAlternativa = 0, sinAlternativa = 0;
+    return { enX: 0, fueraDeX: 0, conBluesky: 0, conMastodon: 0, conAlternativa: 0, sinAlternativa: 0, sinNinguna: 0 };
+  let enX = 0, conBluesky = 0, conMastodon = 0, conAlternativa = 0, sinAlternativa = 0, sinNinguna = 0;
   for (const item of data) {
     if (item.twitter_activo) enX++;
     if (item.bluesky)  conBluesky++;
     if (item.mastodon) conMastodon++;
     if (item.bluesky || item.mastodon) conAlternativa++;
-    else sinAlternativa++;
+    else if (item.twitter) sinAlternativa++;
+    if (!item.twitter && !item.bluesky && !item.mastodon) sinNinguna++;
   }
-  return { enX, fueraDeX: data.length - enX, conBluesky, conMastodon, conAlternativa, sinAlternativa };
+  return { enX, fueraDeX: data.length - enX, conBluesky, conMastodon, conAlternativa, sinAlternativa, sinNinguna };
 }
 
 // ── Badges de plataforma ───────────────────────────────────────────────────
@@ -222,27 +256,6 @@ function MiniDonut({ pct, color }: { pct: number; color: string }) {
   );
 }
 
-// ── Generación de mailto ───────────────────────────────────────────────────
-
-const FALLBACK_EMAILS: Record<string, string> = {
-  AGE: "informacion@administracion.gob.es", Gobierno: "presidencia@lamoncloa.gob.es",
-  Congreso: "congreso@congreso.es", Senado: "senado@senado.es",
-  Partidos: "info@partido.es", "Autonomías": "comunicacion@gobierno.regional.es",
-  Universidades: "informacion@universidad.es",
-};
-
-function generateMailto(item: any) {
-  const email   = item.email || FALLBACK_EMAILS[item.categoria] || "info@gobierno.es";
-  const subject = encodeURIComponent("Solicitud de migración a redes federadas");
-  const body    = encodeURIComponent(
-    `Estimado/a responsable de ${item.nombre},\n\n` +
-    `Me pongo en contacto para solicitar que ${item.nombre} considere establecer presencia en redes sociales federadas como Mastodon o Bluesky.\n\n` +
-    `Las instituciones públicas democráticas deberían comunicarse a través de plataformas que respeten los valores democráticos y no estén controladas por oligarcas.\n\n` +
-    `Atentamente,`
-  );
-  return `mailto:${email}?subject=${subject}&body=${body}`;
-}
-
 // ── Tarjeta móvil ──────────────────────────────────────────────────────────
 
 const MobileCard = ({ item }: { item: any }) => (
@@ -258,9 +271,6 @@ const MobileCard = ({ item }: { item: any }) => (
         ))}
       </div>
       <div className="flex items-center gap-1.5">
-        <Button variant="outline" size="sm" className="h-7 px-2.5 text-xs text-foreground border-border hover:bg-muted" asChild>
-          <a href={generateMailto(item)}><Mail className="h-3 w-3 mr-1" />Exigir</a>
-        </Button>
         <ReportButton item={item} />
       </div>
     </div>
@@ -270,27 +280,83 @@ const MobileCard = ({ item }: { item: any }) => (
 // ── Pestañas de categoría ──────────────────────────────────────────────────
 
 const TABS = [
-  { value: "total",         label: "Total"          },
-  { value: "age",           label: "Administración" },
-  { value: "gobierno",      label: "Gobierno"       },
-  { value: "congreso",      label: "Congreso"       },
-  { value: "senado",        label: "Senado"         },
-  { value: "partidos",      label: "Partidos"       },
-  { value: "autonomias",    label: "Autonomías"     },
-  { value: "universidades", label: "Universidades"  },
+  { value: "total",          label: "Total",                  group: "todas"   },
+  { value: "gobierno",       label: "Gobierno",               group: "estado"  },
+  { value: "administracion", label: "Administración",         group: "estado"  },
+  { value: "organismos",     label: "Organismos públicos",    group: "estado"  },
+  { value: "empresas",       label: "Empresas y fundaciones", group: "estado"  },
+  { value: "organos",        label: "Órganos del Estado",     group: "poderes" },
+  { value: "congreso",       label: "Congreso",               group: "poderes" },
+  { value: "senado",         label: "Senado",                 group: "poderes" },
+  { value: "partidos",       label: "Partidos",               group: "partidos" },
+  { value: "autonomias",     label: "Autonomías",             group: "ccaa"    },
+  { value: "organismosautonomicos", label: "Organismos autonómicos", group: "ccaa" },
+  { value: "universidades",  label: "Universidades",          group: "universidades" },
 ];
 
 function CategoryTabs({ items, active, onSelect }: {
   items: typeof TABS; active: string; onSelect: (v: string) => void;
 }) {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showLeftIndicator, setShowLeftIndicator] = useState(false);
+  const [showRightIndicator, setShowRightIndicator] = useState(false);
+
+  const updateScrollIndicators = () => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setShowLeftIndicator(scrollLeft > 2);
+    setShowRightIndicator(scrollWidth - clientWidth - scrollLeft > 2);
+  };
+
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+
+    updateScrollIndicators();
+    window.addEventListener("resize", updateScrollIndicators);
+    el.addEventListener("scroll", updateScrollIndicators);
+
+    return () => {
+      window.removeEventListener("resize", updateScrollIndicators);
+      el.removeEventListener("scroll", updateScrollIndicators);
+    };
+  }, [items]);
+
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const activeBtn = el.querySelector('[aria-selected="true"]');
+    if (activeBtn) {
+      activeBtn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    }
+  }, [active]);
+
   return (
-    <div role="tablist" className="sd-category-nav">
-      {items.map((tab) => (
-        <button key={tab.value} role="tab" aria-selected={active === tab.value}
-          onClick={() => onSelect(tab.value)} className="sd-category-btn">
-          {tab.label}
-        </button>
-      ))}
+    <div className={`sd-tabs-container ${showLeftIndicator ? "can-scroll-left" : ""} ${showRightIndicator ? "can-scroll-right" : ""}`}>
+      <div
+        ref={scrollContainerRef}
+        role="tablist"
+        className="sd-category-nav no-scrollbar"
+      >
+        {items.map((tab, i) => {
+          const prevGroup = i > 0 ? items[i - 1].group : null;
+          const isNewGroup = i > 0 && tab.group !== prevGroup;
+          return (
+            <Fragment key={tab.value}>
+              {isNewGroup && <span className="sd-category-divider" aria-hidden="true" />}
+              <button
+                role="tab"
+                aria-selected={active === tab.value}
+                onClick={() => onSelect(tab.value)}
+                className="sd-category-btn"
+              >
+                {tab.label}
+              </button>
+            </Fragment>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -301,26 +367,32 @@ interface AppSectionProps {
   initialStats: {
     enX: number; fueraDeX: number;
     conBluesky: number; conMastodon: number; conAlternativa: number; sinAlternativa: number;
+    sinNinguna: number;
   };
 }
 
 export function AppSection({ initialStats }: AppSectionProps) {
-  const [activeTab,     setActiveTab]     = useState("age");
+  const [activeTab,     setActiveTab]     = useState("total");
   const [searchQuery,   setSearchQuery]   = useState("");
   const [sortColumn,    setSortColumn]    = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [stats,         setStats]         = useState(initialStats);
   const [statsVersion,  setStatsVersion]  = useState(0);
   const [grupoFilter,   setGrupoFilter]   = useState<string | null>(null);
+  const [visibleCount,  setVisibleCount]  = useState(100);
   const statsRef = useRef<HTMLDivElement>(null);
 
   const dataByCategory = useMemo(() => ({
-    age:           normalizeData(ageData,           "AGE"),
+    administracion: normalizeData(ageAdministracion, "Administración"),
+    organismos:     normalizeData(ageOrganismos,     "Organismos públicos"),
+    empresas:       normalizeData(ageEmpresas,       "Empresas y fundaciones"),
+    organos:       normalizeData(organosData,       "Órganos del Estado"),
     gobierno:      normalizeData(gobiernoData,      "Gobierno"),
     congreso:      normalizeData(congresoData,      "Congreso"),
     senado:        normalizeData(senadoData,        "Senado"),
     partidos:      normalizeData(partidosData,      "Partidos"),
-    autonomias:    normalizeData(autonomiasData,    "Autonomías"),
+    autonomias:    normalizeData(autonomiasInstitucional, "Autonomías"),
+    organismosautonomicos: normalizeData(organismosAutonomicos, "Organismos autonómicos"),
     universidades: normalizeData(universidadesData, "Universidades"),
   }), []);
 
@@ -335,7 +407,7 @@ export function AppSection({ initialStats }: AppSectionProps) {
     const seen = new Set<string>();
     if (activeTab === "congreso" || activeTab === "senado") {
       for (const item of rawData) if (item.grupoShort) seen.add(item.grupoShort);
-    } else if (activeTab === "age") {
+    } else if (["administracion", "organismos", "empresas", "organos", "organismosautonomicos"].includes(activeTab)) {
       for (const item of rawData) if (item.detalle) seen.add(item.detalle);
     }
     return Array.from(seen);
@@ -343,7 +415,7 @@ export function AppSection({ initialStats }: AppSectionProps) {
 
   const grupoFilteredData = useMemo(() => {
     if (!grupoFilter) return rawData;
-    const key = activeTab === "age" ? "detalle" : "grupoShort";
+    const key = ["administracion", "organismos", "empresas", "organos", "organismosautonomicos"].includes(activeTab) ? "detalle" : "grupoShort";
     return rawData.filter((item) => item[key] === grupoFilter);
   }, [rawData, grupoFilter, activeTab]);
 
@@ -378,6 +450,7 @@ export function AppSection({ initialStats }: AppSectionProps) {
   }, [filteredData, sortColumn, sortDirection]);
 
   useEffect(() => { setGrupoFilter(null); }, [activeTab]);
+  useEffect(() => { setVisibleCount(100); }, [activeTab, searchQuery, grupoFilter, sortColumn, sortDirection]);
 
   useEffect(() => {
     setStats(calculateStats(grupoFilteredData));
@@ -405,12 +478,14 @@ export function AppSection({ initialStats }: AppSectionProps) {
 
   const detalleLabel = DETALLE_LABEL[activeTab] ?? "Detalle";
 
+  const third = Math.ceil(TABS.length / 3);
   const half  = Math.ceil(TABS.length / 2);
   const total = stats.enX + stats.fueraDeX;
-  const pctX   = total > 0 ? Math.round((stats.enX           / total) * 100) : 0;
-  const pctB   = total > 0 ? Math.round((stats.conBluesky    / total) * 100) : 0;
-  const pctM   = total > 0 ? Math.round((stats.conMastodon   / total) * 100) : 0;
-  const pctSin = total > 0 ? Math.round((stats.sinAlternativa / total) * 100) : 0;
+  const base  = total - stats.sinNinguna;
+  const pctX   = base > 0 ? Math.round((stats.enX           / base) * 100) : 0;
+  const pctB   = base > 0 ? Math.round((stats.conBluesky    / base) * 100) : 0;
+  const pctM   = base > 0 ? Math.round((stats.conMastodon   / base) * 100) : 0;
+  const pctSin = base > 0 ? Math.round((stats.sinAlternativa / base) * 100) : 0;
   const activeLabel = TABS.find(t => t.value === activeTab)?.label ?? "Total";
 
   return (
@@ -435,13 +510,7 @@ export function AppSection({ initialStats }: AppSectionProps) {
 
         {/* ── Pestañas ─────────────────────────────────────────── */}
         <div className="sd-tabs-wrap px-6 sm:px-14 pt-4 pb-3">
-          <div className="md:hidden space-y-1">
-            <CategoryTabs items={TABS.slice(0, half)} active={activeTab} onSelect={setActiveTab} />
-            <CategoryTabs items={TABS.slice(half)}    active={activeTab} onSelect={setActiveTab} />
-          </div>
-          <div className="hidden md:block">
-            <CategoryTabs items={TABS} active={activeTab} onSelect={setActiveTab} />
-          </div>
+          <CategoryTabs items={TABS} active={activeTab} onSelect={setActiveTab} />
         </div>
 
         {/* ── Estadísticas de la categoría ─────────────────────── */}
@@ -582,8 +651,8 @@ export function AppSection({ initialStats }: AppSectionProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sortedData.length > 0 ? sortedData.map((item, i) => (
-                    <TableRow key={i} className="sd-data-row group hover:bg-[#fafafa] transition-colors">
+                  {sortedData.length > 0 ? sortedData.slice(0, visibleCount).map((item, i) => (
+                    <TableRow key={`${item.categoria}·${item.nombre}·${i}`} className="sd-data-row group">
                       <TableCell className="sd-cell-name">
                         <div className="sd-entity-name">{item.nombre}</div>
                       </TableCell>
@@ -611,18 +680,6 @@ export function AppSection({ initialStats }: AppSectionProps) {
                       ))}
                       <TableCell className="sd-cell-actions">
                         <div className="sd-row-actions">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 opacity-60 hover:opacity-100 transition-all" asChild>
-                                <a href={generateMailto(item)} aria-label="Pedir migración a redes federadas">
-                                  <Mail className="h-3.5 w-3.5" />
-                                </a>
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="text-xs max-w-[200px] text-left">
-                              Enviar correo a {item.nombre} pidiendo que se establezca en redes federadas
-                            </TooltipContent>
-                          </Tooltip>
                           <ReportButton item={item} />
                         </div>
                       </TableCell>
@@ -631,6 +688,17 @@ export function AppSection({ initialStats }: AppSectionProps) {
                     <TableRow>
                       <TableCell colSpan={6}>
                         <div className="sd-empty-state">No se encontraron resultados</div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {sortedData.length > visibleCount && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-3">
+                        <Button variant="outline" size="sm"
+                          className="text-xs text-foreground border-border hover:bg-muted"
+                          onClick={() => setVisibleCount(c => c + 200)}>
+                          Mostrar más ({visibleCount} de {sortedData.length})
+                        </Button>
                       </TableCell>
                     </TableRow>
                   )}

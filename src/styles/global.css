@@ -175,6 +175,13 @@
   --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(0.20 0 0 / 45%);
   --sidebar-ring: oklch(0.65 0 0);
+
+  /* Tokens de diseño "sal de ahí" en modo oscuro */
+  --sd-fg-2: #f5f5f5;
+  --sd-muted: #a3a3a3;
+  --sd-muted-2: #737373;
+  --sd-line: oklch(0.20 0 0 / 45%);
+  --sd-line-strong: oklch(0.30 0 0 / 60%);
 }
 
 /* ──────────────────────────────────────────────────────────

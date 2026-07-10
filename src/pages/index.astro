@@ -4,6 +4,7 @@ import Topbar from "@/components/Topbar.astro";
 import { AppSection } from "@/components/AppSection";
 
 import ageData from "@/data/age.json";
+import organosData from "@/data/organos.json";
 import gobiernoData from "@/data/gobierno.json";
 import congresoData from "@/data/congreso.json";
 import senadoData from "@/data/senado.json";
@@ -33,6 +34,7 @@ function twitterOnX(handle: unknown, activo: unknown): boolean {
 }
 function normalizeItem(item: any) {
   return {
+    twitter:         item.twitter  || null,
     twitter_activo:  twitterOnX(item.twitter, item.twitter_activo),
     bluesky_activo:  isActiveDate(item.bluesky_activo, BLUESKY_REF),
     mastodon_activo: isActiveDate(item.mastodon_activo, MASTODON_REF),
@@ -44,6 +46,7 @@ function normalizeItem(item: any) {
 // Datos completos para el índice interactivo
 const allData = [
   ...ageData.map(normalizeItem),
+  ...organosData.map(normalizeItem),
   ...gobiernoData.map(normalizeItem),
   ...congresoData.map(normalizeItem),
   ...senadoData.map(normalizeItem),
@@ -55,38 +58,44 @@ const allData = [
 // Para el hero: solo instituciones (sin diputados, senadores ni ministros individuales)
 const institucionesHero = [
   ...ageData.map(normalizeItem),
+  ...organosData.map(normalizeItem),
   ...partidosData.map(normalizeItem),
   ...autonomiasData.map(normalizeItem),
   ...universidadesData.map(normalizeItem),
 ];
 
 const total = institucionesHero.length;
-let enX = 0, conBluesky = 0, conMastodon = 0, sinAlternativa = 0;
+let enX = 0, conBluesky = 0, conMastodon = 0, sinAlternativa = 0, sinNinguna = 0;
 for (const item of institucionesHero) {
   if (item.twitter_activo) enX++;
   if (item.bluesky)  conBluesky++;
   if (item.mastodon) conMastodon++;
-  if (!item.bluesky && !item.mastodon) sinAlternativa++;
+  if (item.twitter && !item.bluesky && !item.mastodon) sinAlternativa++;
+  if (!item.twitter && !item.bluesky && !item.mastodon) sinNinguna++;
 }
-const fueraDeX = total - enX;
+// Base de las estadísticas de elección de plataforma: se excluyen las entidades
+// sin presencia en ninguna red (no participaron en la "elección" entre X/Bluesky/Mastodon).
+// Siguen apareciendo en el índice, solo quedan fuera de estos porcentajes.
+const base = total - sinNinguna;
 
 // Stats completas para AppSection
 let enXTotal = 0, conBlueskyTotal = 0, conMastodonTotal = 0,
-    conAlternativaTotal = 0, sinAlternativaTotal = 0;
+    conAlternativaTotal = 0, sinAlternativaTotal = 0, sinNingunaTotal = 0;
 for (const item of allData) {
   if (item.twitter_activo) enXTotal++;
   if (item.bluesky)  conBlueskyTotal++;
   if (item.mastodon) conMastodonTotal++;
   if (item.bluesky || item.mastodon) conAlternativaTotal++;
-  else sinAlternativaTotal++;
+  else if (item.twitter) sinAlternativaTotal++;
+  if (!item.twitter && !item.bluesky && !item.mastodon) sinNingunaTotal++;
 }
 const fueraDeXTotal = allData.length - enXTotal;
 
-const pctX   = total > 0 ? Math.round((enX            / total) * 100) : 0;
-const pctB   = total > 0 ? Math.round((conBluesky     / total) * 100) : 0;
-const pctM   = total > 0 ? Math.round((conMastodon    / total) * 100) : 0;
-const pctSin = total > 0 ? Math.round((sinAlternativa / total) * 100) : 0;
-const pctFuera = total > 0 ? Math.round((fueraDeX     / total) * 100) : 0;
+const pctX   = base > 0 ? Math.round((enX            / base) * 100) : 0;
+const pctB   = base > 0 ? Math.round((conBluesky     / base) * 100) : 0;
+const pctM   = base > 0 ? Math.round((conMastodon    / base) * 100) : 0;
+const pctSin = base > 0 ? Math.round((sinAlternativa / base) * 100) : 0;
+const pctSinNinguna = total > 0 ? Math.round((sinNinguna / total) * 100) : 0;
 
 // Donut math para stat-band
 const DONUT_R = 15, DONUT_C = 2 * Math.PI * DONUT_R;
@@ -111,7 +120,7 @@ const updatedDate = lastUpdate.twitter
       <h1 class="sd-hero-h1 text-5xl sm:text-7xl lg:text-[88px]">
         <span class="sd-hero-h1-num">{enX}</span>
         {" "}de{" "}
-        <span class="sd-hero-h1-denom">{total}</span>
+        <span class="sd-hero-h1-denom">{base}</span>
         <br class="max-sm:hidden" />
         {" "}instituciones públicas
         <br />
@@ -134,7 +143,7 @@ siguen publicando en
             { label: "Con cuenta en Bluesky",       value: `${conBluesky} · ${pctB} %`,                    accentMod: "sky"     },
             { label: "Con cuenta en Mastodon",       value: `${conMastodon} · ${pctM === 0 ? '< 1' : pctM} %`, accentMod: "mastodon" },
             { label: "Sin alternativa a X",          value: `${sinAlternativa} · ${pctSin} %`,              accentMod: "rose", strong: true },
-            { label: "Sin presencia en ninguna red", value: `${fueraDeX} · ${pctFuera} %`,                  accentMod: "outline" },
+            { label: "Sin presencia en ninguna red", value: `${sinNinguna} · ${pctSinNinguna} %`,           accentMod: "outline" },
           ].map(({ label, value, accentMod, strong }) => (
             <div class="sd-dark-stat-row">
               <span class={`sd-dark-stat-label ${strong ? "sd-dark-stat-label--strong" : ""}`}>
@@ -151,8 +160,9 @@ siguen publicando en
       <div class="sd-hero-date">
         <p class="sd-hero-date-title">Última actualización: {updatedDate}</p>
         <p class="sd-hero-date-desc">
-          Por institución entendemos: ministerios y organismos del Estado, partidos con representación parlamentaria, comunidades autónomas y universidades públicas.
+          Por institución entendemos: la Presidencia del Gobierno, ministerios y secretarías de Estado, delegaciones del Gobierno, Fuerzas Armadas y Fuerzas y Cuerpos de Seguridad del Estado, el sector público institucional estatal según el Inventario de Entes de la IGAE (organismos autónomos, agencias, autoridades independientes, entidades públicas empresariales, fundaciones y sociedades mercantiles estatales), órganos constitucionales, partidos con representación parlamentaria, comunidades autónomas —presidencias, gobiernos, asambleas y sus organismos autonómicos— y universidades públicas.
           Una entidad se considera activa si publicó en los últimos 30 días antes de esta fecha.
+          Los porcentajes de esta página excluyen las {sinNinguna} entidades sin presencia en ninguna red social: no participan de la elección entre X, Bluesky y Mastodon, aunque sí aparecen listadas en el índice. <a href="/datos" class="sd-hero-date-link">Más detalle en metodología</a>.
         </p>
       </div>
     </div>
@@ -180,7 +190,7 @@ siguen publicando en
           </svg>
           <span class="sd-sband-num text-4xl md:text-[46px]">{pctX}&#x202F;%</span>
         </div>
-        <div class="sd-sband-sub">{enX} de {total} instituciones</div>
+        <div class="sd-sband-sub">{enX} de {base} instituciones</div>
       </div>
 
       <!-- Col 2: Bluesky -->
@@ -248,6 +258,7 @@ siguen publicando en
         conMastodon: conMastodonTotal,
         conAlternativa: conAlternativaTotal,
         sinAlternativa: sinAlternativaTotal,
+        sinNinguna: sinNingunaTotal,
       }}
     />
   </div>
@@ -414,6 +425,15 @@ siguen publicando en
   text-transform: uppercase;
   color: rgba(246,244,239,0.55);
   margin: 0;
+}
+
+.sd-hero-date-link {
+  color: rgba(246,244,239,0.65);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.sd-hero-date-link:hover {
+  color: rgba(246,244,239,0.9);
 }
 
 .sd-hero-date-desc {
