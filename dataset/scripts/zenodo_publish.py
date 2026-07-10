@@ -5,6 +5,7 @@ import csv
 import io
 import json
 import os
+import re
 import sys
 import requests
 import openpyxl
@@ -16,7 +17,9 @@ HEADERS = {"Authorization": f"Bearer {TOKEN}"}
 
 SCRIPT_DIR  = os.path.dirname(os.path.abspath(__file__))
 DATASET_DIR = os.path.dirname(SCRIPT_DIR)
+PROJECT_DIR = os.path.dirname(DATASET_DIR)
 XLSX        = os.path.join(DATASET_DIR, "datosfinales.xlsx")
+EXPORT_BUTTON = os.path.join(PROJECT_DIR, "src", "components", "ExportButton.tsx")
 
 COLUMNS = [
     "categoria", "nombre", "twitter", "twitter_activo",
@@ -67,6 +70,22 @@ def upload(bucket_url, filename, data, content_type):
     print(f"  Subido: {filename} ({len(data):,} bytes)")
 
 
+def update_export_button(new_id):
+    with open(EXPORT_BUTTON, encoding="utf-8") as f:
+        content = f.read()
+    updated = re.sub(
+        r'const ZENODO_RECORD = "https://zenodo\.org/records/\d+";',
+        f'const ZENODO_RECORD = "https://zenodo.org/records/{new_id}";',
+        content,
+    )
+    if updated == content:
+        print(f"  Aviso: no se encontró ZENODO_RECORD en {EXPORT_BUTTON}", file=sys.stderr)
+        return
+    with open(EXPORT_BUTTON, "w", encoding="utf-8") as f:
+        f.write(updated)
+    print(f"  Actualizado: {EXPORT_BUTTON}")
+
+
 def main():
     print("Leyendo Excel...")
     rows = load_rows()
@@ -107,6 +126,9 @@ def main():
     result = check(r, "publish")
     print(f"Publicado. DOI: {result.get('doi', '—')}")
     print(f"URL: https://zenodo.org/records/{result['id']}")
+
+    print("Sincronizando enlace de descarga en la web...")
+    update_export_button(result["id"])
 
 
 if __name__ == "__main__":

@@ -1,9 +1,14 @@
 import { Download, ExternalLink } from "lucide-react";
 
+// Zenodo no sirve los ficheros a través del DOI de concepto (solo la página HTML
+// redirige a la última versión), así que las descargas necesitan el ID de la versión
+// concreta. zenodo_publish.py actualiza ZENODO_RECORD automáticamente tras cada publicación.
 const ZENODO_RECORD = "https://zenodo.org/records/21297253";
 const ZENODO_CSV    = `${ZENODO_RECORD}/files/dataset.csv?download=1`;
 const ZENODO_JSON   = `${ZENODO_RECORD}/files/dataset.json?download=1`;
 const ZENODO_XLSX   = `${ZENODO_RECORD}/files/dataset.xlsx?download=1`;
+// DOI de concepto: enlace estable que siempre redirige a la última versión publicada.
+const ZENODO_LATEST = "https://zenodo.org/records/20692749";
 
 const BASE: React.CSSProperties = {
   display: "inline-flex",
@@ -33,7 +38,7 @@ export function ExportButton({ dark = false }: { dark?: boolean }) {
       <a href={ZENODO_CSV}  target="_blank" rel="noopener" style={s} download><Download size={12} />CSV</a>
       <a href={ZENODO_JSON} target="_blank" rel="noopener" style={s} download><Download size={12} />JSON</a>
       <a href={ZENODO_XLSX} target="_blank" rel="noopener" style={s} download><Download size={12} />Excel</a>
-      <a href={ZENODO_RECORD} target="_blank" rel="noopener" style={dim}><ExternalLink size={12} />Zenodo</a>
+      <a href={ZENODO_LATEST} target="_blank" rel="noopener" style={dim}><ExternalLink size={12} />Zenodo</a>
     </div>
   );
 }
