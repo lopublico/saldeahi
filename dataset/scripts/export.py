@@ -143,6 +143,7 @@ def build_total(ws, rows_by_cat, refs):
 
 CATEGORY_MAP = {
     "AGE":          ("age.json",          build_age),
+    "Órganos del Estado": ("organos.json", build_age),
     "Autonomías":   ("autonomias.json",   build_autonomias),
     "Gobierno":     ("gobierno.json",     build_gobierno),
     "Congreso":     ("congreso.json",     build_congreso),

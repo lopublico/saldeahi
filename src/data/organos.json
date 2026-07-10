@@ -1,0 +1,112 @@
+[
+  {
+    "nombre": "Casa de S.M. el Rey",
+    "categoria": "Jefatura del Estado",
+    "twitter": "CasaReal",
+    "twitter_activo": "2026-07-08",
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "nombre": "Tribunal Constitucional",
+    "categoria": "Órgano constitucional",
+    "twitter": "TConstitucionE",
+    "twitter_activo": "2026-07-08",
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "nombre": "Consejo General del Poder Judicial",
+    "categoria": "Órgano constitucional",
+    "twitter": "PoderJudicialEs",
+    "twitter_activo": "2026-07-07",
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "nombre": "Tribunal Supremo",
+    "categoria": "Poder Judicial",
+    "twitter": null,
+    "twitter_activo": null,
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "nombre": "Fiscalía General del Estado",
+    "categoria": "Ministerio Fiscal",
+    "twitter": "fiscal_es",
+    "twitter_activo": "2026-07-07",
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "nombre": "Defensor del Pueblo",
+    "categoria": "Órgano de relevancia constitucional",
+    "twitter": "DefensorPuebloE",
+    "twitter_activo": "2026-07-08",
+    "bluesky": "defensordelpueblo.es",
+    "bluesky_activo": "2026-07-03",
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "nombre": "Tribunal de Cuentas",
+    "categoria": "Órgano de relevancia constitucional",
+    "twitter": "tcu_es",
+    "twitter_activo": "2026-07-08",
+    "bluesky": "tribunaldecuentas.bsky.social",
+    "bluesky_activo": "2026-07-06",
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "nombre": "Consejo de Estado",
+    "categoria": "Órgano de relevancia constitucional",
+    "twitter": "ConsejoEstadoEs",
+    "twitter_activo": "2026-07-08",
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "nombre": "Consejo Económico y Social",
+    "categoria": "Órgano consultivo",
+    "twitter": "CESEspana",
+    "twitter_activo": "2026-07-07",
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "nombre": "Junta Electoral Central",
+    "categoria": "Órgano de relevancia constitucional",
+    "twitter": null,
+    "twitter_activo": null,
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  }
+]
