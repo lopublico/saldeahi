@@ -16,7 +16,7 @@
     "twitter": "MAECgob",
     "twitter_activo": "2026-07-01",
     "bluesky": "exterioresgob.bsky.social",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "prensa.mae@maec.es"
@@ -27,7 +27,7 @@
     "twitter": "M_Presidencia",
     "twitter_activo": "2026-07-01",
     "bluesky": "mpresidenciagob.bsky.social",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-28",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "cartaservicios@presidencia.gob.es"
@@ -38,7 +38,7 @@
     "twitter": "Defensagob",
     "twitter_activo": "2026-07-01",
     "bluesky": "defensagob.bsky.social",
-    "bluesky_activo": "2026-07-02",
+    "bluesky_activo": "2026-07-30",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "buzon.defensa@correo.defensa.es"
@@ -60,7 +60,7 @@
     "twitter": "interiorgob",
     "twitter_activo": "2026-07-01",
     "bluesky": "interior.gob.es",
-    "bluesky_activo": "2026-07-08",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "prensa.interior@correo.interior.es"
@@ -82,7 +82,7 @@
     "twitter": "educaciongob",
     "twitter_activo": "2026-07-01",
     "bluesky": "educaciongob.bsky.social",
-    "bluesky_activo": "2026-07-08",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "prensa@educacion.gob.es"
@@ -93,7 +93,7 @@
     "twitter": "empleogob",
     "twitter_activo": "2026-07-01",
     "bluesky": "trabajogob.bsky.social",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "prensa.ministerio@mites.gob.es"
@@ -137,7 +137,7 @@
     "twitter": "mitecogob",
     "twitter_activo": "2026-07-01",
     "bluesky": "miteco.gob.es",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "prensa@miteco.gob.es"
@@ -159,7 +159,7 @@
     "twitter": "culturagob",
     "twitter_activo": "2026-07-01",
     "bluesky": "culturagob.bsky.social",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-30",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "prensa@cultura.gob.es"
@@ -181,7 +181,7 @@
     "twitter": "sanidadgob",
     "twitter_activo": "2026-07-01",
     "bluesky": "sanidad.gob.es",
-    "bluesky_activo": "2026-07-08",
+    "bluesky_activo": "2026-07-30",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "prensa.sanitad@sanidad.gob.es"
@@ -192,7 +192,7 @@
     "twitter": "MSocialGob",
     "twitter_activo": "2025-01-21",
     "bluesky": "consumogob.bsky.social",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "prensa@consumo.gob.es"
@@ -225,7 +225,7 @@
     "twitter": "inclusiongob",
     "twitter_activo": "2026-07-01",
     "bluesky": "inclusion.gob.es",
-    "bluesky_activo": "2026-07-08",
+    "bluesky_activo": "2026-08-01",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "prensa@inclusion.gob.es"
@@ -247,7 +247,7 @@
     "twitter": "JuventudInfGob",
     "twitter_activo": "2026-07-01",
     "bluesky": "juventudinfgob.bsky.social",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-28",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "comunicacion@injuve.es"
@@ -269,7 +269,7 @@
     "twitter": "AEMET_Esp",
     "twitter_activo": "2026-07-01",
     "bluesky": "aemet.es",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-08-01",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "comunicacion@aemet.es"
@@ -280,7 +280,7 @@
     "twitter": "deportegob",
     "twitter_activo": "2026-07-01",
     "bluesky": "deportegob.bsky.social",
-    "bluesky_activo": "2026-07-06",
+    "bluesky_activo": "2026-07-28",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "comunicacion@csd.gob.es"
@@ -291,7 +291,7 @@
     "twitter": "es_ine",
     "twitter_activo": "2026-07-01",
     "bluesky": "es-ine.bsky.social",
-    "bluesky_activo": "2026-07-08",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "ine_clientes@ine.es"
@@ -324,7 +324,7 @@
     "twitter": "bne_biblioteca",
     "twitter_activo": "2026-07-01",
     "bluesky": "bne.es",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "informacion@bne.es"
@@ -357,7 +357,7 @@
     "twitter": "AECID_es",
     "twitter_activo": "2026-07-01",
     "bluesky": "aecid.bsky.social",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-30",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "comunicacion@aecid.es"
@@ -368,7 +368,7 @@
     "twitter": "Renfe",
     "twitter_activo": "2026-07-01",
     "bluesky": "renfeoperadora.bsky.social",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-30",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "renfecontigo@renfe.es"
@@ -390,7 +390,7 @@
     "twitter": "rtve",
     "twitter_activo": "2026-07-01",
     "bluesky": "rtvenoticias.rtve.es",
-    "bluesky_activo": "2026-07-08",
+    "bluesky_activo": "2026-08-01",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "rtve@rtve.es"
@@ -445,7 +445,7 @@
     "twitter": "enusa_sa",
     "twitter_activo": "2026-06-30",
     "bluesky": "enusa.bsky.social",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "cvd@enusa.es"
@@ -467,7 +467,7 @@
     "twitter": "Paradores",
     "twitter_activo": "2026-07-01",
     "bluesky": "paradores.bsky.social",
-    "bluesky_activo": "2026-07-06",
+    "bluesky_activo": "2026-07-30",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "comunicacion@parador.es"
@@ -511,7 +511,7 @@
     "twitter": "CooperacionESP",
     "twitter_activo": "2026-07-08",
     "bluesky": "cooperacionespanola.es",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-30",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -753,7 +753,7 @@
     "twitter": "SE_Comercio",
     "twitter_activo": "2026-07-08",
     "bluesky": "secomercio.bsky.social",
-    "bluesky_activo": "2026-07-02",
+    "bluesky_activo": "2026-07-13",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -775,7 +775,7 @@
     "twitter": null,
     "twitter_activo": null,
     "bluesky": "dsocialesgob.bsky.social",
-    "bluesky_activo": "2026-07-06",
+    "bluesky_activo": "2026-07-24",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -874,7 +874,7 @@
     "twitter": "DelegGobAND",
     "twitter_activo": "2026-07-08",
     "bluesky": "dgobandalucia.bsky.social",
-    "bluesky_activo": "2026-07-08",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -896,7 +896,7 @@
     "twitter": "DelegGobAST",
     "twitter_activo": "2026-07-08",
     "bluesky": "deleggobast.bsky.social",
-    "bluesky_activo": "2026-07-08",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1006,7 +1006,7 @@
     "twitter": "DGobiernoMadrid",
     "twitter_activo": "2026-07-08",
     "bluesky": "dgobiernomadrid.bsky.social",
-    "bluesky_activo": "2026-07-08",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1028,7 +1028,7 @@
     "twitter": "DelegGobNavarra",
     "twitter_activo": "2026-07-08",
     "bluesky": "deleggobnavarra.bsky.social",
-    "bluesky_activo": "2026-07-02",
+    "bluesky_activo": "2026-07-09",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1083,7 +1083,7 @@
     "twitter": "policia",
     "twitter_activo": "2026-07-08",
     "bluesky": "policia.es",
-    "bluesky_activo": "2026-06-30",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1127,7 +1127,7 @@
     "twitter": "EjercitoAire",
     "twitter_activo": "2026-07-08",
     "bluesky": "ejercitodelaire.bsky.social",
-    "bluesky_activo": "2026-07-08",
+    "bluesky_activo": "2026-07-30",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1193,7 +1193,7 @@
     "twitter": "BancoDeEspana",
     "twitter_activo": "2026-07-08",
     "bluesky": "bde.es",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1204,7 +1204,7 @@
     "twitter": "CNMV_MEDIOS",
     "twitter_activo": "2026-07-08",
     "bluesky": "cnmv.bsky.social",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1215,7 +1215,7 @@
     "twitter": "CNMC_ES",
     "twitter_activo": "2026-07-08",
     "bluesky": "cnmces.bsky.social",
-    "bluesky_activo": "2026-06-30",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1270,7 +1270,7 @@
     "twitter": "DGTes",
     "twitter_activo": "2026-07-08",
     "bluesky": "dgtes.bsky.social",
-    "bluesky_activo": "2026-07-08",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1281,7 +1281,7 @@
     "twitter": "CSIC",
     "twitter_activo": "2026-07-08",
     "bluesky": "csic.es",
-    "bluesky_activo": "2026-07-08",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1292,7 +1292,7 @@
     "twitter": "InstCervantes",
     "twitter_activo": "2026-07-08",
     "bluesky": "institutocervantes.bsky.social",
-    "bluesky_activo": "2026-07-06",
+    "bluesky_activo": "2026-07-27",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1303,7 +1303,7 @@
     "twitter": "museodelprado",
     "twitter_activo": "2026-07-08",
     "bluesky": "museodelprado.es",
-    "bluesky_activo": "2026-07-06",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1314,7 +1314,7 @@
     "twitter": "museoreinasofia",
     "twitter_activo": "2026-07-07",
     "bluesky": "museoreinasofia.es",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-30",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1336,7 +1336,7 @@
     "twitter": "SaludISCIII",
     "twitter_activo": "2026-07-08",
     "bluesky": "isciiisalud.bsky.social",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1358,7 +1358,7 @@
     "twitter": "AESAN_gob_es",
     "twitter_activo": "2026-07-07",
     "bluesky": "aesangob.bsky.social",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1369,7 +1369,7 @@
     "twitter": "Imserso",
     "twitter_activo": "2026-07-08",
     "bluesky": "imserso.bsky.social",
-    "bluesky_activo": "2026-07-08",
+    "bluesky_activo": "2026-07-30",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1391,7 +1391,7 @@
     "twitter": "InstMujeres",
     "twitter_activo": "2026-07-08",
     "bluesky": "instmujeres.bsky.social",
-    "bluesky_activo": "2026-07-08",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1435,7 +1435,7 @@
     "twitter": "AgEInves",
     "twitter_activo": "2026-07-08",
     "bluesky": "ageinves.bsky.social",
-    "bluesky_activo": "2026-07-06",
+    "bluesky_activo": "2026-07-20",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1490,7 +1490,7 @@
     "twitter": "boegob",
     "twitter_activo": "2026-06-29",
     "bluesky": "boegob.bsky.social",
-    "bluesky_activo": "2026-07-03",
+    "bluesky_activo": "2026-07-26",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1512,7 +1512,7 @@
     "twitter": "EFEnoticias",
     "twitter_activo": "2026-07-08",
     "bluesky": "efe.com",
-    "bluesky_activo": "2026-07-08",
+    "bluesky_activo": "2026-08-01",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -1633,7 +1633,7 @@
     "twitter": "enisa",
     "twitter_activo": "2026-07-08",
     "bluesky": "enisa-es.bsky.social",
-    "bluesky_activo": "2026-07-03",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -2062,7 +2062,7 @@
     "twitter": "cepcgob",
     "twitter_activo": "2026-07-08",
     "bluesky": "cepcgob.bsky.social",
-    "bluesky_activo": "2026-07-02",
+    "bluesky_activo": "2026-07-30",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -2205,7 +2205,7 @@
     "twitter": "chcantabrico",
     "twitter_activo": "2026-07-07",
     "bluesky": "chcantabrico.es",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -2227,7 +2227,7 @@
     "twitter": "CH_Ebro",
     "twitter_activo": "2026-07-08",
     "bluesky": "chebro.bsky.social",
-    "bluesky_activo": "2026-07-06",
+    "bluesky_activo": "2026-07-17",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -2238,7 +2238,7 @@
     "twitter": "chguadalquivir",
     "twitter_activo": "2026-07-08",
     "bluesky": "chguadalquivir.bsky.social",
-    "bluesky_activo": "2026-07-06",
+    "bluesky_activo": "2026-07-30",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -2260,7 +2260,7 @@
     "twitter": "CHJucar",
     "twitter_activo": "2026-07-08",
     "bluesky": "chjucar.bsky.social",
-    "bluesky_activo": "2026-07-08",
+    "bluesky_activo": "2026-07-30",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -2513,7 +2513,7 @@
     "twitter": null,
     "twitter_activo": null,
     "bluesky": "centromemorialvt.bsky.social",
-    "bluesky_activo": null,
+    "bluesky_activo": "2025-12-16",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -2832,7 +2832,7 @@
     "twitter": "CineICAA",
     "twitter_activo": "2026-07-08",
     "bluesky": "cineicaa.bsky.social",
-    "bluesky_activo": "2026-07-03",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -2953,7 +2953,7 @@
     "twitter": "Mercasa_mercas",
     "twitter_activo": "2026-07-08",
     "bluesky": "mercasamercas.bsky.social",
-    "bluesky_activo": "2026-07-03",
+    "bluesky_activo": "2026-07-24",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -2986,7 +2986,7 @@
     "twitter": "ONT_esp",
     "twitter_activo": "2026-07-07",
     "bluesky": "ontesp.bsky.social",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -2997,7 +2997,7 @@
     "twitter": null,
     "twitter_activo": null,
     "bluesky": "rpdiscapacidad.bsky.social",
-    "bluesky_activo": "2026-07-08",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -3052,7 +3052,7 @@
     "twitter": null,
     "twitter_activo": null,
     "bluesky": "oapngob.bsky.social",
-    "bluesky_activo": "2026-07-04",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -3107,7 +3107,7 @@
     "twitter": "SENASA_Spain",
     "twitter_activo": "2026-07-07",
     "bluesky": "senasa-spain.bsky.social",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
@@ -3206,7 +3206,7 @@
     "twitter": "FBiodiversidad",
     "twitter_activo": "2026-07-08",
     "bluesky": "fbiodiversidad.bsky.social",
-    "bluesky_activo": "2026-07-08",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": null

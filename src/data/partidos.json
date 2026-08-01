@@ -16,7 +16,7 @@
     "twitter": "PSOE",
     "twitter_activo": "2026-07-01",
     "bluesky": "psoe-cef.bsky.social",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-30",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "comunicacion@psoe.es"
@@ -38,7 +38,7 @@
     "twitter": "sumar",
     "twitter_activo": "2025-01-21",
     "bluesky": "movimientosumar.es",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "contacto@sumar.social"
@@ -49,7 +49,7 @@
     "twitter": "esquerra_erc",
     "twitter_activo": "2026-07-01",
     "bluesky": "esquerrarepublicana.cat",
-    "bluesky_activo": "2026-07-06",
+    "bluesky_activo": "2026-07-29",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "comunicacio@esquerra.cat"
@@ -71,7 +71,7 @@
     "twitter": "ehbildu",
     "twitter_activo": "2026-07-01",
     "bluesky": "ehbildu.bsky.social",
-    "bluesky_activo": "2026-07-06",
+    "bluesky_activo": "2026-07-29",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "komunikazioa@ehbildu.eus"
@@ -115,7 +115,7 @@
     "twitter": "PODEMOS",
     "twitter_activo": "2026-07-01",
     "bluesky": "ahorapodemos.bsky.social",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "comunicacion@podemos.info"
@@ -126,9 +126,9 @@
     "twitter": "IzquierdaUnida",
     "twitter_activo": "2026-07-01",
     "bluesky": "izquierdaunida.org",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-31",
     "mastodon": "izquierda_unida@mastodon.social",
-    "mastodon_activo": "2026-06-30",
+    "mastodon_activo": "2026-07-31",
     "email": "comunicacion@izquierda-unida.es"
   },
   {
@@ -159,7 +159,7 @@
     "twitter": "BNGaliza",
     "twitter_activo": "2015-02-04",
     "bluesky": "obloque.gal",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "comunicacion@bng.gal"
@@ -170,7 +170,7 @@
     "twitter": "chunta",
     "twitter_activo": "2026-07-01",
     "bluesky": "chuntaaragonesista.bsky.social",
-    "bluesky_activo": "2026-07-07",
+    "bluesky_activo": "2026-07-31",
     "mastodon": null,
     "mastodon_activo": null,
     "email": "prensa@chuntaargonesa.es"
