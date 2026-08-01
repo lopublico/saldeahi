@@ -78,6 +78,7 @@ function ReportModal({ item, open, onOpenChange }: Props & {
   const [comentario, setComentario] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [honeypot, setHoneypot] = useState("");
 
   const needsValue = campo && !["suspendida", "falta", "otro"].includes(campo);
 
@@ -93,7 +94,7 @@ function ReportModal({ item, open, onOpenChange }: Props & {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!campo) return;
+    if (!campo || honeypot) return;
 
     setStatus("loading");
     setErrorMsg("");
@@ -107,7 +108,10 @@ function ReportModal({ item, open, onOpenChange }: Props & {
 
       const res = await fetch(WORKER_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Verified-Request": "true",
+        },
         body: JSON.stringify({
           nombre:    item.nombre,
           categoria: item.categoria,
@@ -119,6 +123,7 @@ function ReportModal({ item, open, onOpenChange }: Props & {
           correcto,
           comentario,
           recaptcha_token,
+          email_confirm: honeypot,
         }),
       });
 
@@ -202,6 +207,18 @@ function ReportModal({ item, open, onOpenChange }: Props & {
                 onChange={e => setComentario(e.target.value)}
                 rows={2}
                 maxLength={500}
+              />
+            </div>
+
+            {/* Honeypot anti-spam (hidden field) */}
+            <div style={{ display: "none" }} aria-hidden="true">
+              <input
+                type="text"
+                name="email_confirm"
+                value={honeypot}
+                onChange={e => setHoneypot(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
               />
             </div>
 

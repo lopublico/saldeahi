@@ -15,6 +15,15 @@ export default async (request, context) => {
     });
   }
 
+  // Verify request origin using custom header
+  const isVerified = request.headers.get("x-verified-request") === "true";
+  if (!isVerified) {
+    return new Response(JSON.stringify({ error: "request_blocked" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   if (request.method !== "POST") {
     return new Response(JSON.stringify({ error: "method_not_allowed" }), {
       status: 405,
@@ -33,7 +42,15 @@ export default async (request, context) => {
   }
 
   const { nombre, categoria, detalle, twitter, bluesky, mastodon,
-          campo, correcto, comentario, recaptcha_token } = body;
+          campo, correcto, comentario, recaptcha_token, email_confirm } = body;
+
+  // Block honeypot submissions
+  if (email_confirm) {
+    return new Response(JSON.stringify({ error: "request_blocked" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
   if (!nombre || !campo || !recaptcha_token) {
     return new Response(JSON.stringify({ error: "missing_fields" }), {
