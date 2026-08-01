@@ -9,7 +9,7 @@ import {
   DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 
-const WORKER_URL = "/.netlify/functions/report";
+const WORKER_URL = "/api/report";
 // Site key pública de reCAPTCHA v3 — no es un secreto
 const RECAPTCHA_SITE_KEY = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY ?? "";
 
