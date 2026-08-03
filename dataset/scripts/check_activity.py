@@ -26,6 +26,7 @@ ROOT_DIR    = os.path.dirname(DATASET_DIR)
 DF_FILE     = os.path.join(DATASET_DIR, "datosfinales.xlsx")
 DATA_DIR    = os.path.join(ROOT_DIR, "src", "data")
 LAST_UPDATE = os.path.join(DATA_DIR, "lastUpdate.json")
+TW_CURSOR   = os.path.join(DATASET_DIR, "tw_cursor.json")
 
 # Columnas datosfinales (1-indexed)
 C_NOMBRE=2; C_TW=3; C_TW_A=4; C_BS=5; C_BS_A=6; C_MD=7; C_MD_A=8
@@ -99,6 +100,19 @@ def parse_twitter_date(ts):
         pass
     return None
 
+def load_tw_cursor():
+    try:
+        with open(TW_CURSOR, encoding='utf-8') as f:
+            return json.load(f).get('row', 2)
+    except:
+        return 2
+
+
+def save_tw_cursor(row):
+    with open(TW_CURSOR, 'w', encoding='utf-8') as f:
+        json.dump({'row': row}, f)
+
+
 def twitter_last_post(handle, token):
     h = handle.lstrip('@')
     # limit=2: el pinnado puede aparecer primero; con 2 tweets max() da el más reciente
@@ -137,6 +151,8 @@ def main():
     ap.add_argument('--token',        default=GETXAPI_TOKEN, help='Token GetXAPI')
     ap.add_argument('--skip-updated', action='store_true', help='Saltar cuentas con fecha del mes actual')
     ap.add_argument('--only-missing', action='store_true', help='Solo cuentas sin fecha de actividad registrada (altas nuevas)')
+    ap.add_argument('--batch-size',   type=int, default=None, help='Máximo de cuentas de Twitter a comprobar en esta ejecución')
+    ap.add_argument('--time-limit',   type=int, default=40, help='Minutos máximos para la comprobación de Twitter (por defecto 40)')
     ap.add_argument('--dry-run',      action='store_true')
     args = ap.parse_args()
 
@@ -155,61 +171,89 @@ def main():
     ws = wb.active
     today = date.today().isoformat()
     checked = {'bluesky': 0, 'mastodon': 0, 'twitter': 0}
-    tw_deadline = time.monotonic() + 180 * 60  # 3h máximo para Twitter
-    tw_timeout_reached = False
-    tw_none_streak = 0
 
-    for row in range(2, ws.max_row + 1):
-        nombre = ws.cell(row, C_NOMBRE).value
-        if not nombre: continue
+    if args.bluesky or args.mastodon:
+        for row in range(2, ws.max_row + 1):
+            nombre = ws.cell(row, C_NOMBRE).value
+            if not nombre: continue
 
-        if args.bluesky:
-            bsky = ws.cell(row, C_BS).value
-            if bsky and not (args.only_missing and ws.cell(row, C_BS_A).value):
-                result = bsky_last_post(bsky)
-                if result is not None:
-                    ws.cell(row, C_BS_A).value = result
-                    checked['bluesky'] += 1
-                print(f"  BS {nombre}: {result}", flush=True)
-                time.sleep(0.2)
+            if args.bluesky:
+                bsky = ws.cell(row, C_BS).value
+                if bsky and not (args.only_missing and ws.cell(row, C_BS_A).value):
+                    result = bsky_last_post(bsky)
+                    if result is not None:
+                        ws.cell(row, C_BS_A).value = result
+                        checked['bluesky'] += 1
+                    print(f"  BS {nombre}: {result}", flush=True)
+                    time.sleep(0.2)
 
-        if args.mastodon:
-            md = ws.cell(row, C_MD).value
-            if md and not (args.only_missing and ws.cell(row, C_MD_A).value):
-                result = mastodon_last_post(md)
-                if result is not None:
-                    ws.cell(row, C_MD_A).value = result
-                    checked['mastodon'] += 1
-                print(f"  MD {nombre}: {result}", flush=True)
-                time.sleep(0.2)
+            if args.mastodon:
+                md = ws.cell(row, C_MD).value
+                if md and not (args.only_missing and ws.cell(row, C_MD_A).value):
+                    result = mastodon_last_post(md)
+                    if result is not None:
+                        ws.cell(row, C_MD_A).value = result
+                        checked['mastodon'] += 1
+                    print(f"  MD {nombre}: {result}", flush=True)
+                    time.sleep(0.2)
 
-        if args.twitter and not tw_timeout_reached:
+    if args.twitter:
+        # Comprobación por lotes: retoma donde se quedó el cursor la última vez
+        # y avanza en él, en vez de reiniciar siempre desde la primera fila
+        # (así se cubren todas las cuentas a lo largo de varias ejecuciones
+        # aunque una sola no dé tiempo a recorrer el listado completo).
+        tw_deadline = time.monotonic() + args.time_limit * 60
+        tw_none_streak = 0
+        start_row = load_tw_cursor()
+        if not (2 <= start_row <= ws.max_row):
+            start_row = 2
+        order = list(range(start_row, ws.max_row + 1)) + list(range(2, start_row))
+        processed = 0
+        next_row = start_row
+
+        for row in order:
+            next_row = row + 1 if row + 1 <= ws.max_row else 2
+
             if time.monotonic() > tw_deadline:
-                print(f"  TW tiempo límite alcanzado, guardando resultados parciales ({checked['twitter']} cuentas)", flush=True)
-                tw_timeout_reached = True
+                print(f"  TW límite de tiempo alcanzado ({args.time_limit} min), guardando progreso parcial ({checked['twitter']} cuentas)", flush=True)
+                break
+            if args.batch_size is not None and processed >= args.batch_size:
+                print(f"  TW tamaño de lote alcanzado ({args.batch_size} cuentas), guardando progreso", flush=True)
+                break
+
+            nombre = ws.cell(row, C_NOMBRE).value
+            if not nombre: continue
+            tw = ws.cell(row, C_TW).value
+            if not tw: continue
+
+            existing = ws.cell(row, C_TW_A).value
+            # Saltar si ya tiene fecha de este mes (actualizada en este ciclo)
+            if args.skip_updated and isinstance(existing, str) and existing.startswith(today[:7]):
+                print(f"  TW {nombre}: ya actualizado ({existing}), saltando", flush=True)
+                continue
+            if args.only_missing and existing:
+                continue
+
+            result = twitter_last_post(tw, args.token)
+            processed += 1
+            if result is not None:
+                ws.cell(row, C_TW_A).value = result
+                checked['twitter'] += 1
+                tw_none_streak = 0
             else:
-                tw = ws.cell(row, C_TW).value
-                if tw:
-                    existing = ws.cell(row, C_TW_A).value
-                    # Saltar si ya tiene fecha de este mes (actualizada en este ciclo)
-                    if args.skip_updated and isinstance(existing, str) and existing.startswith(today[:7]):
-                        print(f"  TW {nombre}: ya actualizado ({existing}), saltando", flush=True)
-                    elif args.only_missing and existing:
-                        pass
-                    else:
-                        result = twitter_last_post(tw, args.token)
-                        if result is not None:
-                            ws.cell(row, C_TW_A).value = result
-                            checked['twitter'] += 1
-                            tw_none_streak = 0
-                        else:
-                            tw_none_streak += 1
-                            if tw_none_streak >= 5:
-                                print(f"  TW {tw_none_streak} None consecutivos — posible throttling, pausando 60s", flush=True)
-                                time.sleep(60)
-                                tw_none_streak = 0
-                        print(f"  TW {nombre}: {result}", flush=True)
-                        time.sleep(0.3)
+                tw_none_streak += 1
+                if tw_none_streak >= 5:
+                    print(f"  TW {tw_none_streak} None consecutivos — posible throttling, pausando 60s", flush=True)
+                    time.sleep(60)
+                    tw_none_streak = 0
+            print(f"  TW {nombre}: {result}", flush=True)
+            time.sleep(0.3)
+        else:
+            print("  TW ciclo completo: todas las cuentas revisadas en este lote", flush=True)
+            next_row = 2
+
+        if not args.dry_run:
+            save_tw_cursor(next_row)
 
     if not args.dry_run:
         wb.save(DF_FILE)
