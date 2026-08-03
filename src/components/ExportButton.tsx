@@ -3,7 +3,7 @@ import { Download, ExternalLink } from "lucide-react";
 // Zenodo no sirve los ficheros a través del DOI de concepto (solo la página HTML
 // redirige a la última versión), así que las descargas necesitan el ID de la versión
 // concreta. zenodo_publish.py actualiza ZENODO_RECORD automáticamente tras cada publicación.
-const ZENODO_RECORD = "https://zenodo.org/records/21297253";
+const ZENODO_RECORD = "https://zenodo.org/records/21768423";
 const ZENODO_CSV    = `${ZENODO_RECORD}/files/dataset.csv?download=1`;
 const ZENODO_JSON   = `${ZENODO_RECORD}/files/dataset.json?download=1`;
 const ZENODO_XLSX   = `${ZENODO_RECORD}/files/dataset.xlsx?download=1`;
