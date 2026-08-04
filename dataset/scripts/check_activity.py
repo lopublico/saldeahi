@@ -27,6 +27,10 @@ DF_FILE     = os.path.join(DATASET_DIR, "datosfinales.xlsx")
 DATA_DIR    = os.path.join(ROOT_DIR, "src", "data")
 LAST_UPDATE = os.path.join(DATA_DIR, "lastUpdate.json")
 
+# Progreso de reintentos de Twitter/X: vive fuera del repo (solo en el runner)
+# para poder retomar entre reintentos del mismo día sin publicar nada parcial.
+TW_RESUME = os.path.join(os.environ.get('RUNNER_TEMP', '/tmp'), 'tw_resume.json')
+
 # Columnas datosfinales (1-indexed)
 C_NOMBRE=2; C_TW=3; C_TW_A=4; C_BS=5; C_BS_A=6; C_MD=7; C_MD_A=8
 
@@ -98,6 +102,26 @@ def parse_twitter_date(ts):
     except Exception:
         pass
     return None
+
+def load_tw_resume():
+    try:
+        with open(TW_RESUME, encoding='utf-8') as f:
+            return json.load(f).get('row', 2)
+    except:
+        return 2
+
+
+def save_tw_resume(row):
+    with open(TW_RESUME, 'w', encoding='utf-8') as f:
+        json.dump({'row': row}, f)
+
+
+def clear_tw_resume():
+    try:
+        os.remove(TW_RESUME)
+    except FileNotFoundError:
+        pass
+
 
 def twitter_last_post(handle, token):
     h = handle.lstrip('@')
@@ -182,22 +206,35 @@ def main():
                     print(f"  MD {nombre}: {result}", flush=True)
                     time.sleep(0.2)
 
+    tw_incomplete = False
+    tw_hard_fail = False
+
     if args.twitter:
         # La comprobación de actividad usa una ventana de 30 días, así que una
-        # pasada parcial dejaría cuentas con fecha desactualizada y provocaría
-        # falsos negativos de actividad. Por eso aquí se exige recorrer TODAS
-        # las cuentas en una sola ejecución: si se agota el tiempo o falla
-        # sistemáticamente, se aborta sin guardar nada ni publicar.
+        # pasada parcial publicada dejaría cuentas con fecha desactualizada y
+        # provocaría falsos negativos. Por eso se exige recorrer TODAS las
+        # cuentas antes de tocar lastUpdate.json o dar la comprobación por
+        # buena. Si no da tiempo, se guarda el progreso (solo en el runner,
+        # sin commitear) y se retoma desde la fila del cursor en el siguiente
+        # reintento del mismo día (ver el bucle de reintentos del workflow).
+        start_row = load_tw_resume()
+        if not (2 <= start_row <= ws.max_row):
+            start_row = 2
+        if start_row > 2:
+            print(f"  TW retomando desde la fila {start_row} (intento anterior incompleto)", flush=True)
+
         tw_deadline = time.monotonic() + args.time_limit * 60
         tw_none_streak = 0
         processed = 0
-        incomplete = False
+        resume_at = start_row
 
-        for row in range(2, ws.max_row + 1):
+        for row in range(start_row, ws.max_row + 1):
             if time.monotonic() > tw_deadline:
                 print(f"  TW límite de tiempo alcanzado ({args.time_limit} min) antes de terminar la lista completa", flush=True)
-                incomplete = True
+                tw_incomplete = True
+                resume_at = row
                 break
+            resume_at = row + 1
 
             nombre = ws.cell(row, C_NOMBRE).value
             if not nombre: continue
@@ -227,16 +264,17 @@ def main():
             print(f"  TW {nombre}: {result}", flush=True)
             time.sleep(0.3)
 
-        if incomplete:
-            print(f"ERROR: comprobación de Twitter/X incompleta ({checked['twitter']} cuentas revisadas de {processed} intentadas); no se guarda nada.", file=sys.stderr)
-            sys.exit(1)
-
-        if processed > 0 and checked['twitter'] == 0:
-            print("ERROR: ninguna cuenta de Twitter/X pudo comprobarse (posible fallo de la API o token inválido); no se guarda nada.", file=sys.stderr)
-            sys.exit(1)
+        if not tw_incomplete and processed > 0 and checked['twitter'] == 0:
+            tw_hard_fail = True
 
     if not args.dry_run:
         wb.save(DF_FILE)
+
+        if args.twitter:
+            if tw_incomplete:
+                save_tw_resume(resume_at)
+            elif not tw_hard_fail:
+                clear_tw_resume()
 
         # Actualizar lastUpdate.json
         try:
@@ -245,7 +283,8 @@ def main():
         except: lu = {}
         if args.bluesky:  lu['bluesky']  = today
         if args.mastodon: lu['mastodon'] = today
-        if args.twitter:  lu['twitter']  = today
+        if args.twitter and not tw_incomplete and not tw_hard_fail:
+            lu['twitter'] = today
         os.makedirs(DATA_DIR, exist_ok=True)
         with open(LAST_UPDATE, 'w', encoding='utf-8') as f:
             json.dump(lu, f, indent=2)
@@ -254,6 +293,13 @@ def main():
     if not args.dry_run:
         print(f"Guardado en {DF_FILE}", flush=True)
         print("Recuerda ejecutar export.py para actualizar los JSON de la web.", flush=True)
+
+    if tw_hard_fail:
+        print("ERROR: ninguna cuenta de Twitter/X pudo comprobarse (posible fallo de la API o token inválido); no se actualiza lastUpdate.", file=sys.stderr)
+        sys.exit(1)
+    if tw_incomplete:
+        print(f"AVISO: comprobación de Twitter/X incompleta ({checked['twitter']} cuentas revisadas); progreso guardado para reintentar.", file=sys.stderr)
+        sys.exit(2)
 
 if __name__ == "__main__":
     main()

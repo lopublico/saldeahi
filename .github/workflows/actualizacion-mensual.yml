@@ -35,15 +35,35 @@ jobs:
         run: python3 dataset/scripts/check_activity.py --mastodon
 
       - name: Comprobar actividad en Twitter/X
-        timeout-minutes: 165
+        timeout-minutes: 320
         env:
           GETXAPI_TOKEN: ${{ secrets.GETXAPI_TOKEN }}
         run: |
-          if [ -n "$GETXAPI_TOKEN" ]; then
-            python3 dataset/scripts/check_activity.py --twitter --token "$GETXAPI_TOKEN" --time-limit 150
-          else
+          if [ -z "$GETXAPI_TOKEN" ]; then
             echo "GETXAPI_TOKEN no configurado, saltando Twitter/X"
+            exit 0
           fi
+          # Reintenta varias veces el mismo día, retomando desde donde se
+          # quedó (dataset/scripts/check_activity.py guarda el progreso
+          # solo en el runner, sin commitear nada parcial). Solo se da la
+          # comprobación por buena si un intento recorre la lista completa.
+          for intento in 1 2 3 4 5; do
+            echo "== Comprobación Twitter/X, intento $intento =="
+            if python3 dataset/scripts/check_activity.py --twitter --token "$GETXAPI_TOKEN" --time-limit 55; then
+              echo "Comprobación de Twitter/X completada."
+              exit 0
+            else
+              codigo=$?
+              if [ $codigo -eq 2 ]; then
+                echo "Comprobación incompleta, reintentando desde donde se quedó..."
+              else
+                echo "::error::Fallo irrecuperable en la comprobación de Twitter/X (código $codigo)."
+                exit 1
+              fi
+            fi
+          done
+          echo "::error::No se completó la comprobación de Twitter/X tras $intento intentos."
+          exit 1
 
       - name: Exportar a JSON
         run: python3 dataset/scripts/export.py
