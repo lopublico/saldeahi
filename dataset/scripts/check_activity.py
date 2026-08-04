@@ -33,6 +33,7 @@ TW_RESUME = os.path.join(os.environ.get('RUNNER_TEMP', '/tmp'), 'tw_resume.json'
 
 # Columnas datosfinales (1-indexed)
 C_NOMBRE=2; C_TW=3; C_TW_A=4; C_BS=5; C_BS_A=6; C_MD=7; C_MD_A=8
+C_TW_CONSULTA=17; C_TW_ESTADO=18
 
 GETXAPI_TOKEN = os.environ.get("GETXAPI_TOKEN", "")
 GETXAPI_BASE  = "https://api.getxapi.com/twitter"
@@ -252,7 +253,18 @@ def main():
             result = twitter_last_post(tw, args.token)
             processed += 1
             if result is not None:
-                ws.cell(row, C_TW_A).value = result
+                # Sellar SIEMPRE la fecha de consulta al intentar, tenga o no
+                # éxito: permite distinguir "comprobada y sin novedad/404" de
+                # "no comprobada todavía".
+                ws.cell(row, C_TW_CONSULTA).value = today
+                if result == '404':
+                    # No pisar la última fecha de actividad conocida: es lo
+                    # único que nos dice cuándo publicó por última vez antes
+                    # de desaparecer. El estado 404 se registra aparte.
+                    ws.cell(row, C_TW_ESTADO).value = '404'
+                else:
+                    ws.cell(row, C_TW_A).value = result
+                    ws.cell(row, C_TW_ESTADO).value = None
                 checked['twitter'] += 1
                 tw_none_streak = 0
             else:
