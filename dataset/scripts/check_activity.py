@@ -34,6 +34,8 @@ TW_RESUME = os.path.join(os.environ.get('RUNNER_TEMP', '/tmp'), 'tw_resume.json'
 # Columnas datosfinales (1-indexed)
 C_NOMBRE=2; C_TW=3; C_TW_A=4; C_BS=5; C_BS_A=6; C_MD=7; C_MD_A=8
 C_TW_CONSULTA=17; C_TW_ESTADO=18
+C_BS_CONSULTA=19; C_BS_ESTADO=20
+C_MD_CONSULTA=21; C_MD_ESTADO=22
 
 GETXAPI_TOKEN = os.environ.get("GETXAPI_TOKEN", "")
 GETXAPI_BASE  = "https://api.getxapi.com/twitter"
@@ -192,7 +194,15 @@ def main():
                 if bsky and not (args.only_missing and ws.cell(row, C_BS_A).value):
                     result = bsky_last_post(bsky)
                     if result is not None:
-                        ws.cell(row, C_BS_A).value = result
+                        ws.cell(row, C_BS_CONSULTA).value = today
+                        if result == '404':
+                            # No pisar la última fecha de actividad conocida:
+                            # es lo único que dice cuándo publicó por última
+                            # vez antes de desaparecer.
+                            ws.cell(row, C_BS_ESTADO).value = '404'
+                        else:
+                            ws.cell(row, C_BS_A).value = result
+                            ws.cell(row, C_BS_ESTADO).value = None
                         checked['bluesky'] += 1
                     print(f"  BS {nombre}: {result}", flush=True)
                     time.sleep(0.2)
@@ -202,7 +212,12 @@ def main():
                 if md and not (args.only_missing and ws.cell(row, C_MD_A).value):
                     result = mastodon_last_post(md)
                     if result is not None:
-                        ws.cell(row, C_MD_A).value = result
+                        ws.cell(row, C_MD_CONSULTA).value = today
+                        if result == '404':
+                            ws.cell(row, C_MD_ESTADO).value = '404'
+                        else:
+                            ws.cell(row, C_MD_A).value = result
+                            ws.cell(row, C_MD_ESTADO).value = None
                         checked['mastodon'] += 1
                     print(f"  MD {nombre}: {result}", flush=True)
                     time.sleep(0.2)

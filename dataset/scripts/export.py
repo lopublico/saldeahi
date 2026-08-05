@@ -134,10 +134,13 @@ def build_total(ws, rows_by_cat, refs):
                 "categoria": cat, "subcategoria": sub, "nombre": s(ws,r,C_NOMBRE),
                 "twitter": s(ws,r,C_TW),
                 "twitter_activo": is_active(fmt_date(v(ws,r,C_TW_A)), tw_ref),
+                "twitter_fecha": fmt_date(v(ws,r,C_TW_A)),
                 "bluesky": s(ws,r,C_BS),
                 "bluesky_activo": is_active(fmt_date(v(ws,r,C_BS_A)), bs_ref),
+                "bluesky_fecha": fmt_date(v(ws,r,C_BS_A)),
                 "mastodon": s(ws,r,C_MD),
                 "mastodon_activo": is_active(fmt_date(v(ws,r,C_MD_A)), md_ref),
+                "mastodon_fecha": fmt_date(v(ws,r,C_MD_A)),
             })
     return result
 
