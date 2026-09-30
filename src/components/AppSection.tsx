@@ -281,6 +281,7 @@ const MobileCard = ({ item }: { item: any }) => (
 
 const TABS = [
   { value: "total",          label: "Total",                  group: "todas"   },
+  const isFirstRender = useRef(true);
   { value: "gobierno",       label: "Gobierno",               group: "estado"  },
   { value: "administracion", label: "Administración",         group: "estado"  },
   { value: "organismos",     label: "Organismos públicos",    group: "estado"  },
@@ -307,6 +308,10 @@ function CategoryTabs({ items, active, onSelect }: {
     const { scrollLeft, scrollWidth, clientWidth } = el;
     setShowLeftIndicator(scrollLeft > 2);
     setShowRightIndicator(scrollWidth - clientWidth - scrollLeft > 2);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
   };
 
   useEffect(() => {
@@ -328,7 +333,10 @@ function CategoryTabs({ items, active, onSelect }: {
     if (!el) return;
     const activeBtn = el.querySelector('[aria-selected="true"]');
     if (activeBtn) {
-      activeBtn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+      const btnRect = activeBtn.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+      const targetLeft = el.scrollLeft + (btnRect.left - elRect.left) - (elRect.width / 2) + (btnRect.width / 2);
+      el.scrollTo({ left: Math.max(0, targetLeft), behavior: "smooth" });
     }
   }, [active]);
 
