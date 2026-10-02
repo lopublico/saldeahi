@@ -280,15 +280,15 @@ export function JoinRequestModal({ item, open, onOpenChange }: JoinRequestModalP
 
           {/* Ficha de la entidad */}
           <div className="mt-3 p-3 rounded-md bg-muted/60 border border-border/70 space-y-1.5">
-            <div className="flex items-start justify-between gap-2">
-              <div>
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div className="min-w-0">
                 <div className="font-semibold text-sm leading-tight text-foreground">{item.nombre}</div>
                 <div className="text-xs text-muted-foreground font-mono mt-0.5">
                   {item.categoria}
                   {item.grupoFull ? ` · ${item.grupoFull}` : item.detalle ? ` · ${item.detalle}` : ""}
                 </div>
               </div>
-              <div className="flex items-center gap-1 shrink-0 font-mono text-[10px]">
+              <div className="flex flex-wrap items-center gap-1 max-w-full font-mono text-[10px] break-all">
                 <span className={`px-1.5 py-0.5 rounded ${hasTwitter ? "bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 font-semibold" : "bg-muted text-muted-foreground border border-dashed border-border"}`}>
                   {hasTwitter ? `@${item.twitter}` : "Sin 𝕏"}
                 </span>
@@ -330,12 +330,12 @@ export function JoinRequestModal({ item, open, onOpenChange }: JoinRequestModalP
 
         {/* Selector de canal */}
         <div className="pt-2">
-          <div className="flex items-center gap-1 border-b border-border pb-2 text-xs font-mono">
+          <div className="flex flex-wrap items-center gap-1 border-b border-border pb-2 text-xs font-mono">
             {showTwitterTab && (
               <button
                 type="button"
                 onClick={() => setActiveTab("tweet")}
-                className={`px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5 whitespace-nowrap ${
                   activeTab === "tweet"
                     ? "bg-foreground text-background font-semibold"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -351,7 +351,7 @@ export function JoinRequestModal({ item, open, onOpenChange }: JoinRequestModalP
               <button
                 type="button"
                 onClick={() => setActiveTab("bsky")}
-                className={`px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5 whitespace-nowrap ${
                   activeTab === "bsky"
                     ? "bg-foreground text-background font-semibold"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -367,7 +367,7 @@ export function JoinRequestModal({ item, open, onOpenChange }: JoinRequestModalP
               <button
                 type="button"
                 onClick={() => setActiveTab("email")}
-                className={`px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5 whitespace-nowrap ${
                   activeTab === "email"
                     ? "bg-foreground text-background font-semibold"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -383,7 +383,7 @@ export function JoinRequestModal({ item, open, onOpenChange }: JoinRequestModalP
           {/* ── Pestaña 1: Tuit en 𝕏 ── */}
           {activeTab === "tweet" && showTwitterTab && (
             <div className="space-y-3 pt-3">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-xs text-muted-foreground">
                 <span>
                   Mencionando a <strong className="text-foreground font-mono">@{item.twitter}</strong>
                 </span>
@@ -428,7 +428,7 @@ export function JoinRequestModal({ item, open, onOpenChange }: JoinRequestModalP
           {/* ── Pestaña 2: Publicar en Bluesky ── */}
           {activeTab === "bsky" && showBlueskyTab && (
             <div className="space-y-3 pt-3">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1.5 flex-wrap">
                   <span>Mencionando a</span>
                   <strong className="text-foreground font-mono">@{item.bluesky}</strong>
@@ -492,10 +492,10 @@ export function JoinRequestModal({ item, open, onOpenChange }: JoinRequestModalP
           {activeTab === "email" && showEmailTab && (
             <div className="space-y-3 pt-3">
               {hasEmail ? (
-                <div className="flex items-center justify-between text-xs p-2 rounded bg-muted/50 border border-border">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs p-2 rounded bg-muted/50 border border-border">
                   <div className="flex items-center gap-1.5">
                     <span className="text-muted-foreground font-mono">Para:</span>
-                    <strong className="font-mono text-foreground text-[11.5px]">{item.email}</strong>
+                    <strong className="font-mono text-foreground text-[11.5px] break-all">{item.email}</strong>
                   </div>
                   <Button
                     type="button"

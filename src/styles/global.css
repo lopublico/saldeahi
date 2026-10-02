@@ -279,3 +279,7 @@
 /* Regla horizontal del sistema editorial */
 .sd-rule { border: none; border-top: 1px solid var(--sd-fg-2); }
 .sd-rule.thin { border-top-color: var(--sd-line); }
+/* Objetivos táctiles: en pantallas táctiles, los enlaces pequeños del pie ganan área pulsable */
+@media (pointer: coarse) {
+  .lo-footer a { padding-block: 8px; }
+}

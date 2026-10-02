@@ -323,7 +323,7 @@ const MobileCard = ({ item }: { item: any }) => (
     {item.detalle && (
       <div className="sd-card-detail">{item.categoria} · {item.grupoShort ?? item.detalle}</div>
     )}
-    <div className="flex items-center justify-between mt-3">
+    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mt-3">
       <div className="flex items-center gap-1.5">
         {(["twitter", "bluesky", "mastodon"] as const).map((key) => (
           <PlatformBadge key={key} {...badgeProps(item, key)} />

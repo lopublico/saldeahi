@@ -820,7 +820,7 @@ function kpiDash(p: number) {
       <!-- Congreso -->
       <div id="parl-panel-congreso" class="parl-panel">
         <div class="datos-callout mb-6">
-          <p class="datos-callout-text">El grupo parlamentario predice con gran precisión la adopción de Bluesky en el Congreso: desde el <strong>{bskyMaxGrupo.pctBsky}%</strong> en <strong>{bskyMaxGrupo.label}</strong> y el <strong>{pct(congresoGruposMap['EH Bildu']?.conBluesky ?? 0, congresoGruposMap['EH Bildu']?.base ?? 1)}%</strong> en <strong>EH Bildu</strong>, hasta el <strong>0%</strong> en las bancadas de VOX y PP.</p>
+          <p class="datos-callout-text">El grupo parlamentario predice con gran precisión la adopción de Bluesky en el Congreso: desde el <strong>{bskyMaxGrupo.pctBsky}%</strong> en <strong>{bskyMaxGrupo.label}</strong> y el <strong>{pct(congresoGruposMap['EH Bildu']?.conBluesky ?? 0, (congresoGruposMap['EH Bildu']?.total ?? 1) - (congresoGruposMap['EH Bildu']?.sinNinguna ?? 0))}%</strong> en <strong>EH Bildu</strong>, hasta el <strong>0%</strong> en las bancadas de VOX y PP.</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-[1.45fr_1fr] gap-6 items-start">
@@ -1647,11 +1647,11 @@ function kpiDash(p: number) {
   line-height: 1.6;
 }
 
-.dist-bar-row   { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 6px; }
+.dist-bar-row   { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 16px; margin-bottom: 6px; }
 .dist-bar-label { font-family: var(--font-sans); font-size: 13.5px; font-weight: 500; color: var(--sd-fg-2); }
 .dist-bar-label--alert { color: var(--sd-rose-pink); }
 .dist-bar-label-note { font-weight: 400; color: var(--sd-muted); font-size: 12.5px; }
-.dist-bar-stats { font-size: 11.5px; font-family: var(--font-mono); color: var(--sd-muted); flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.dist-bar-stats { font-size: 11.5px; font-family: var(--font-mono); color: var(--sd-muted); font-variant-numeric: tabular-nums; }
 
 .dist-bar-track {
   display: flex;
@@ -1914,6 +1914,8 @@ function kpiDash(p: number) {
 
 .datos-toggle {
   display: inline-flex;
+  max-width: 100%;
+  flex-wrap: wrap;
   align-items: center;
   gap: 4px;
   background: var(--muted);
@@ -1924,6 +1926,8 @@ function kpiDash(p: number) {
 
 .datos-toggle-btn {
   display: block;
+  white-space: nowrap;
+  flex: 0 0 auto;
   padding: 4px 12px;
   font-family: var(--font-sans);
   font-size: 12px;
