@@ -21,6 +21,7 @@ Tras actualizar, ejecutar:
     python3 dataset/scripts/infer_social.py --bluesky       # gratis
     python3 dataset/scripts/infer_social.py --twitter       # coste API
     python3 dataset/scripts/export.py
+    python3 dataset/scripts/historico.py --fecha AAAA-MM-DD   # registra altas/bajas (fecha del cambio)
 """
 
 import sys, os, json, argparse, unicodedata, re
@@ -235,6 +236,7 @@ Siguiente paso recomendado:
   1. python3 dataset/scripts/infer_social.py --bluesky        # gratis
   2. python3 dataset/scripts/infer_social.py --twitter        # ⚠️ coste API
   3. python3 dataset/scripts/export.py
+  4. python3 dataset/scripts/historico.py --fecha AAAA-MM-DD   # registra altas/bajas en el histórico
 """)
 
 if __name__ == "__main__":

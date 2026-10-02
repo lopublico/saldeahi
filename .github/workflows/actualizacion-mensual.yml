@@ -31,6 +31,9 @@ jobs:
       - name: Comprobar actividad en Bluesky
         run: python3 dataset/scripts/check_activity.py --bluesky
 
+      - name: Resolver DID y PDS de Bluesky (detecta Eurosky)
+        run: python3 dataset/scripts/resolve_pds.py
+
       - name: Comprobar actividad en Mastodon
         run: python3 dataset/scripts/check_activity.py --mastodon
 
@@ -68,11 +71,8 @@ jobs:
       - name: Exportar a JSON
         run: python3 dataset/scripts/export.py
 
-      - name: Guardar snapshot histórico
-        run: |
-          DATE=$(date -u +%Y-%m-01)
-          mkdir -p dataset/historical
-          cp src/data/total.json "dataset/historical/${DATE}.json"
+      - name: Guardar snapshot histórico y registrar cambios
+        run: python3 dataset/scripts/historico.py --mensual --fecha "$(date -u +%Y-%m-01)"
 
       - name: Commit y push
         run: |

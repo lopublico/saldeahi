@@ -21,6 +21,7 @@ DATA_DIR    = os.path.join(ROOT_DIR, "src", "data")
 C_CAT=1; C_NOMBRE=2; C_TW=3; C_TW_A=4; C_BS=5; C_BS_A=6
 C_MD=7; C_MD_A=8; C_EMAIL=9; C_DETALLE=10; C_TIPO=11
 C_GRUPO=12; C_CIRCUN=13; C_CCAA=14; C_PARTIDO=15
+C_BS_PDS=24
 
 def fmt_date(val):
     if val is None: return None
@@ -68,6 +69,14 @@ def s(ws, row, col):
     if val is None: return None
     r = str(val).strip()
     return r if r else None
+
+def is_eurosky(ws, row):
+    """Una cuenta es Eurosky si su PDS (resuelto por DID) es eurosky.social,
+    sea cual sea el handle (p. ej. un dominio .es propio)."""
+    pds = s(ws, row, C_BS_PDS)
+    if pds and (pds == "eurosky.social" or pds.endswith(".eurosky.social")): return True
+    bs = s(ws, row, C_BS)
+    return bool(bs) and bs.lower().endswith(".eurosky.social")
 
 def build_age(ws, rows):
     return [{"nombre": s(ws,r,C_NOMBRE), "categoria": s(ws,r,C_DETALLE),
@@ -138,6 +147,7 @@ def build_total(ws, rows_by_cat, refs):
                 "bluesky": s(ws,r,C_BS),
                 "bluesky_activo": is_active(fmt_date(v(ws,r,C_BS_A)), bs_ref),
                 "bluesky_fecha": fmt_date(v(ws,r,C_BS_A)),
+                "bluesky_eurosky": is_eurosky(ws, r),
                 "mastodon": s(ws,r,C_MD),
                 "mastodon_activo": is_active(fmt_date(v(ws,r,C_MD_A)), md_ref),
                 "mastodon_fecha": fmt_date(v(ws,r,C_MD_A)),
@@ -171,6 +181,8 @@ def main():
     os.makedirs(DATA_DIR, exist_ok=True)
     for cat, (fname, builder) in CATEGORY_MAP.items():
         data = builder(ws, rows_by_cat[cat])
+        for item, r in zip(data, rows_by_cat[cat]):
+            if is_eurosky(ws, r): item["bluesky_eurosky"] = True
         dest = os.path.join(DATA_DIR, fname)
         print(f"  {fname}: {len(data)} entradas" + ("" if dry else f"  → {dest}"))
         if not dry:

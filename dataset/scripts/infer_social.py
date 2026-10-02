@@ -277,44 +277,53 @@ def load_cr():
 
 # ── FETCH ─────────────────────────────────────────────────────────────────────
 def fetch_all(args):
+    # BUG (corregido): esta función hacía fetch de Bluesky Y Twitter siempre,
+    # ignorando los flags --bluesky/--twitter. Twitter usa GetXAPI, que tiene
+    # coste por llamada, así que debe ser estrictamente opt-in.
+    if not (args.bluesky or args.twitter):
+        print("Ningún flag de fetch indicado (--bluesky / --twitter). No se hace nada.")
+        return
+
     session = tw_session()
 
-    # Bluesky follows
-    bsky_cache = DATA_DIR / "bsky_follows.json"
-    print("── Bluesky follows ──────────────────────────────────────────────")
-    bsky_all = {}
-    for seed in BSKY_SEEDS:
-        print(f"  {seed} …", end=" ", flush=True)
-        fl = bsky_get_follows(seed)
-        bsky_all[seed] = [
-            {"handle": f.get("handle", ""),
-             "displayName": f.get("displayName", ""),
-             "description": (f.get("description") or "")[:300]}
-            for f in fl
-        ]
-        print(len(fl))
-        time.sleep(0.5)
-    with open(bsky_cache, "w", encoding="utf-8") as f:
-        json.dump(bsky_all, f, ensure_ascii=False, indent=2)
-    print(f"  → guardado en {bsky_cache}")
+    if args.bluesky:
+        # Bluesky follows
+        bsky_cache = DATA_DIR / "bsky_follows.json"
+        print("── Bluesky follows ──────────────────────────────────────────────")
+        bsky_all = {}
+        for seed in BSKY_SEEDS:
+            print(f"  {seed} …", end=" ", flush=True)
+            fl = bsky_get_follows(seed)
+            bsky_all[seed] = [
+                {"handle": f.get("handle", ""),
+                 "displayName": f.get("displayName", ""),
+                 "description": (f.get("description") or "")[:300]}
+                for f in fl
+            ]
+            print(len(fl))
+            time.sleep(0.5)
+        with open(bsky_cache, "w", encoding="utf-8") as f:
+            json.dump(bsky_all, f, ensure_ascii=False, indent=2)
+        print(f"  → guardado en {bsky_cache}")
 
-    # Twitter following
-    tw_cache = DATA_DIR / "tw_following.json"
-    print("\n── Twitter following ────────────────────────────────────────────")
-    tw_all = {}
-    for seed in TW_SEEDS:
-        print(f"  @{seed} …", end=" ", flush=True)
-        fl = tw_get_following(session, seed)
-        tw_all[seed] = [
-            {"userName": f.get("userName", ""),
-             "name": f.get("name", ""),
-             "description": (f.get("description") or "")[:300]}
-            for f in fl
-        ]
-        print(len(fl))
-        time.sleep(0.7)
-    with open(tw_cache, "w", encoding="utf-8") as f:
-        json.dump(tw_all, f, ensure_ascii=False, indent=2)
+    if args.twitter:
+        # Twitter following
+        tw_cache = DATA_DIR / "tw_following.json"
+        print("\n── Twitter following ────────────────────────────────────────────")
+        tw_all = {}
+        for seed in TW_SEEDS:
+            print(f"  @{seed} …", end=" ", flush=True)
+            fl = tw_get_following(session, seed)
+            tw_all[seed] = [
+                {"userName": f.get("userName", ""),
+                 "name": f.get("name", ""),
+                 "description": (f.get("description") or "")[:300]}
+                for f in fl
+            ]
+            print(len(fl))
+            time.sleep(0.7)
+        with open(tw_cache, "w", encoding="utf-8") as f:
+            json.dump(tw_all, f, ensure_ascii=False, indent=2)
     print(f"  → guardado en {tw_cache}")
 
     # Verificación individual de handles dudosos

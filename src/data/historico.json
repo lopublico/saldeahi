@@ -1,0 +1,801 @@
+{
+  "generado": "2026-10-02",
+  "serie": [
+    {
+      "fecha": "2026-06-01",
+      "categorias": {
+        "AGE": {
+          "entidades": 42,
+          "twitter": 42,
+          "twitter_activo": 39,
+          "bluesky": 28,
+          "bluesky_activo": 20,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Autonomías": {
+          "entidades": 57,
+          "twitter": 52,
+          "twitter_activo": 47,
+          "bluesky": 9,
+          "bluesky_activo": 2,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Gobierno": {
+          "entidades": 23,
+          "twitter": 21,
+          "twitter_activo": 16,
+          "bluesky": 15,
+          "bluesky_activo": 11,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Congreso": {
+          "entidades": 352,
+          "twitter": 321,
+          "twitter_activo": 279,
+          "bluesky": 86,
+          "bluesky_activo": 18,
+          "mastodon": 2,
+          "mastodon_activo": 1,
+          "eurosky": 0
+        },
+        "Senado": {
+          "entidades": 266,
+          "twitter": 188,
+          "twitter_activo": 152,
+          "bluesky": 31,
+          "bluesky_activo": 4,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Partidos": {
+          "entidades": 29,
+          "twitter": 29,
+          "twitter_activo": 25,
+          "bluesky": 18,
+          "bluesky_activo": 9,
+          "mastodon": 1,
+          "mastodon_activo": 1,
+          "eurosky": 0
+        },
+        "Universidades": {
+          "entidades": 50,
+          "twitter": 50,
+          "twitter_activo": 32,
+          "bluesky": 44,
+          "bluesky_activo": 31,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        }
+      }
+    },
+    {
+      "fecha": "2026-07-01",
+      "categorias": {
+        "AGE": {
+          "entidades": 42,
+          "twitter": 42,
+          "twitter_activo": 40,
+          "bluesky": 28,
+          "bluesky_activo": 19,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Autonomías": {
+          "entidades": 57,
+          "twitter": 52,
+          "twitter_activo": 49,
+          "bluesky": 9,
+          "bluesky_activo": 2,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Gobierno": {
+          "entidades": 23,
+          "twitter": 20,
+          "twitter_activo": 16,
+          "bluesky": 15,
+          "bluesky_activo": 11,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Congreso": {
+          "entidades": 352,
+          "twitter": 321,
+          "twitter_activo": 282,
+          "bluesky": 86,
+          "bluesky_activo": 30,
+          "mastodon": 2,
+          "mastodon_activo": 2,
+          "eurosky": 0
+        },
+        "Senado": {
+          "entidades": 266,
+          "twitter": 188,
+          "twitter_activo": 159,
+          "bluesky": 31,
+          "bluesky_activo": 6,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Partidos": {
+          "entidades": 29,
+          "twitter": 29,
+          "twitter_activo": 26,
+          "bluesky": 18,
+          "bluesky_activo": 9,
+          "mastodon": 1,
+          "mastodon_activo": 1,
+          "eurosky": 0
+        },
+        "Universidades": {
+          "entidades": 50,
+          "twitter": 50,
+          "twitter_activo": 32,
+          "bluesky": 44,
+          "bluesky_activo": 34,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        }
+      }
+    },
+    {
+      "fecha": "2026-08-01",
+      "categorias": {
+        "AGE": {
+          "entidades": 294,
+          "twitter": 225,
+          "twitter_activo": 198,
+          "bluesky": 82,
+          "bluesky_activo": 58,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Órganos del Estado": {
+          "entidades": 10,
+          "twitter": 8,
+          "twitter_activo": 8,
+          "bluesky": 2,
+          "bluesky_activo": 2,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Autonomías": {
+          "entidades": 371,
+          "twitter": 266,
+          "twitter_activo": 224,
+          "bluesky": 16,
+          "bluesky_activo": 7,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Gobierno": {
+          "entidades": 23,
+          "twitter": 20,
+          "twitter_activo": 16,
+          "bluesky": 15,
+          "bluesky_activo": 11,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Congreso": {
+          "entidades": 352,
+          "twitter": 321,
+          "twitter_activo": 284,
+          "bluesky": 86,
+          "bluesky_activo": 26,
+          "mastodon": 2,
+          "mastodon_activo": 1,
+          "eurosky": 0
+        },
+        "Senado": {
+          "entidades": 266,
+          "twitter": 188,
+          "twitter_activo": 152,
+          "bluesky": 31,
+          "bluesky_activo": 4,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Partidos": {
+          "entidades": 29,
+          "twitter": 29,
+          "twitter_activo": 26,
+          "bluesky": 18,
+          "bluesky_activo": 8,
+          "mastodon": 1,
+          "mastodon_activo": 1,
+          "eurosky": 0
+        },
+        "Universidades": {
+          "entidades": 50,
+          "twitter": 50,
+          "twitter_activo": 33,
+          "bluesky": 45,
+          "bluesky_activo": 34,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        }
+      }
+    },
+    {
+      "fecha": "2026-09-01",
+      "categorias": {
+        "AGE": {
+          "entidades": 294,
+          "twitter": 225,
+          "twitter_activo": 196,
+          "bluesky": 82,
+          "bluesky_activo": 52,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Órganos del Estado": {
+          "entidades": 10,
+          "twitter": 8,
+          "twitter_activo": 8,
+          "bluesky": 2,
+          "bluesky_activo": 2,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Autonomías": {
+          "entidades": 371,
+          "twitter": 266,
+          "twitter_activo": 210,
+          "bluesky": 16,
+          "bluesky_activo": 6,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Gobierno": {
+          "entidades": 23,
+          "twitter": 20,
+          "twitter_activo": 16,
+          "bluesky": 15,
+          "bluesky_activo": 10,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Congreso": {
+          "entidades": 352,
+          "twitter": 321,
+          "twitter_activo": 268,
+          "bluesky": 86,
+          "bluesky_activo": 22,
+          "mastodon": 2,
+          "mastodon_activo": 1,
+          "eurosky": 0
+        },
+        "Senado": {
+          "entidades": 266,
+          "twitter": 188,
+          "twitter_activo": 144,
+          "bluesky": 31,
+          "bluesky_activo": 2,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Partidos": {
+          "entidades": 29,
+          "twitter": 29,
+          "twitter_activo": 25,
+          "bluesky": 18,
+          "bluesky_activo": 7,
+          "mastodon": 1,
+          "mastodon_activo": 1,
+          "eurosky": 0
+        },
+        "Universidades": {
+          "entidades": 50,
+          "twitter": 50,
+          "twitter_activo": 30,
+          "bluesky": 45,
+          "bluesky_activo": 30,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        }
+      }
+    },
+    {
+      "fecha": "2026-10-01",
+      "categorias": {
+        "AGE": {
+          "entidades": 294,
+          "twitter": 225,
+          "twitter_activo": 200,
+          "bluesky": 82,
+          "bluesky_activo": 58,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Órganos del Estado": {
+          "entidades": 10,
+          "twitter": 8,
+          "twitter_activo": 8,
+          "bluesky": 2,
+          "bluesky_activo": 2,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Autonomías": {
+          "entidades": 371,
+          "twitter": 266,
+          "twitter_activo": 224,
+          "bluesky": 16,
+          "bluesky_activo": 7,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Gobierno": {
+          "entidades": 23,
+          "twitter": 20,
+          "twitter_activo": 16,
+          "bluesky": 15,
+          "bluesky_activo": 12,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Congreso": {
+          "entidades": 352,
+          "twitter": 321,
+          "twitter_activo": 279,
+          "bluesky": 86,
+          "bluesky_activo": 26,
+          "mastodon": 2,
+          "mastodon_activo": 1,
+          "eurosky": 0
+        },
+        "Senado": {
+          "entidades": 266,
+          "twitter": 188,
+          "twitter_activo": 155,
+          "bluesky": 31,
+          "bluesky_activo": 3,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Partidos": {
+          "entidades": 29,
+          "twitter": 29,
+          "twitter_activo": 27,
+          "bluesky": 18,
+          "bluesky_activo": 8,
+          "mastodon": 1,
+          "mastodon_activo": 1,
+          "eurosky": 0
+        },
+        "Universidades": {
+          "entidades": 50,
+          "twitter": 50,
+          "twitter_activo": 32,
+          "bluesky": 45,
+          "bluesky_activo": 35,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        }
+      }
+    },
+    {
+      "fecha": "2026-10-02",
+      "categorias": {
+        "AGE": {
+          "entidades": 294,
+          "twitter": 225,
+          "twitter_activo": 200,
+          "bluesky": 82,
+          "bluesky_activo": 58,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Gobierno": {
+          "entidades": 23,
+          "twitter": 19,
+          "twitter_activo": 15,
+          "bluesky": 15,
+          "bluesky_activo": 12,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Congreso": {
+          "entidades": 352,
+          "twitter": 319,
+          "twitter_activo": 276,
+          "bluesky": 86,
+          "bluesky_activo": 26,
+          "mastodon": 2,
+          "mastodon_activo": 1,
+          "eurosky": 0
+        },
+        "Senado": {
+          "entidades": 266,
+          "twitter": 189,
+          "twitter_activo": 150,
+          "bluesky": 30,
+          "bluesky_activo": 3,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Partidos": {
+          "entidades": 29,
+          "twitter": 29,
+          "twitter_activo": 27,
+          "bluesky": 18,
+          "bluesky_activo": 8,
+          "mastodon": 1,
+          "mastodon_activo": 1,
+          "eurosky": 0
+        },
+        "Autonomías": {
+          "entidades": 371,
+          "twitter": 266,
+          "twitter_activo": 224,
+          "bluesky": 16,
+          "bluesky_activo": 7,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Universidades": {
+          "entidades": 50,
+          "twitter": 50,
+          "twitter_activo": 32,
+          "bluesky": 45,
+          "bluesky_activo": 35,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        },
+        "Órganos del Estado": {
+          "entidades": 10,
+          "twitter": 8,
+          "twitter_activo": 8,
+          "bluesky": 2,
+          "bluesky_activo": 2,
+          "mastodon": 0,
+          "mastodon_activo": 0,
+          "eurosky": 0
+        }
+      }
+    }
+  ],
+  "cambios": [
+    {
+      "fecha": "2026-08-01",
+      "precision": "mensual",
+      "categoria": "AGE",
+      "nombre": null,
+      "evento": "cobertura",
+      "detalle": "Ampliación de cobertura: +254 entidades"
+    },
+    {
+      "fecha": "2026-08-01",
+      "precision": "mensual",
+      "categoria": "AGE",
+      "nombre": "Agencia Española de Meteorología (AEMET)",
+      "evento": "baja",
+      "detalle": "Organismo Autónomo"
+    },
+    {
+      "fecha": "2026-08-01",
+      "precision": "mensual",
+      "categoria": "AGE",
+      "nombre": "Instituto Geográfico Nacional (IGN)",
+      "evento": "baja",
+      "detalle": "Organismo Autónomo"
+    },
+    {
+      "fecha": "2026-08-01",
+      "precision": "mensual",
+      "categoria": "Autonomías",
+      "nombre": null,
+      "evento": "cobertura",
+      "detalle": "Ampliación de cobertura: +314 entidades"
+    },
+    {
+      "fecha": "2026-08-01",
+      "precision": "mensual",
+      "categoria": "Órganos del Estado",
+      "nombre": null,
+      "evento": "cobertura",
+      "detalle": "La categoría se incorpora al dataset"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Congreso",
+      "nombre": "Bondía Pinós, María Elena",
+      "evento": "alta",
+      "detalle": "Diputado/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Congreso",
+      "nombre": "Marín Aparicio, Inmaculada",
+      "evento": "alta",
+      "detalle": "Diputado/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Congreso",
+      "nombre": "Montero Cuadrado, María Jesús",
+      "evento": "baja",
+      "detalle": "Diputado/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Congreso",
+      "nombre": "Navarro López, Pedro",
+      "evento": "baja",
+      "detalle": "Diputado/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Congreso",
+      "nombre": "Pachón Martín, Brígida",
+      "evento": "alta",
+      "detalle": "Diputado/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Congreso",
+      "nombre": "Romaní Cantera, José Ignacio",
+      "evento": "baja",
+      "detalle": "Diputado/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Congreso",
+      "nombre": "Taboadela Álvarez, Obdulia",
+      "evento": "baja",
+      "detalle": "Diputado/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Congreso",
+      "nombre": "Taibo Monelos, Diego",
+      "evento": "alta",
+      "detalle": "Diputado/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Gobierno",
+      "nombre": "Arcadi España García",
+      "evento": "alta",
+      "detalle": "Ministro de Hacienda"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Gobierno",
+      "nombre": "Carlos Cuerpo Caballero",
+      "evento": "cargo",
+      "detalle": "Ministro de Economía, Comercio y Empresa → Vicepresidente 1º y Ministro de Economía, Comercio y Empresa"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Gobierno",
+      "nombre": "María Jesús Montero Cuadrado",
+      "evento": "baja",
+      "detalle": "Vicepresidenta 1ª y Ministra de Hacienda"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Aguirre Muñoz, Jesús Ramón",
+      "evento": "alta",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Alonso Coronel, Javier Valentín",
+      "evento": "alta",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Caicedo Bernabé, Jesús",
+      "evento": "baja",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Castel Fort, Laura",
+      "evento": "baja",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Ferrer Martínez, Juanjo",
+      "evento": "baja",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "González Fernández, Víctor",
+      "evento": "baja",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Gordillo Moreno, Ángel Pelayo",
+      "evento": "alta",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Guía Marqués, Rafael",
+      "evento": "alta",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Gómez Enríquez, Paloma",
+      "evento": "baja",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Hernández Rodríguez, Inmaculada",
+      "evento": "baja",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Massanet Florit, Neus",
+      "evento": "alta",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Montero Cuadrado, María Jesús",
+      "evento": "alta",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Oblaré Torres, Francisco Javier",
+      "evento": "alta",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Pastor Pérez-Angulo, María Auxiliadora",
+      "evento": "alta",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Pérez Esteban, María Teresa",
+      "evento": "baja",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Pérez Galindo, Virginia",
+      "evento": "alta",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Reniu Vilamala, Josep Maria",
+      "evento": "alta",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Rodríguez-Comendador Pérez, Luis Rogelio",
+      "evento": "baja",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Ruiz-Sillero Bernal, María Teresa",
+      "evento": "baja",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Suárez Lamata, Eloy",
+      "evento": "baja",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Yeves Leal, Lucía",
+      "evento": "baja",
+      "detalle": "Senador/a"
+    },
+    {
+      "fecha": "2026-10-02",
+      "precision": "deteccion",
+      "categoria": "Senado",
+      "nombre": "Zancajo Fenoll, Álvaro",
+      "evento": "alta",
+      "detalle": "Senador/a"
+    }
+  ]
+}

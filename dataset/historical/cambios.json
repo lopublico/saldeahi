@@ -1,0 +1,306 @@
+[
+  {
+    "fecha": "2026-08-01",
+    "precision": "mensual",
+    "categoria": "AGE",
+    "nombre": null,
+    "evento": "cobertura",
+    "detalle": "Ampliación de cobertura: +254 entidades"
+  },
+  {
+    "fecha": "2026-08-01",
+    "precision": "mensual",
+    "categoria": "AGE",
+    "nombre": "Agencia Española de Meteorología (AEMET)",
+    "evento": "baja",
+    "detalle": "Organismo Autónomo"
+  },
+  {
+    "fecha": "2026-08-01",
+    "precision": "mensual",
+    "categoria": "AGE",
+    "nombre": "Instituto Geográfico Nacional (IGN)",
+    "evento": "baja",
+    "detalle": "Organismo Autónomo"
+  },
+  {
+    "fecha": "2026-08-01",
+    "precision": "mensual",
+    "categoria": "Autonomías",
+    "nombre": null,
+    "evento": "cobertura",
+    "detalle": "Ampliación de cobertura: +314 entidades"
+  },
+  {
+    "fecha": "2026-08-01",
+    "precision": "mensual",
+    "categoria": "Órganos del Estado",
+    "nombre": null,
+    "evento": "cobertura",
+    "detalle": "La categoría se incorpora al dataset"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Congreso",
+    "nombre": "Bondía Pinós, María Elena",
+    "evento": "alta",
+    "detalle": "Diputado/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Congreso",
+    "nombre": "Marín Aparicio, Inmaculada",
+    "evento": "alta",
+    "detalle": "Diputado/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Congreso",
+    "nombre": "Montero Cuadrado, María Jesús",
+    "evento": "baja",
+    "detalle": "Diputado/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Congreso",
+    "nombre": "Navarro López, Pedro",
+    "evento": "baja",
+    "detalle": "Diputado/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Congreso",
+    "nombre": "Pachón Martín, Brígida",
+    "evento": "alta",
+    "detalle": "Diputado/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Congreso",
+    "nombre": "Romaní Cantera, José Ignacio",
+    "evento": "baja",
+    "detalle": "Diputado/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Congreso",
+    "nombre": "Taboadela Álvarez, Obdulia",
+    "evento": "baja",
+    "detalle": "Diputado/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Congreso",
+    "nombre": "Taibo Monelos, Diego",
+    "evento": "alta",
+    "detalle": "Diputado/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Gobierno",
+    "nombre": "Arcadi España García",
+    "evento": "alta",
+    "detalle": "Ministro de Hacienda"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Gobierno",
+    "nombre": "Carlos Cuerpo Caballero",
+    "evento": "cargo",
+    "detalle": "Ministro de Economía, Comercio y Empresa → Vicepresidente 1º y Ministro de Economía, Comercio y Empresa"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Gobierno",
+    "nombre": "María Jesús Montero Cuadrado",
+    "evento": "baja",
+    "detalle": "Vicepresidenta 1ª y Ministra de Hacienda"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Aguirre Muñoz, Jesús Ramón",
+    "evento": "alta",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Alonso Coronel, Javier Valentín",
+    "evento": "alta",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Caicedo Bernabé, Jesús",
+    "evento": "baja",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Castel Fort, Laura",
+    "evento": "baja",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Ferrer Martínez, Juanjo",
+    "evento": "baja",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "González Fernández, Víctor",
+    "evento": "baja",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Gordillo Moreno, Ángel Pelayo",
+    "evento": "alta",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Guía Marqués, Rafael",
+    "evento": "alta",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Gómez Enríquez, Paloma",
+    "evento": "baja",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Hernández Rodríguez, Inmaculada",
+    "evento": "baja",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Massanet Florit, Neus",
+    "evento": "alta",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Montero Cuadrado, María Jesús",
+    "evento": "alta",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Oblaré Torres, Francisco Javier",
+    "evento": "alta",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Pastor Pérez-Angulo, María Auxiliadora",
+    "evento": "alta",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Pérez Esteban, María Teresa",
+    "evento": "baja",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Pérez Galindo, Virginia",
+    "evento": "alta",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Reniu Vilamala, Josep Maria",
+    "evento": "alta",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Rodríguez-Comendador Pérez, Luis Rogelio",
+    "evento": "baja",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Ruiz-Sillero Bernal, María Teresa",
+    "evento": "baja",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Suárez Lamata, Eloy",
+    "evento": "baja",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Yeves Leal, Lucía",
+    "evento": "baja",
+    "detalle": "Senador/a"
+  },
+  {
+    "fecha": "2026-10-02",
+    "precision": "deteccion",
+    "categoria": "Senado",
+    "nombre": "Zancajo Fenoll, Álvaro",
+    "evento": "alta",
+    "detalle": "Senador/a"
+  }
+]
