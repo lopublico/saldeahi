@@ -529,18 +529,6 @@
   },
   {
     "tipo": "Senador/a",
-    "nombre": "Caicedo Bernabé, Jesús",
-    "grupo": "GPP",
-    "twitter": null,
-    "twitter_activo": null,
-    "bluesky": null,
-    "bluesky_activo": null,
-    "mastodon": null,
-    "mastodon_activo": null,
-    "email": "jesus.caicedo@senado.es"
-  },
-  {
-    "tipo": "Senador/a",
     "nombre": "Camacho Borrego, Francisco Joaquín",
     "grupo": "GPP",
     "twitter": null,
@@ -658,18 +646,6 @@
     "mastodon": null,
     "mastodon_activo": null,
     "email": "secundino.caso@senado.es"
-  },
-  {
-    "tipo": "Senador/a",
-    "nombre": "Castel Fort, Laura",
-    "grupo": "GPERB",
-    "twitter": "lauracastelfort",
-    "twitter_activo": "2026-09-27",
-    "bluesky": "lauracastelfort.bsky.social",
-    "bluesky_activo": "2026-05-29",
-    "mastodon": null,
-    "mastodon_activo": null,
-    "email": "laura.castel@senado.es"
   },
   {
     "tipo": "Senador/a",
@@ -1021,18 +997,6 @@
   },
   {
     "tipo": "Senador/a",
-    "nombre": "Ferrer Martínez, Juanjo",
-    "grupo": "GPIC",
-    "twitter": null,
-    "twitter_activo": null,
-    "bluesky": "juanjoferrer.bsky.social",
-    "bluesky_activo": "2026-03-04",
-    "mastodon": null,
-    "mastodon_activo": null,
-    "email": null
-  },
-  {
-    "tipo": "Senador/a",
     "nombre": "Flores García, María Dolores",
     "grupo": "GPS",
     "twitter": "marilo_flores91",
@@ -1249,18 +1213,6 @@
   },
   {
     "tipo": "Senador/a",
-    "nombre": "González Fernández, Víctor",
-    "grupo": "GPS",
-    "twitter": "victorgf87",
-    "twitter_activo": "2026-05-09",
-    "bluesky": null,
-    "bluesky_activo": null,
-    "mastodon": null,
-    "mastodon_activo": null,
-    "email": null
-  },
-  {
-    "tipo": "Senador/a",
     "nombre": "González Menéndez, Pablo",
     "grupo": "GPP",
     "twitter": "pabloppgijon",
@@ -1357,18 +1309,6 @@
   },
   {
     "tipo": "Senador/a",
-    "nombre": "Gómez Enríquez, Paloma",
-    "grupo": "GPMX",
-    "twitter": "palomagomenri",
-    "twitter_activo": "2026-09-30",
-    "bluesky": null,
-    "bluesky_activo": null,
-    "mastodon": null,
-    "mastodon_activo": null,
-    "email": "pagoenz@icloud.com"
-  },
-  {
-    "tipo": "Senador/a",
     "nombre": "Hernando García, José Manuel",
     "grupo": "GPP",
     "twitter": null,
@@ -1390,18 +1330,6 @@
     "mastodon": null,
     "mastodon_activo": null,
     "email": "paloma.hernandez@senado.es"
-  },
-  {
-    "tipo": "Senador/a",
-    "nombre": "Hernández Rodríguez, Inmaculada",
-    "grupo": "GPP",
-    "twitter": "inmaculadahr",
-    "twitter_activo": "2026-09-30",
-    "bluesky": null,
-    "bluesky_activo": null,
-    "mastodon": null,
-    "mastodon_activo": null,
-    "email": "inmaculada.hernandez@senado.es"
   },
   {
     "tipo": "Senador/a",
@@ -2329,18 +2257,6 @@
   },
   {
     "tipo": "Senador/a",
-    "nombre": "Pérez Esteban, María Teresa",
-    "grupo": "GPS",
-    "twitter": null,
-    "twitter_activo": null,
-    "bluesky": null,
-    "bluesky_activo": null,
-    "mastodon": null,
-    "mastodon_activo": null,
-    "email": "mteresa.perez@senado.es"
-  },
-  {
-    "tipo": "Senador/a",
     "nombre": "Pérez Jiménez, Israel Roberto",
     "grupo": "GPP",
     "twitter": null,
@@ -2446,18 +2362,6 @@
     "mastodon": null,
     "mastodon_activo": null,
     "email": "rafael.rodriguez@senado.es"
-  },
-  {
-    "tipo": "Senador/a",
-    "nombre": "Rodríguez-Comendador Pérez, Luis Rogelio",
-    "grupo": "GPP",
-    "twitter": "lrrcp1",
-    "twitter_activo": "2026-10-01",
-    "bluesky": null,
-    "bluesky_activo": null,
-    "mastodon": null,
-    "mastodon_activo": null,
-    "email": "lrogelio.rodriguez@senado.es"
   },
   {
     "tipo": "Senador/a",
@@ -2590,18 +2494,6 @@
     "mastodon": null,
     "mastodon_activo": null,
     "email": "msantos.ruiz@senado.es"
-  },
-  {
-    "tipo": "Senador/a",
-    "nombre": "Ruiz-Sillero Bernal, María Teresa",
-    "grupo": "GPP",
-    "twitter": "tereruizsillero",
-    "twitter_activo": "2026-09-30",
-    "bluesky": null,
-    "bluesky_activo": null,
-    "mastodon": null,
-    "mastodon_activo": null,
-    "email": "teresa.ruiz-sillero@senado.es"
   },
   {
     "tipo": "Senador/a",
@@ -2818,18 +2710,6 @@
     "mastodon": null,
     "mastodon_activo": null,
     "email": null
-  },
-  {
-    "tipo": "Senador/a",
-    "nombre": "Suárez Lamata, Eloy",
-    "grupo": "GPP",
-    "twitter": "eloysuarezl",
-    "twitter_activo": "2026-06-27",
-    "bluesky": null,
-    "bluesky_activo": null,
-    "mastodon": null,
-    "mastodon_activo": null,
-    "email": "eloy.suarez@senado.es"
   },
   {
     "tipo": "Senador/a",
@@ -3073,18 +2953,6 @@
   },
   {
     "tipo": "Senador/a",
-    "nombre": "Yeves Leal, Lucía",
-    "grupo": "GPP",
-    "twitter": "LuciaYeves",
-    "twitter_activo": "2026-06-25",
-    "bluesky": null,
-    "bluesky_activo": null,
-    "mastodon": null,
-    "mastodon_activo": null,
-    "email": "lucia.yeves@senado.es"
-  },
-  {
-    "tipo": "Senador/a",
     "nombre": "Yécora Roca, Carlos",
     "grupo": "GPP",
     "twitter": "carlosyecora",
@@ -3184,6 +3052,138 @@
     "nombre": "Milián Querol, Juan Bautista",
     "grupo": "GPP",
     "twitter": null,
+    "twitter_activo": null,
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "tipo": "Senador/a",
+    "nombre": "Gordillo Moreno, Ángel Pelayo",
+    "grupo": "GPMX",
+    "twitter": "_angel_pelayo",
+    "twitter_activo": null,
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "tipo": "Senador/a",
+    "nombre": "Guía Marqués, Rafael",
+    "grupo": "GPS",
+    "twitter": "rafaguiamarques",
+    "twitter_activo": null,
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "tipo": "Senador/a",
+    "nombre": "Alonso Coronel, Javier Valentín",
+    "grupo": "GPMX",
+    "twitter": "Coronelvox",
+    "twitter_activo": null,
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "tipo": "Senador/a",
+    "nombre": "Aguirre Muñoz, Jesús Ramón",
+    "grupo": "GPP",
+    "twitter": "jesusraguirre",
+    "twitter_activo": null,
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "tipo": "Senador/a",
+    "nombre": "Massanet Florit, Neus",
+    "grupo": "GPIC",
+    "twitter": "neusmassanet",
+    "twitter_activo": null,
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "tipo": "Senador/a",
+    "nombre": "Montero Cuadrado, María Jesús",
+    "grupo": "GPS",
+    "twitter": "mjmonteroc",
+    "twitter_activo": null,
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "tipo": "Senador/a",
+    "nombre": "Oblaré Torres, Francisco Javier",
+    "grupo": "GPP",
+    "twitter": "oblader",
+    "twitter_activo": null,
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "tipo": "Senador/a",
+    "nombre": "Pastor Pérez-Angulo, María Auxiliadora",
+    "grupo": "GPMX",
+    "twitter": null,
+    "twitter_activo": null,
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "tipo": "Senador/a",
+    "nombre": "Pérez Galindo, Virginia",
+    "grupo": "GPP",
+    "twitter": null,
+    "twitter_activo": null,
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "tipo": "Senador/a",
+    "nombre": "Reniu Vilamala, Josep Maria",
+    "grupo": "GPERB",
+    "twitter": "jmreniu",
+    "twitter_activo": null,
+    "bluesky": "jmreniu.bsky.social",
+    "bluesky_activo": "2026-05-05",
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "tipo": "Senador/a",
+    "nombre": "Zancajo Fenoll, Álvaro",
+    "grupo": "GPMX",
+    "twitter": "Alvaro_Zancajo",
     "twitter_activo": null,
     "bluesky": null,
     "bluesky_activo": null,

@@ -2588,19 +2588,6 @@
   },
   {
     "tipo": "Diputado/a",
-    "nombre": "Montero Cuadrado, María Jesús",
-    "grupo": "Grupo Parlamentario Socialista",
-    "circunscripcion": "Sevilla",
-    "twitter": "mjmonteroc",
-    "twitter_activo": "2026-09-30",
-    "bluesky": null,
-    "bluesky_activo": null,
-    "mastodon": null,
-    "mastodon_activo": null,
-    "email": "mariajesus.montero@congreso.es"
-  },
-  {
-    "tipo": "Diputado/a",
     "nombre": "Montesinos de Miguel, Macarena",
     "grupo": "Grupo Parlamentario Popular en el Congreso",
     "circunscripcion": "Alicante/Alacant",
@@ -2793,19 +2780,6 @@
     "mastodon": null,
     "mastodon_activo": null,
     "email": "carmen.navarro@congreso.es"
-  },
-  {
-    "tipo": "Diputado/a",
-    "nombre": "Navarro López, Pedro",
-    "grupo": "Grupo Parlamentario Popular en el Congreso",
-    "circunscripcion": "Zaragoza",
-    "twitter": "PedroNavarroL",
-    "twitter_activo": "2026-09-02",
-    "bluesky": null,
-    "bluesky_activo": null,
-    "mastodon": null,
-    "mastodon_activo": null,
-    "email": "pedro.navarro@congreso.es"
   },
   {
     "tipo": "Diputado/a",
@@ -3654,19 +3628,6 @@
   },
   {
     "tipo": "Diputado/a",
-    "nombre": "Romaní Cantera, José Ignacio",
-    "grupo": "Grupo Parlamentario Popular en el Congreso",
-    "circunscripcion": "Cádiz",
-    "twitter": "IgnRomani",
-    "twitter_activo": "2026-03-18",
-    "bluesky": null,
-    "bluesky_activo": null,
-    "mastodon": null,
-    "mastodon_activo": null,
-    "email": "ignacio.romani@congreso.es"
-  },
-  {
-    "tipo": "Diputado/a",
     "nombre": "Romero Pozo, Rafaela",
     "grupo": "Grupo Parlamentario Socialista",
     "circunscripcion": "Gipuzkoa",
@@ -4200,19 +4161,6 @@
   },
   {
     "tipo": "Diputado/a",
-    "nombre": "Taboadela Álvarez, Obdulia",
-    "grupo": "Grupo Parlamentario Socialista",
-    "circunscripcion": "Coruña (A)",
-    "twitter": "OTaboadela",
-    "twitter_activo": "2026-09-17",
-    "bluesky": null,
-    "bluesky_activo": null,
-    "mastodon": null,
-    "mastodon_activo": null,
-    "email": "obdulia.taboadela@congreso.es"
-  },
-  {
-    "tipo": "Diputado/a",
     "nombre": "Tarno Blanco, Ricardo",
     "grupo": "Grupo Parlamentario Popular en el Congreso",
     "circunscripcion": "Sevilla",
@@ -4574,5 +4522,57 @@
     "mastodon": null,
     "mastodon_activo": null,
     "email": "administracioerc@congreso.es"
+  },
+  {
+    "tipo": "Diputado/a",
+    "nombre": "Pachón Martín, Brígida",
+    "grupo": "Grupo Parlamentario Socialista",
+    "circunscripcion": "Sevilla",
+    "twitter": "BrigidaPachon",
+    "twitter_activo": null,
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": "brigida.pachon@congreso.es"
+  },
+  {
+    "tipo": "Diputado/a",
+    "nombre": "Bondía Pinós, María Elena",
+    "grupo": "Grupo Parlamentario Popular en el Congreso",
+    "circunscripcion": "Zaragoza",
+    "twitter": null,
+    "twitter_activo": null,
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "tipo": "Diputado/a",
+    "nombre": "Marín Aparicio, Inmaculada",
+    "grupo": "Grupo Parlamentario Popular en el Congreso",
+    "circunscripcion": "Cádiz",
+    "twitter": null,
+    "twitter_activo": null,
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": null
+  },
+  {
+    "tipo": "Diputado/a",
+    "nombre": "Taibo Monelos, Diego",
+    "grupo": "Grupo Parlamentario Socialista",
+    "circunscripcion": "Coruña (A)",
+    "twitter": "diegotaiboPSOE",
+    "twitter_activo": null,
+    "bluesky": null,
+    "bluesky_activo": null,
+    "mastodon": null,
+    "mastodon_activo": null,
+    "email": "diego.taibo@congreso.es"
   }
 ]

@@ -11,10 +11,10 @@
     "email": "cartaservicios@presidencia.gob.es"
   },
   {
-    "nombre": "María Jesús Montero Cuadrado",
-    "cargo": "Vicepresidenta 1ª y Ministra de Hacienda",
-    "twitter": "mjmonteroc",
-    "twitter_activo": "2026-09-30",
+    "nombre": "Arcadi España García",
+    "cargo": "Ministro de Hacienda",
+    "twitter": null,
+    "twitter_activo": null,
     "bluesky": null,
     "bluesky_activo": null,
     "mastodon": null,
@@ -166,7 +166,7 @@
   },
   {
     "nombre": "Carlos Cuerpo Caballero",
-    "cargo": "Ministro de Economía, Comercio y Empresa",
+    "cargo": "Vicepresidente 1º y Ministro de Economía, Comercio y Empresa",
     "twitter": "carlos_cuerpo",
     "twitter_activo": "2026-09-30",
     "bluesky": "carloscuerpo.bsky.social",
