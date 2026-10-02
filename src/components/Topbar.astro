@@ -7,11 +7,11 @@ const { dark = false, active = 'índice' } = Astro.props;
 ---
 
 <div class={`topbar ${dark ? 'topbar--dark' : ''}`}>
-  <div class="topbar-inner">
+  <div class="topbar-inner max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-12">
 
     <!-- Logo + tool name (Lo público design system: tool-title-row) -->
-    <div class="tool-title-row">
-      <a href="/" class="tool-logo">
+    <a href="/" class="tool-title-row">
+      <div class="tool-logo">
         <img src="/logos/logo1.png" alt="">
         <img src="/logos/logo2.png" alt="">
         <img src="/logos/logo3.png" alt="">
@@ -22,19 +22,27 @@ const { dark = false, active = 'índice' } = Astro.props;
         <img src="/logos/logo8.png" alt="">
         <img src="/logos/logo9.png" alt="">
         <img src="/logos/logo10.png" alt="">
-      </a>
-      <div class="tool-title-text">
-        <a href="/" class="tool-title-name">Sal de ahí</a>
-        <a href="/" class="tool-title-parent">Lo público</a>
       </div>
-    </div>
+      <div class="tool-title-text">
+        <span class="tool-title-name">Sal de ahí</span>
+        <span class="tool-title-parent">Lo público</span>
+      </div>
+    </a>
 
     <!-- Nav -->
     <nav class="topbar-nav">
       <a href="/"                      class={`topbar-nav-link ${active === 'índice'  ? 'is-active' : ''}`}>Índice</a>
       <a href="/datos"                 class={`topbar-nav-link ${active === 'datos'   ? 'is-active' : ''}`}>Datos</a>
       <a href="/porque"                class={`topbar-nav-link ${active === 'por qué' ? 'is-active' : ''}`}>Por qué</a>
-      <a href="https://lopublico.es" target="_blank" class="topbar-nav-link">Lo público ↗</a>
+      <a href="https://lopublico.es"   class="topbar-nav-link topbar-nav-link--ext" target="_blank" rel="noopener" title="Ir a LoPúblico">
+        <span>LoPúblico</span>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="ext-ico">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+          <polyline points="15 3 21 3 21 9"></polyline>
+          <line x1="10" y1="14" x2="21" y2="3"></line>
+        </svg>
+      </a>
+      {/* <a href="/fediverso" target="_blank" class="topbar-nav-link">Qué es el fediverso ↗</a> */}
     </nav>
 
   </div>
@@ -47,16 +55,14 @@ const { dark = false, active = 'índice' } = Astro.props;
 ═══════════════════════════════════════════════════════════════════ */
 
 .topbar {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 13px;
   letter-spacing: 0.04em;
   color: var(--sd-fg-2);
 }
 
 .topbar-inner {
-  max-width: 1320px;
-  margin: 0 auto;
-  padding: 24px 48px 0;
+  padding-top: 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -67,7 +73,7 @@ const { dark = false, active = 'índice' } = Astro.props;
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
-    padding: 12px 20px 0;
+    padding-top: 12px;
   }
   .tool-title-name { font-size: 17px; }
   .tool-title-parent { font-size: 13px; }
@@ -138,7 +144,7 @@ const { dark = false, active = 'índice' } = Astro.props;
 }
 
 .tool-title-name {
-  font-family: 'Geist', system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-weight: 600;
   font-size: 22px;
   letter-spacing: -0.02em;
@@ -166,7 +172,7 @@ const { dark = false, active = 'índice' } = Astro.props;
 
 .topbar-nav-link {
   padding: 5px 10px;
-  font-family: 'Geist', system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-size: 13px;
   font-weight: 400;
   text-decoration: none;
@@ -177,13 +183,28 @@ const { dark = false, active = 'índice' } = Astro.props;
 }
 
 .topbar-nav-link:hover {
-  color: var(--sd-fg);
+  color: var(--sd-fg-2);
   background: rgba(0, 0, 0, 0.05);
 }
 
 .topbar-nav-link.is-active {
-  color: var(--sd-fg);
+  color: var(--sd-fg-2);
   font-weight: 600;
+}
+
+.topbar-nav-link--ext {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.topbar-nav-link--ext .ext-ico {
+  opacity: 0.65;
+  transition: opacity 120ms ease, transform 120ms ease;
+  flex-shrink: 0;
+}
+.topbar-nav-link--ext:hover .ext-ico {
+  opacity: 1;
+  transform: translate(1px, -1px);
 }
 
 /* ── Dark variant (used in dark hero) ───────────────────────────── */

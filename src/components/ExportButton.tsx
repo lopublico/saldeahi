@@ -14,7 +14,7 @@ const BASE: React.CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
   gap: "5px",
-  fontFamily: "'JetBrains Mono', monospace",
+  fontFamily: "var(--font-mono)",
   fontSize: "11px",
   letterSpacing: "0.06em",
   fontWeight: 500,

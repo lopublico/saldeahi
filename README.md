@@ -36,13 +36,15 @@ saldeahi/
 │   └── styles/             # global.css (Tailwind v4)
 ├── dataset/
 │   ├── datosfinales.xlsx        # Fuente de verdad única — handles y fechas de actividad
-│   ├── historical/              # Snapshot mensual de total.json (un fichero por mes)
+│   ├── historical/              # Snapshots (YYYY-MM-DD.json) y cambios.json (altas, bajas, cargos)
 │   └── scripts/
 │       ├── main.py              # Menú interactivo (punto de entrada único)
 │       ├── backup.py            # Módulo de copia de seguridad (llamado automáticamente)
 │       ├── export.py            # datosfinales.xlsx → src/data/*.json
 │       ├── check_activity.py    # Comprueba últimas publicaciones por plataforma
 │       ├── infer_social.py      # Infiere handles nuevos via follows + fuzzy match
+│       ├── resolve_pds.py       # Resuelve DID y PDS de cada cuenta de Bluesky (detecta Eurosky)
+│       ├── historico.py         # Registra altas/bajas y genera la serie histórica
 │       ├── update_chamber.py    # Actualiza Congreso/Senado tras elecciones
 │       └── audit_invente.py     # Audita formas jurídicas y altas/bajas contra la API de Invente (IGAE)
 ├── netlify/
@@ -175,7 +177,7 @@ El workflow `.github/workflows/actualizacion-mensual.yml` se ejecuta el **día 1
 
 1. Comprueba actividad en Bluesky, Mastodon y Twitter/X
 2. Regenera `src/data/*.json` con `export.py`
-3. Guarda un snapshot histórico en `dataset/historical/YYYY-MM-01.json`
+3. Guarda un snapshot histórico en `dataset/historical/YYYY-MM-01.json` y registra en `dataset/historical/cambios.json` las altas, bajas y cambios de cargo (`historico.py`), regenerando `src/data/historico.json`
 4. Commitea y hace push — lo que dispara el rebuild de Netlify
 
 Al terminar, el workflow `.github/workflows/zenodo-publish.yml` publica automáticamente una nueva versión del dataset en Zenodo.
@@ -188,6 +190,16 @@ Al terminar, el workflow `.github/workflows/zenodo-publish.yml` publica automát
 
 - **Senado:** <https://www.senado.es/web/relacionesciudadanos/datosabiertos/> → XML
 - **Congreso:** <https://www.congreso.es/en/datos-abiertos> → CSV
+
+### Histórico de composición
+
+Cuando cambie la composición de una cámara o del Gobierno (elecciones, dimisiones, remodelaciones), tras actualizar `datosfinales.xlsx` y ejecutar `export.py`:
+
+```bash
+python3 dataset/scripts/historico.py --fecha AAAA-MM-DD   # fecha real del cambio
+```
+
+Compara con el último snapshot, anota las altas/bajas/cambios de cargo en `cambios.json` y guarda un snapshot intermedio. Así, quien deja un cargo no desaparece sin rastro.
 
 ### 2. Detectar bajas y altas
 
@@ -268,4 +280,4 @@ Variables de entorno necesarias en Netlify:
 
 ## Licencia
 
-Los datos son de fuentes públicas. El código es MIT.
+Los datos son de fuentes públicas y se publican en Zenodo como dominio público (CC0 1.0); se agradece, sin obligación, citar el DOI del conjunto. El código es MIT.

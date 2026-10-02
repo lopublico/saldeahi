@@ -7,7 +7,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://saldeahi.avelrom.es',
+  site: 'https://saldeahi.lopublico.es',
   integrations: [react()],
 
   vite: {

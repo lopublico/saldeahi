@@ -1,7 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
-import { ExportButton } from "@/components/ExportButton";
 import lastUpdateData from "@/data/lastUpdate.json";
 import ageData from "@/data/age.json";
 import organosData from "@/data/organos.json";
@@ -39,6 +38,7 @@ function normalizeItem(item: any) {
     twitter_activo:  twitterOnX(tw, item.twitter_activo),
     bluesky:         item.bluesky  || null,
     bluesky_activo:  isActiveDate(item.bluesky_activo, BLUESKY_REF),
+    bluesky_eurosky: !!item.bluesky_eurosky,
     mastodon:        item.mastodon || null,
     mastodon_activo: isActiveDate(item.mastodon_activo, MASTODON_REF),
     grupo:           item.grupo || null,
@@ -196,9 +196,10 @@ const gruposStats = CONGRESO_GRUPO_ORDER
   .map(k => {
     const g = congresoGruposMap[k];
     const base = g.total - g.sinNinguna;
+    const fueraDeX = Math.max(0, base - g.enX);
     return {
-      label: k, ...g, base,
-      pctFuera:  pct(g.fueraDeX,       base),
+      label: k, ...g, base, fueraDeX,
+      pctFuera:  pct(fueraDeX,         base),
       pctBsky:   pct(g.conBluesky,     base),
       pctEnX:    pct(g.enX,            base),
       pctBskyA:  pct(g.activoBsky,     base),
@@ -268,9 +269,10 @@ const senadoGruposStats = SENADO_GRUPO_ORDER
   .map(k => {
     const g = senadoGruposMap[k];
     const base = g.total - g.sinNinguna;
+    const fueraDeX = Math.max(0, base - g.enX);
     return {
-      label: k, ...g, base,
-      pctFuera:  pct(g.fueraDeX,       base),
+      label: k, ...g, base, fueraDeX,
+      pctFuera:  pct(fueraDeX,         base),
       pctBsky:   pct(g.conBluesky,     base),
       pctEnX:    pct(g.enX,            base),
       pctBskyA:  pct(g.activoBsky,     base),
@@ -291,6 +293,12 @@ const gruposGradiente = GRADIENTE_ORDER
   .filter((g): g is NonNullable<typeof g> => g != null);
 const bskyMaxGrupo = gruposStats.reduce((a, b) => a.pctBsky >= b.pctBsky ? a : b, gruposStats[0]);
 const bskyMinGrupo = gruposStats.reduce((a, b) => a.pctBsky <= b.pctBsky ? a : b, gruposStats[0]);
+
+const SENADO_GRADIENTE_ORDER = ["Izq. Confederal", "ERC / EH Bildu", "PSOE", "Plural", "PNV", "Mixto", "PP"];
+const senadoGruposGradiente = SENADO_GRADIENTE_ORDER
+  .map(k => senadoGruposStats.find(g => g.label === k))
+  .filter((g): g is NonNullable<typeof g> => g != null);
+const senadoBskyMax = senadoGruposStats.reduce((a, b) => a.pctBsky >= b.pctBsky ? a : b, senadoGruposStats[0]);
 
 function fmtDate(d: string | undefined) {
   if (!d) return "—";
@@ -320,7 +328,7 @@ function kpiDash(p: number) {
   <!-- ── HERO OSCURO (datos) ─────────────────────────────────────────── -->
   <div class="datos-hero">
     <Topbar dark active="datos" />
-    <div class="max-w-screen-xl mx-auto px-6 sm:px-14 pt-10 pb-14">
+    <div class="max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-12 pt-10 pb-14">
       <div class="grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-8 items-end">
         <h1 class="datos-hero-h1">
           Los datos,{" "}
@@ -335,7 +343,14 @@ function kpiDash(p: number) {
           <span class="datos-hero-meta-highlight">{totales.total} entidades</span>
           {" · "}{CATEGORIES.length} categorías{" · "}Actualizado {fmtDate(lastUpdate.twitter)}
         </div>
-        <ExportButton client:load dark />
+        <a
+          href="https://zenodo.org/records/20692749"
+          target="_blank"
+          rel="noopener"
+          class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-mono font-medium border border-white/20 text-white/90 hover:bg-white/10 transition-colors"
+        >
+          Descarga de datos ↗
+        </a>
       </div>
     </div>
   </div>
@@ -355,195 +370,189 @@ function kpiDash(p: number) {
 
   <!-- Panel: Datos -->
   <div id="datos-panel-datos" class="datos-panel">
-  <div class="text-left px-4 sm:px-6 max-w-screen-xl mx-auto pb-8 mt-6 space-y-8">
+  <div class="text-left max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-12 pb-12 mt-8 space-y-10">
 
-    <!-- ── Presencia registrada ──────────────────────────────────────────── -->
-    <div class="datos-section">
-      <div class="datos-kpi-grid">
-
-        <!-- Total entidades (sin donut) -->
-        <div class="datos-kpi-card">
-          <p class="datos-kpi-desc">Entidades monitorizadas</p>
-          <div class="datos-kpi-body">
-            <svg class="datos-kpi-donut" width="54" height="54" viewBox="0 0 54 54">
-              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-line)" stroke-width="5"/>
-              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-fg-2)" stroke-width="5"
-                stroke-dasharray={kpiDash(100)} transform="rotate(-90 27 27)"/>
-            </svg>
-            <div class="datos-kpi-text">
-              <p class="datos-kpi-num">{totales.total}</p>
-              <p class="datos-kpi-sub">en {CATEGORIES.length} categorías</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Base de las estadísticas de elección de plataforma -->
-        <div class="datos-kpi-card">
-          <p class="datos-kpi-desc">Con alguna presencia social</p>
-          <div class="datos-kpi-body">
-            <svg class="datos-kpi-donut" width="54" height="54" viewBox="0 0 54 54">
-              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-line)" stroke-width="5"/>
-              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-fg-2)" stroke-width="5"
-                stroke-dasharray={kpiDash(100 - pctSinNinguna)} transform="rotate(-90 27 27)"/>
-            </svg>
-            <div class="datos-kpi-text">
-              <p class="datos-kpi-num">{totalesBase}</p>
-              <p class="datos-kpi-sub">base de los % siguientes</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Con X -->
-        <div class="datos-kpi-card">
-          <p class="datos-kpi-desc">Con cuenta en X</p>
-          <div class="datos-kpi-body">
-            <svg class="datos-kpi-donut" width="54" height="54" viewBox="0 0 54 54">
-              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-line)" stroke-width="5"/>
-              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-fg-2)" stroke-width="5"
-                stroke-dasharray={kpiDash(pctConTw)} transform="rotate(-90 27 27)"/>
-            </svg>
-            <div class="datos-kpi-text">
-              <p class="datos-kpi-num"><span>{pctNum(totales.conTwitter, totalesBase)}</span><span>%</span></p>
-              <p class="datos-kpi-sub">{totales.conTwitter}/{totalesBase}</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Bluesky -->
-        <div class="datos-kpi-card">
-          <p class="datos-kpi-desc">Con cuenta en Bluesky</p>
-          <div class="datos-kpi-body">
-            <svg class="datos-kpi-donut" width="54" height="54" viewBox="0 0 54 54">
-              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-line)" stroke-width="5"/>
-              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-sky)" stroke-width="5"
-                stroke-dasharray={kpiDash(pctBsky)} transform="rotate(-90 27 27)"/>
-            </svg>
-            <div class="datos-kpi-text">
-              <p class="datos-kpi-num"><span>{pctNum(totales.conBluesky, totalesBase)}</span><span>%</span></p>
-              <p class="datos-kpi-sub">{totales.conBluesky}/{totalesBase}</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Mastodon -->
-        <div class="datos-kpi-card">
-          <p class="datos-kpi-desc">Con cuenta en Mastodon</p>
-          <div class="datos-kpi-body">
-            <svg class="datos-kpi-donut" width="54" height="54" viewBox="0 0 54 54">
-              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-line)" stroke-width="5"/>
-              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-mastodon)" stroke-width="5"
-                stroke-dasharray={kpiDash(pctMstdn)} transform="rotate(-90 27 27)"/>
-            </svg>
-            <div class="datos-kpi-text">
-              <p class="datos-kpi-num"><span>{pctNum(totales.conMastodon, totalesBase)}</span><span>%</span></p>
-              <p class="datos-kpi-sub">{totales.conMastodon}/{totalesBase}</p>
-            </div>
-          </div>
-        </div>
-
+    <!-- ── Resumen de presencia y actividad ──────────────────────────────── -->
+    <section class="datos-card-panel">
+      <div class="datos-card-header">
+        <h2 class="datos-card-title">Resumen de presencia y actividad</h2>
+        <p class="datos-card-subtitle">
+          Datos globales de las {totales.total} entidades analizadas en el estudio.
+        </p>
       </div>
-    </div>
 
-    <div class="datos-callout">
-      <p class="datos-callout-text">El <strong>{pctConTw}%</strong> de las {totalesBase} entidades con presencia en alguna red social tiene cuenta en X/Twitter. Solo el <strong>{pctEnX}%</strong> publicó algo en los últimos 30 días.</p>
-    </div>
+      <!-- Métricas del universo -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-8">
+        <div class="datos-meta-box">
+          <span class="datos-meta-box-label">Entidades monitorizadas</span>
+          <div class="datos-meta-box-val">{totales.total}</div>
+          <p class="datos-meta-box-sub">en {CATEGORIES.length} sectores del Estado y CCAA</p>
+        </div>
+        <div class="datos-meta-box">
+          <span class="datos-meta-box-label">Con presencia en alguna red</span>
+          <div class="datos-meta-box-val">
+            <span>{totalesBase}</span>
+            <span class="datos-meta-box-pct">({pctNum(totalesBase, totales.total)}%)</span>
+          </div>
+          <p class="datos-meta-box-sub">base de cálculo de los porcentajes de adopción</p>
+        </div>
+        <div class="datos-meta-box">
+          <span class="datos-meta-box-label">Sin cuentas en redes</span>
+          <div class="datos-meta-box-val">
+            <span>{totales.sinNinguna}</span>
+            <span class="datos-meta-box-pct">({pctSinNinguna}%)</span>
+          </div>
+          <p class="datos-meta-box-sub">sin perfiles detectados en ninguna plataforma</p>
+        </div>
+      </div>
 
-    <!-- ── Actividad ──────────────────────────────────────────────────────── -->
-    <div class="datos-section datos-section--activity">
-      <div class="datos-kpi-grid">
+      <!-- Cuentas registradas vs Actividad Real -->
+      <div class="mb-8">
+        <div class="mb-4">
+          <h3 class="text-xs font-semibold uppercase font-mono text-muted-foreground">Presencia registrada vs. actividad en los últimos 30 días</h3>
+          <p class="text-xs text-muted-foreground/80 mt-0.5">Tener cuenta oficial no equivale a publicar con regularidad.</p>
+        </div>
 
-        <!-- Activas en X -->
-        <div class="datos-kpi-card">
-          <p class="datos-kpi-desc">Activas en X</p>
-          <div class="datos-kpi-body">
-            <svg class="datos-kpi-donut" width="54" height="54" viewBox="0 0 54 54">
-              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-line)" stroke-width="5"/>
-              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-fg-2)" stroke-width="5"
-                stroke-dasharray={kpiDash(pctEnX)} transform="rotate(-90 27 27)"/>
-            </svg>
-            <div class="datos-kpi-text">
-              <p class="datos-kpi-num"><span>{pctNum(totales.enX, totalesBase)}</span><span>%</span></p>
-              <p class="datos-kpi-sub">{totales.enX}/{totalesBase}</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- X / Twitter -->
+          <div class="datos-plat-card datos-plat-card--x">
+            <div class="datos-plat-header">
+              <span class="datos-plat-badge datos-plat-badge--x">𝕏 / Twitter</span>
+              <span class="datos-plat-nature">Red privativa</span>
+            </div>
+            <div class="datos-plat-kpi">
+              <div class="datos-plat-num">{totales.enX}</div>
+              <div class="datos-plat-pct">{pctEnX}% activas</div>
+            </div>
+            <div class="datos-plat-bar-wrap">
+              <div class="dist-bar-track h-2.5">
+                <div class="dist-bar-seg dist-bar-seg--x-act" data-pct={pctEnX}></div>
+                <div class="dist-bar-seg dist-bar-seg--x-inact" data-pct={pctConTw - pctEnX}></div>
+              </div>
+              <div class="datos-plat-bar-labels">
+                <span>{pctEnX}% activas</span>
+                <span>{pctConTw}% con cuenta ({totales.conTwitter})</span>
+              </div>
+            </div>
+            <div class="datos-plat-stats">
+              <div class="datos-plat-stat-row">
+                <span>Con cuenta sin actividad reciente</span>
+                <span class="font-mono text-muted-foreground">{totales.sinActX} ({pctSinActX}%)</span>
+              </div>
+              <div class="datos-plat-stat-row">
+                <span>Tasa de actividad sobre sus cuentas</span>
+                <span class="font-mono font-medium">{Math.round((totales.enX / totales.conTwitter) * 100)}%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bluesky -->
+          <div class="datos-plat-card datos-plat-card--bsky">
+            <div class="datos-plat-header">
+              <span class="datos-plat-badge datos-plat-badge--bsky">Bluesky</span>
+              <span class="datos-plat-nature">AT Protocol</span>
+            </div>
+            <div class="datos-plat-kpi">
+              <div class="datos-plat-num text-sky-500">{totales.activoBsky}</div>
+              <div class="datos-plat-pct text-sky-400">{pctActBskyOfTotal}% activas</div>
+            </div>
+            <div class="datos-plat-bar-wrap">
+              <div class="dist-bar-track h-2.5">
+                <div class="dist-bar-seg dist-bar-seg--bsky-act" data-pct={pctActBskyOfTotal}></div>
+                <div class="dist-bar-seg dist-bar-seg--bsky-inact" data-pct={pctBsky - pctActBskyOfTotal}></div>
+              </div>
+              <div class="datos-plat-bar-labels">
+                <span>{pctActBskyOfTotal}% activas</span>
+                <span>{pctBsky}% con cuenta ({totales.conBluesky})</span>
+              </div>
+            </div>
+            <div class="datos-plat-stats">
+              <div class="datos-plat-stat-row">
+                <span>Con cuenta sin actividad reciente</span>
+                <span class="font-mono text-muted-foreground">{totales.conBluesky - totales.activoBsky} ({pctBsky - pctActBskyOfTotal}%)</span>
+              </div>
+              <div class="datos-plat-stat-row">
+                <span>Tasa de actividad sobre sus cuentas</span>
+                <span class="font-mono font-medium">{totales.conBluesky > 0 ? Math.round((totales.activoBsky / totales.conBluesky) * 100) : 0}%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mastodon -->
+          <div class="datos-plat-card datos-plat-card--mstdn">
+            <div class="datos-plat-header">
+              <span class="datos-plat-badge datos-plat-badge--mstdn">Mastodon</span>
+              <span class="datos-plat-nature">ActivityPub W3C</span>
+            </div>
+            <div class="datos-plat-kpi">
+              <div class="datos-plat-num text-violet-400">{totales.activoMstdn}</div>
+              <div class="datos-plat-pct text-violet-300">{pctActMstdnOfTotal}% activas</div>
+            </div>
+            <div class="datos-plat-bar-wrap">
+              <div class="dist-bar-track h-2.5">
+                <div class="dist-bar-seg dist-bar-seg--mstdn-act" data-pct={pctActMstdnOfTotal}></div>
+                <div class="dist-bar-seg dist-bar-seg--mstdn-inact" data-pct={pctMstdn - pctActMstdnOfTotal}></div>
+              </div>
+              <div class="datos-plat-bar-labels">
+                <span>{pctActMstdnOfTotal}% activas</span>
+                <span>{pctMstdn}% con cuenta ({totales.conMastodon})</span>
+              </div>
+            </div>
+            <div class="datos-plat-stats">
+              <div class="datos-plat-stat-row">
+                <span>Con cuenta sin actividad reciente</span>
+                <span class="font-mono text-muted-foreground">{totales.conMastodon - totales.activoMstdn} ({pctMstdn - pctActMstdnOfTotal}%)</span>
+              </div>
+              <div class="datos-plat-stat-row">
+                <span>Tasa de actividad sobre sus cuentas</span>
+                <span class="font-mono font-medium">{totales.conMastodon > 0 ? Math.round((totales.activoMstdn / totales.conMastodon) * 100) : 0}%</span>
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
+      <!-- Indicadores: Sin alternativa y Migración funcional -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Sin alternativa a X -->
-        <div class="datos-kpi-card">
-          <p class="datos-kpi-desc">Sin alternativa a X</p>
-          <div class="datos-kpi-body">
-            <svg class="datos-kpi-donut" width="54" height="54" viewBox="0 0 54 54">
-              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-line)" stroke-width="5"/>
-              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-rose-pink)" stroke-width="5"
-                stroke-dasharray={kpiDash(pctNingW)} transform="rotate(-90 27 27)"/>
-            </svg>
-            <div>
-              <p class="datos-kpi-num datos-kpi-num--alert"><span>{pctNum(totales.sinAlternativa, totalesBase)}</span><span>%</span></p>
-              <p class="datos-kpi-sub">{totales.sinAlternativa}/{totalesBase}</p>
-            </div>
+        <div class="datos-highlight-card datos-highlight-card--alert">
+          <div class="datos-highlight-head">
+            <h4 class="datos-highlight-title text-[var(--sd-rose-pink)]">Sin alternativa a X</h4>
+            <span class="datos-highlight-stat font-mono text-rose-500">{totales.sinAlternativa} entidades ({pctNingW}%)</span>
           </div>
+          <p class="datos-highlight-desc">
+            Cuentas en X sin perfil en Bluesky ni en Mastodon.
+          </p>
         </div>
 
-        <!-- Activas en Bluesky -->
-        <div class="datos-kpi-card">
-          <p class="datos-kpi-desc">Activas en Bluesky</p>
-          <div class="datos-kpi-body">
-            <svg class="datos-kpi-donut" width="54" height="54" viewBox="0 0 54 54">
-              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-line)" stroke-width="5"/>
-              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-sky)" stroke-width="5"
-                stroke-dasharray={kpiDash(pctActBskyOfTotal)} transform="rotate(-90 27 27)"/>
-            </svg>
-            <div class="datos-kpi-text">
-              <p class="datos-kpi-num"><span>{pctNum(totales.activoBsky, totalesBase)}</span><span>%</span></p>
-              <p class="datos-kpi-sub">{totales.activoBsky}/{totalesBase}</p>
-            </div>
+        <!-- Migración funcional -->
+        <div class="datos-highlight-card datos-highlight-card--success">
+          <div class="datos-highlight-head">
+            <h4 class="datos-highlight-title text-[var(--sd-sky)]">Migración funcional</h4>
+            <span class="datos-highlight-stat font-mono text-sky-400">{sustFuncionalTotal} entidades ({pctSustFunc}%)</span>
           </div>
-        </div>
-
-        <!-- Sin cuenta en ninguna red -->
-        <div class="datos-kpi-card">
-          <p class="datos-kpi-desc">Sin cuenta en ninguna red</p>
-          <div class="datos-kpi-body">
-            <svg class="datos-kpi-donut" width="54" height="54" viewBox="0 0 54 54">
-              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-line)" stroke-width="5"/>
-              <circle cx="27" cy="27" r={KPI_R} fill="none" stroke="var(--sd-muted)" stroke-width="5"
-                stroke-dasharray={kpiDash(pctSinNinguna)} transform="rotate(-90 27 27)"/>
-            </svg>
-            <div class="datos-kpi-text">
-              <p class="datos-kpi-num"><span>{pctNum(totales.sinNinguna, totales.total)}</span><span>%</span></p>
-              <p class="datos-kpi-sub">{totales.sinNinguna}/{totales.total}</p>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Migración funcional -->
-      <div class="sustfunc-banner mt-6">
-        <div class="sustfunc-num">{sustFuncionalTotal}</div>
-        <div class="sustfunc-text">
-          <strong>entidades han migrado funcionalmente</strong> — X inactiva o ausente, con presencia activa en Bluesky o Mastodon
+          <p class="datos-highlight-desc">
+            Inactivas o sin cuenta en X, con presencia activa en Bluesky o Mastodon.
+          </p>
         </div>
       </div>
-
-    </div>
+    </section>
 
     <!-- ── Distribución por plataforma ────────────────────────────────────── -->
-    <div class="datos-section datos-section--activity">
-      <p class="datos-section-label datos-section-label--activity">
-        Distribución por plataforma
-      </p>
-      <p class="datos-dist-desc mb-6">Proporción de las {totalesBase} entidades con presencia en alguna red social (se excluyen las {totales.sinNinguna} sin ninguna cuenta) con cuenta registrada (barra completa) y con actividad en los últimos 30 días (tramo oscuro).</p>
-      {sustFuncionalTotal > 0 && (
-        <div class="datos-callout">
-          <p class="datos-callout-text"><strong>{sustFuncionalTotal}</strong> entidades han migrado funcionalmente: están inactivas en X pero activas en una plataforma federada.</p>
-        </div>
-      )}
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 mb-3">
+    <section class="datos-card-panel">
+      <div class="datos-card-header">
+        <h2 class="datos-card-title">Distribución por plataforma</h2>
+        <p class="datos-card-subtitle">
+          Proporción sobre las {totalesBase} entidades con presencia en alguna red social (se excluyen las {totales.sinNinguna} sin ninguna cuenta).
+        </p>
+      </div>
+
+      <!-- Barras comparativas -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 mb-8">
         <div>
           <div class="dist-bar-row">
             <span class="dist-bar-label">X / Twitter</span>
-            <span class="dist-bar-stats">{totales.conTwitter} con cuenta ({pctFmt(totales.conTwitter, totalesBase)}) · {totales.enX} act.</span>
+            <span class="dist-bar-stats">{totales.conTwitter} con cuenta ({pctFmt(totales.conTwitter, totalesBase)}) · {totales.enX} activas ({pctEnX}%)</span>
           </div>
           <div class="dist-bar-track">
             <div class="dist-bar-seg dist-bar-seg--x-act" data-pct={pctEnX}></div>
@@ -553,7 +562,7 @@ function kpiDash(p: number) {
         <div>
           <div class="dist-bar-row">
             <span class="dist-bar-label">Bluesky</span>
-            <span class="dist-bar-stats">{totales.conBluesky} con cuenta ({pctFmt(totales.conBluesky, totalesBase)}) · {totales.activoBsky} act.</span>
+            <span class="dist-bar-stats">{totales.conBluesky} con cuenta ({pctFmt(totales.conBluesky, totalesBase)}) · {totales.activoBsky} activas ({pctActBskyOfTotal}%)</span>
           </div>
           <div class="dist-bar-track">
             <div class="dist-bar-seg dist-bar-seg--bsky-act" data-pct={pctActBskyOfTotal}></div>
@@ -563,7 +572,7 @@ function kpiDash(p: number) {
         <div>
           <div class="dist-bar-row">
             <span class="dist-bar-label">Mastodon</span>
-            <span class="dist-bar-stats">{totales.conMastodon} con cuenta ({pctFmt(totales.conMastodon, totalesBase)}) · {totales.activoMstdn} act.</span>
+            <span class="dist-bar-stats">{totales.conMastodon} con cuenta ({pctFmt(totales.conMastodon, totalesBase)}) · {totales.activoMstdn} activas ({pctActMstdnOfTotal}%)</span>
           </div>
           <div class="dist-bar-track">
             <div class="dist-bar-seg dist-bar-seg--mstdn-act" data-pct={pctActMstdnOfTotal}></div>
@@ -580,15 +589,16 @@ function kpiDash(p: number) {
           </div>
         </div>
       </div>
-      <p class="datos-proto-note mb-4"><strong>Nota:</strong> Bluesky (AT Protocol) y Mastodon (ActivityPub) son protocolos distintos con diferente nivel de apertura. ActivityPub es un estándar del W3C sin propietario comercial; AT Protocol está controlado por Bluesky Social PBC, una empresa privada con financiación de capital riesgo. <a href="/porque" class="datos-meto-link">Más información</a>.</p>
-      <div class="dist-legend">
+
+      <!-- Leyenda -->
+      <div class="dist-legend mb-6">
         <span class="dist-legend-item">
           <span class="dist-legend-swatches">
             <span class="dist-legend-swatch dist-legend-swatch--x-act"></span>
             <span class="dist-legend-swatch dist-legend-swatch--bsky-act"></span>
             <span class="dist-legend-swatch dist-legend-swatch--mstdn-act"></span>
           </span>
-          Activas (últimos 30 días)
+          Activas (publicación en los últimos 30 días)
         </span>
         <span class="dist-legend-item">
           <span class="dist-legend-swatches">
@@ -603,101 +613,33 @@ function kpiDash(p: number) {
           Sin alternativa a X
         </span>
       </div>
-    </div>
 
-    <!-- ── Por categoría (toggle visual / tabla) ───────────────────────────── -->
-    <div>
-      <h2 class="text-base font-semibold mb-1 flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-muted-foreground shrink-0">
-          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-        </svg>
-        Adopción por categoría
-      </h2>
+      <p class="datos-proto-note">
+        <strong>Nota:</strong> Bluesky (AT Protocol) y Mastodon (ActivityPub) son protocolos distintos con diferente nivel de apertura. ActivityPub es un estándar formal del W3C; AT Protocol está controlado por Bluesky Social PBC. <a href="/porque" class="datos-meto-link">Más información</a>.
+      </p>
+    </section>
 
-      <!-- Toggle visual / calor / tabla -->
-      <div class="datos-toggle mb-4" id="cat-toggle">
-        <button class="datos-toggle-btn" data-cat="visual">Barras</button>
-        <button class="datos-toggle-btn is-active" data-cat="calor">Mapa de calor</button>
-        <button class="datos-toggle-btn" data-cat="tabla">Tabla</button>
-      </div>
-
-      <!-- Panel: visual -->
-      <div id="cat-panel-visual" class="cat-panel cat-panel--hidden">
-      <p class="text-sm text-muted-foreground mb-6">Presencia y actividad en cada plataforma como proporción del total de entidades de cada categoría.</p>
-
-      <!-- Eje de referencia -->
-      <div class="flex gap-0 mb-1 ml-[7rem] sm:ml-[9rem]">
-        <div class="flex-1 flex justify-between pr-10 sm:pr-12">
-          {[0,25,50,75,100].map(v => (
-            <span class={`cat-axis-label${v > 0 ? ' cat-axis-label--shift' : ''}`}>{v}%</span>
-          ))}
-        </div>
-      </div>
-      <!-- Líneas guía -->
-      <div class="relative space-y-4">
-        <div class="absolute inset-y-0 ml-[7rem] sm:ml-[9rem] right-10 sm:right-12 pointer-events-none flex">
-          {[25,50,75].map(v => (
-            <div class="cat-guide-line" data-left={v}></div>
-          ))}
+    <!-- ── 03 / ADOPCIÓN POR CATEGORÍA INSTITUCIONAL ─────────────────────── -->
+    <section class="datos-card-panel">
+      <div class="datos-card-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 class="datos-card-title">Adopción por categoría institucional</h2>
+          <p class="datos-card-subtitle">
+            Comportamiento, presencia y nivel de uso activo en las {CATEGORIES.length} tipologías de entidades analizadas.
+          </p>
         </div>
 
-        {catStats.map(c => {
-          const pXA  = pct(c.enX, c.base);
-          const pXI  = pct(c.sinActX, c.base);
-          const pBsA = pct(c.activoBsky, c.base);
-          const pBsI = pct(c.conBluesky - c.activoBsky, c.base);
-          const pMd  = pct(c.conMastodon, c.base);
-          return (
-            <div class="flex gap-2 sm:gap-3 items-start">
-              <div class="w-28 sm:w-36 shrink-0 text-right pt-0.5">
-                <div class="text-sm font-medium leading-tight">{c.label}</div>
-                <div class="text-xs text-muted-foreground/50">{c.total} entidades</div>
-              </div>
-              <div class="flex-1 space-y-1.5">
-                <div class="flex items-center gap-2 cursor-default" data-tip={`X / Twitter — ${c.enX} activas, ${c.sinActX} inactivas (${c.conTwitter} con cuenta)`}>
-                  <div class="flex flex-1 h-2 overflow-hidden bg-border/20">
-                    <div class="dist-bar-seg dist-bar-seg--x-act" data-pct={pXA}></div>
-                    <div class="dist-bar-seg dist-bar-seg--x-inact" data-pct={pXI}></div>
-                  </div>
-                  <span class="text-xs tabular-nums text-muted-foreground w-8 text-right shrink-0">{pXA}%</span>
-                </div>
-                <div class="flex items-center gap-2 cursor-default" data-tip={`Bluesky — ${c.activoBsky} activas, ${c.conBluesky - c.activoBsky} inactivas (${c.conBluesky} con cuenta)`}>
-                  <div class="flex flex-1 h-2 overflow-hidden bg-border/20">
-                    <div class="dist-bar-seg dist-bar-seg--bsky-act" data-pct={pBsA}></div>
-                    <div class="dist-bar-seg dist-bar-seg--bsky-inact" data-pct={pBsI}></div>
-                  </div>
-                  <span class="text-xs tabular-nums text-muted-foreground w-8 text-right shrink-0">{pBsA}%</span>
-                </div>
-                <div class="flex items-center gap-2 cursor-default" data-tip={`Mastodon — ${c.conMastodon} con cuenta`}>
-                  <div class="flex flex-1 h-2 overflow-hidden bg-border/20">
-                    <div class="dist-bar-seg dist-bar-seg--mstdn-act" data-pct={pMd}></div>
-                  </div>
-                  <span class="text-xs tabular-nums text-muted-foreground w-8 text-right shrink-0">{pMd}%</span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        <!-- Toggle visual / calor / tabla -->
+        <div class="datos-toggle shrink-0" id="cat-toggle">
+          <button class="datos-toggle-btn is-active" data-cat="calor">Mapa de calor</button>
+          <button class="datos-toggle-btn" data-cat="visual">Gráfico comparativo</button>
+          <button class="datos-toggle-btn" data-cat="tabla">Tabla detallada</button>
+        </div>
       </div>
-      <div class="text-sm text-muted-foreground/70 mt-5 flex flex-wrap gap-x-5 gap-y-1.5">
-        <span class="flex items-center gap-1.5">
-          <span class="inline-flex gap-px shrink-0"><span class="inline-block w-2 h-2 bg-foreground/75 rounded-sm"></span><span class="inline-block w-2 h-2 bg-foreground/20 rounded-sm"></span></span>
-          X: activas · con cuenta sin actividad
-        </span>
-        <span class="flex items-center gap-1.5">
-          <span class="inline-flex gap-px shrink-0"><span class="inline-block w-2 h-2 bg-sky-500/80 rounded-sm"></span><span class="inline-block w-2 h-2 bg-sky-500/25 rounded-sm"></span></span>
-          Bluesky: activas · con cuenta sin actividad
-        </span>
-        <span class="flex items-center gap-1.5">
-          <span class="inline-block w-2 h-2 bg-violet-500/70 rounded-sm shrink-0"></span>
-          Mastodon
-        </span>
-      </div>
-      </div><!-- end cat-panel-visual -->
 
       <!-- Panel: mapa de calor -->
       <div id="cat-panel-calor" class="cat-panel">
-        <p class="text-sm text-muted-foreground mb-5">% de entidades con actividad en los últimos 30 días sobre el total de cada categoría. La intensidad de color refleja el porcentaje.</p>
+        <p class="text-xs text-muted-foreground mb-4">% de entidades con actividad en los últimos 30 días sobre el total de cada categoría. La intensidad de color refleja el porcentaje relativo.</p>
         <div class="heatmap-wrap">
           <div class="heatmap-grid">
             <div></div>
@@ -711,7 +653,7 @@ function kpiDash(p: number) {
               return <>
                 <div class="heatmap-row-lbl">
                   <span class="heatmap-row-name">{c.label}</span>
-                  <span class="heatmap-row-n">{c.total}</span>
+                  <span class="heatmap-row-n">{c.total} entidades</span>
                 </div>
                 <div class="heatmap-cell" style={`background: color-mix(in srgb, var(--sd-fg-2) ${Math.round(5 + pX * 0.50)}%, transparent)`}>
                   <span class="heatmap-val">{pX}%</span>
@@ -729,265 +671,363 @@ function kpiDash(p: number) {
             })}
           </div>
         </div>
-      </div><!-- end cat-panel-calor -->
+      </div>
 
-      <!-- Panel: tabla numérica (Desglose por categoría) -->
-      <div id="cat-panel-tabla" class="cat-panel cat-panel--hidden">
-      <p class="text-sm text-muted-foreground mb-4"><em>Activos X</em>: con publicación en X en los últimos 30 días. <em>Sin act. X</em>: con cuenta pero sin publicar en ese período. <em>Con X</em>: total con cuenta en X. <em>Sin redes</em>: sin cuenta en ninguna plataforma.</p>
-      <div class="datos-table-wrap">
-        <table class="w-full" data-sortable>
-          <thead>
-            <tr class="border-b border-border/40 bg-muted/20">
-              <th data-sort="cat"     class="datos-sortable-th py-3 px-5 text-xs font-medium text-muted-foreground text-left  whitespace-nowrap">Categoría<span class="datos-sort-ind"></span></th>
-              <th data-sort="total"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Total<span class="datos-sort-ind"></span></th>
-              <th data-sort="sinAlt"  class="datos-sortable-th py-3 px-4 text-xs font-medium text-right whitespace-nowrap datos-th--alert">Sin alt. X<span class="datos-sort-ind"></span></th>
-              <th data-sort="enX"     class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Activos X<span class="datos-sort-ind"></span></th>
-              <th data-sort="sinActX" class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Sin act. X<span class="datos-sort-ind"></span></th>
-              <th data-sort="conTw"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Con X<span class="datos-sort-ind"></span></th>
-              <th data-sort="bsky"    class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Bluesky<span class="datos-sort-ind"></span></th>
-              <th data-sort="bskyA"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Activos BS<span class="datos-sort-ind"></span></th>
-              <th data-sort="mstdn"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Mastodon<span class="datos-sort-ind"></span></th>
-              <th data-sort="sinNada" class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Sin redes<span class="datos-sort-ind"></span></th>
-            </tr>
-          </thead>
-          <tbody>
-            {catStats.map((c) => (
-              <tr class="border-b border-border/30 hover:bg-muted/20 transition-colors">
-                <td data-col="cat"     class="py-3 px-5 text-sm font-medium text-left whitespace-nowrap">{c.label}</td>
-                <td data-col="total"   data-val={c.total}          class="py-3 px-4 text-sm tabular-nums text-right text-muted-foreground">{c.total}</td>
-                <td data-col="sinAlt"  data-val={c.sinAlternativa} class={`py-3 px-4 text-sm tabular-nums text-right font-medium ${c.sinAlternativa > 0 ? 'datos-td--alert' : 'text-muted-foreground'}`}>{c.sinAlternativa}</td>
-                <td data-col="enX"     data-val={c.enX}            class="py-3 px-4 text-sm tabular-nums text-right">{c.enX}</td>
-                <td data-col="sinActX" data-val={c.sinActX}        class="py-3 px-4 text-sm tabular-nums text-right text-muted-foreground">{c.sinActX}</td>
-                <td data-col="conTw"   data-val={c.conTwitter}     class="py-3 px-4 text-sm tabular-nums text-right text-muted-foreground">{c.conTwitter}</td>
-                <td data-col="bsky"    data-val={c.conBluesky}     class="py-3 px-4 text-sm tabular-nums text-right">{c.conBluesky}</td>
-                <td data-col="bskyA"   data-val={c.activoBsky}     class="py-3 px-4 text-sm tabular-nums text-right font-medium">{c.activoBsky}</td>
-                <td data-col="mstdn"   data-val={c.conMastodon}    class="py-3 px-4 text-sm tabular-nums text-right">{c.conMastodon}</td>
-                <td data-col="sinNada" data-val={c.sinNinguna}     class="py-3 px-4 text-sm tabular-nums text-right text-muted-foreground">{c.sinNinguna}</td>
-              </tr>
+      <!-- Panel: visual -->
+      <div id="cat-panel-visual" class="cat-panel cat-panel--hidden">
+        <p class="text-xs text-muted-foreground mb-5">Presencia y actividad en cada plataforma como proporción del total de entidades de cada categoría.</p>
+
+        <!-- Eje de referencia -->
+        <div class="flex gap-0 mb-1 ml-[7rem] sm:ml-[9rem]">
+          <div class="flex-1 flex justify-between pr-10 sm:pr-12">
+            {[0,25,50,75,100].map(v => (
+              <span class={`cat-axis-label${v > 0 ? ' cat-axis-label--shift' : ''}`}>{v}%</span>
             ))}
-            <tr data-footer class="border-t border-border bg-muted/20">
-              <td class="py-3 px-5 text-sm font-semibold text-left">Total</td>
-              <td class="py-3 px-4 text-sm tabular-nums font-semibold text-right text-muted-foreground">{totales.total}</td>
-              <td class="py-3 px-4 text-sm tabular-nums font-semibold text-right datos-td--alert">{totales.sinAlternativa}</td>
-              <td class="py-3 px-4 text-sm tabular-nums font-semibold text-right">{totales.enX}</td>
-              <td class="py-3 px-4 text-sm tabular-nums font-semibold text-right text-muted-foreground">{totales.sinActX}</td>
-              <td class="py-3 px-4 text-sm tabular-nums font-semibold text-right text-muted-foreground">{totales.conTwitter}</td>
-              <td class="py-3 px-4 text-sm tabular-nums font-semibold text-right">{totales.conBluesky}</td>
-              <td class="py-3 px-4 text-sm tabular-nums font-semibold text-right">{totales.activoBsky}</td>
-              <td class="py-3 px-4 text-sm tabular-nums font-semibold text-right">{totales.conMastodon}</td>
-              <td class="py-3 px-4 text-sm tabular-nums font-semibold text-right text-muted-foreground">{totales.sinNinguna}</td>
-            </tr>
-          </tbody>
-        </table>
+          </div>
+        </div>
+        <!-- Líneas guía -->
+        <div class="relative space-y-4">
+          <div class="absolute inset-y-0 ml-[7rem] sm:ml-[9rem] right-10 sm:right-12 pointer-events-none flex">
+            {[25,50,75].map(v => (
+              <div class="cat-guide-line" data-left={v}></div>
+            ))}
+          </div>
+
+          {catStats.map(c => {
+            const pXA  = pct(c.enX, c.base);
+            const pXI  = pct(c.sinActX, c.base);
+            const pBsA = pct(c.activoBsky, c.base);
+            const pBsI = pct(c.conBluesky - c.activoBsky, c.base);
+            const pMd  = pct(c.conMastodon, c.base);
+            return (
+              <div class="flex gap-2 sm:gap-3 items-start">
+                <div class="w-28 sm:w-36 shrink-0 text-right pt-0.5">
+                  <div class="text-sm font-medium leading-tight">{c.label}</div>
+                  <div class="text-xs text-muted-foreground/60">{c.total} entidades</div>
+                </div>
+                <div class="flex-1 space-y-1.5">
+                  <div class="flex items-center gap-2 cursor-default" data-tip={`X / Twitter — ${c.enX} activas, ${c.sinActX} inactivas (${c.conTwitter} con cuenta)`}>
+                    <div class="flex flex-1 h-2 overflow-hidden bg-border/20 rounded-sm">
+                      <div class="dist-bar-seg dist-bar-seg--x-act" data-pct={pXA}></div>
+                      <div class="dist-bar-seg dist-bar-seg--x-inact" data-pct={pXI}></div>
+                    </div>
+                    <span class="text-xs tabular-nums text-muted-foreground w-8 text-right shrink-0">{pXA}%</span>
+                  </div>
+                  <div class="flex items-center gap-2 cursor-default" data-tip={`Bluesky — ${c.activoBsky} activas, ${c.conBluesky - c.activoBsky} inactivas (${c.conBluesky} con cuenta)`}>
+                    <div class="flex flex-1 h-2 overflow-hidden bg-border/20 rounded-sm">
+                      <div class="dist-bar-seg dist-bar-seg--bsky-act" data-pct={pBsA}></div>
+                      <div class="dist-bar-seg dist-bar-seg--bsky-inact" data-pct={pBsI}></div>
+                    </div>
+                    <span class="text-xs tabular-nums text-muted-foreground w-8 text-right shrink-0">{pBsA}%</span>
+                  </div>
+                  <div class="flex items-center gap-2 cursor-default" data-tip={`Mastodon — ${c.conMastodon} con cuenta`}>
+                    <div class="flex flex-1 h-2 overflow-hidden bg-border/20 rounded-sm">
+                      <div class="dist-bar-seg dist-bar-seg--mstdn-act" data-pct={pMd}></div>
+                    </div>
+                    <span class="text-xs tabular-nums text-muted-foreground w-8 text-right shrink-0">{pMd}%</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div class="text-xs text-muted-foreground/80 mt-6 flex flex-wrap gap-x-6 gap-y-2 border-t border-border/30 pt-4">
+          <span class="flex items-center gap-1.5">
+            <span class="inline-flex gap-px shrink-0"><span class="inline-block w-2.5 h-2.5 bg-foreground/75 rounded-xs"></span><span class="inline-block w-2.5 h-2.5 bg-foreground/20 rounded-xs"></span></span>
+            X: activas · inactivas con cuenta
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="inline-flex gap-px shrink-0"><span class="inline-block w-2.5 h-2.5 bg-sky-500 rounded-xs"></span><span class="inline-block w-2.5 h-2.5 bg-sky-500/25 rounded-xs"></span></span>
+            Bluesky: activas · inactivas con cuenta
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="inline-block w-2.5 h-2.5 bg-violet-500 rounded-xs shrink-0"></span>
+            Mastodon
+          </span>
+        </div>
       </div>
-      </div><!-- end cat-panel-tabla -->
-    </div>
 
-    <!-- ── Presencia por grupo parlamentario ───────────────────────────────── -->
-    <div>
-      <h2 class="text-base font-semibold mb-1 flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-muted-foreground shrink-0">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-        </svg>
-        Presencia por grupo parlamentario
-      </h2>
-      <p class="text-sm text-muted-foreground mb-4">XV Legislatura. Solo diputados/as y senadores/as con escaño actual; no incluye presidencia de cámara ni grupos como entidad.</p>
-
-      <div class="datos-callout">
-        <p class="datos-callout-text">El grupo parlamentario predice con alta precisión si un diputado usa Bluesky: desde el <strong>{bskyMaxGrupo.pctBsky}%</strong> de {bskyMaxGrupo.label} hasta el <strong>{bskyMinGrupo.pctBsky}%</strong> del {bskyMinGrupo.label}.</p>
+      <!-- Panel: tabla numérica -->
+      <div id="cat-panel-tabla" class="cat-panel cat-panel--hidden">
+        <p class="text-xs text-muted-foreground mb-4"><em>Activos X</em>: con publicación en X en los últimos 30 días. <em>Sin act. X</em>: con cuenta pero sin publicar en ese período. <em>Con X</em>: total con cuenta en X. <em>Sin redes</em>: sin cuenta en ninguna plataforma.</p>
+        <div class="datos-table-wrap">
+          <table class="w-full" data-sortable>
+            <thead>
+              <tr class="border-b border-border/40 bg-muted/20">
+                <th data-sort="cat"     class="datos-sortable-th py-3 px-5 text-xs font-medium text-muted-foreground text-left  whitespace-nowrap">Categoría<span class="datos-sort-ind"></span></th>
+                <th data-sort="total"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Total<span class="datos-sort-ind"></span></th>
+                <th data-sort="sinAlt"  class="datos-sortable-th py-3 px-4 text-xs font-medium text-right whitespace-nowrap datos-th--alert">Sin alt. X<span class="datos-sort-ind"></span></th>
+                <th data-sort="enX"     class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Activos X<span class="datos-sort-ind"></span></th>
+                <th data-sort="sinActX" class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Sin act. X<span class="datos-sort-ind"></span></th>
+                <th data-sort="conTw"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Con X<span class="datos-sort-ind"></span></th>
+                <th data-sort="bsky"    class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Bluesky<span class="datos-sort-ind"></span></th>
+                <th data-sort="bskyA"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Activos BS<span class="datos-sort-ind"></span></th>
+                <th data-sort="mstdn"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Mastodon<span class="datos-sort-ind"></span></th>
+                <th data-sort="sinNada" class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Sin redes<span class="datos-sort-ind"></span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {catStats.map((c) => (
+                <tr class="border-b border-border/30 hover:bg-muted/20 transition-colors">
+                  <td data-col="cat"     class="py-3 px-5 text-sm font-medium text-left whitespace-nowrap">{c.label}</td>
+                  <td data-col="total"   data-val={c.total}          class="py-3 px-4 text-sm tabular-nums text-right text-muted-foreground">{c.total}</td>
+                  <td data-col="sinAlt"  data-val={c.sinAlternativa} class={`py-3 px-4 text-sm tabular-nums text-right font-medium ${c.sinAlternativa > 0 ? 'datos-td--alert' : 'text-muted-foreground'}`}>{c.sinAlternativa}</td>
+                  <td data-col="enX"     data-val={c.enX}            class="py-3 px-4 text-sm tabular-nums text-right">{c.enX}</td>
+                  <td data-col="sinActX" data-val={c.sinActX}        class="py-3 px-4 text-sm tabular-nums text-right text-muted-foreground">{c.sinActX}</td>
+                  <td data-col="conTw"   data-val={c.conTwitter}     class="py-3 px-4 text-sm tabular-nums text-right text-muted-foreground">{c.conTwitter}</td>
+                  <td data-col="bsky"    data-val={c.conBluesky}     class="py-3 px-4 text-sm tabular-nums text-right">{c.conBluesky}</td>
+                  <td data-col="bskyA"   data-val={c.activoBsky}     class="py-3 px-4 text-sm tabular-nums text-right font-medium text-sky-400">{c.activoBsky}</td>
+                  <td data-col="mstdn"   data-val={c.conMastodon}    class="py-3 px-4 text-sm tabular-nums text-right text-violet-400">{c.conMastodon}</td>
+                  <td data-col="sinNada" data-val={c.sinNinguna}     class="py-3 px-4 text-sm tabular-nums text-right text-muted-foreground">{c.sinNinguna}</td>
+                </tr>
+              ))}
+              <tr data-footer class="border-t border-border bg-muted/30">
+                <td class="py-3 px-5 text-sm font-bold text-left">Total</td>
+                <td class="py-3 px-4 text-sm tabular-nums font-bold text-right text-muted-foreground">{totales.total}</td>
+                <td class="py-3 px-4 text-sm tabular-nums font-bold text-right datos-td--alert">{totales.sinAlternativa}</td>
+                <td class="py-3 px-4 text-sm tabular-nums font-bold text-right">{totales.enX}</td>
+                <td class="py-3 px-4 text-sm tabular-nums font-bold text-right text-muted-foreground">{totales.sinActX}</td>
+                <td class="py-3 px-4 text-sm tabular-nums font-bold text-right text-muted-foreground">{totales.conTwitter}</td>
+                <td class="py-3 px-4 text-sm tabular-nums font-bold text-right">{totales.conBluesky}</td>
+                <td class="py-3 px-4 text-sm tabular-nums font-bold text-right text-sky-400">{totales.activoBsky}</td>
+                <td class="py-3 px-4 text-sm tabular-nums font-bold text-right text-violet-400">{totales.conMastodon}</td>
+                <td class="py-3 px-4 text-sm tabular-nums font-bold text-right text-muted-foreground">{totales.sinNinguna}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
+    </section>
 
-      <!-- Toggle Congreso / Senado -->
-      <div class="datos-toggle mb-6" id="parl-toggle">
-        <button class="datos-toggle-btn is-active" data-parl="congreso">Congreso de los Diputados</button>
-        <button class="datos-toggle-btn" data-parl="senado">Senado de España</button>
+    <!-- ── 04 / RADIOGRAFÍA PARLAMENTARIA ────────────────────────────────── -->
+    <section class="datos-card-panel">
+      <div class="datos-card-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 class="datos-card-title">Presencia institucional y gradiente ideológico</h2>
+          <p class="datos-card-subtitle">
+            XV Legislatura: Actividad de diputados/as y senadores/as con escaño en activo.
+          </p>
+        </div>
+
+        <!-- Toggle Congreso / Senado -->
+        <div class="datos-toggle shrink-0" id="parl-toggle">
+          <button class="datos-toggle-btn is-active" data-parl="congreso">Congreso de los Diputados</button>
+          <button class="datos-toggle-btn" data-parl="senado">Senado de España</button>
+        </div>
       </div>
 
       <!-- Congreso -->
       <div id="parl-panel-congreso" class="parl-panel">
-      <div class="grid grid-cols-1 lg:grid-cols-[1.45fr_1fr] gap-6 items-start">
+        <div class="datos-callout mb-6">
+          <p class="datos-callout-text">El grupo parlamentario predice con gran precisión la adopción de Bluesky en el Congreso: desde el <strong>{bskyMaxGrupo.pctBsky}%</strong> en <strong>{bskyMaxGrupo.label}</strong> y el <strong>{pct(congresoGruposMap['EH Bildu']?.conBluesky ?? 0, congresoGruposMap['EH Bildu']?.base ?? 1)}%</strong> en <strong>EH Bildu</strong>, hasta el <strong>0%</strong> en las bancadas de VOX y PP.</p>
+        </div>
 
-        <div class="order-last lg:order-first">
-          <div class="datos-table-wrap">
-            <table class="w-full" data-sortable>
-              <thead>
-                <tr class="border-b border-border/40 bg-muted/20">
-                  <th data-sort="grupo"    class="datos-sortable-th py-3 px-5 text-xs font-medium text-muted-foreground text-left whitespace-nowrap">Grupo<span class="datos-sort-ind"></span></th>
-                  <th data-sort="total"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Total<span class="datos-sort-ind"></span></th>
-                  <th data-sort="sinAlt"  class="datos-sortable-th py-3 px-4 text-xs font-medium text-right whitespace-nowrap datos-th--alert">Sin alternativa<span class="datos-sort-ind"></span></th>
-                  <th data-sort="pctFuera" class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-left whitespace-nowrap">Sin actividad en X<span class="datos-sort-ind"></span></th>
-                  <th data-sort="enX"     class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Activos X<span class="datos-sort-ind"></span></th>
-                  <th data-sort="bsky"    class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Bluesky<span class="datos-sort-ind"></span></th>
-                  <th data-sort="mstdn"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Mastodon<span class="datos-sort-ind"></span></th>
-                </tr>
-              </thead>
-              <tbody>
-                {gruposStats.map((g) => (
-                  <tr class="border-b border-border/30 hover:bg-muted/20 transition-colors">
-                    <td data-col="grupo" class="py-3 px-5 text-left">
-                      <div class="text-sm font-medium">{g.label}</div>
-                      {CONGRESO_GRUPO_FULLNAMES[g.label] && (
-                        <div class="text-xs text-muted-foreground/60 font-normal mt-0.5">{CONGRESO_GRUPO_FULLNAMES[g.label]}</div>
-                      )}
-                    </td>
-                    <td data-col="total"  data-val={g.total} class="py-3 px-4 text-sm tabular-nums text-right text-muted-foreground">{g.total}</td>
-                    <td data-col="sinAlt" data-val={g.pctSinAlt} class={`py-3 px-4 text-right ${g.sinAlternativa > 0 ? 'datos-td--alert' : 'text-muted-foreground'}`}>
-                      <div class="grup-pct">{g.pctSinAlt}%</div>
-                      <div class="grup-abs">{g.sinAlternativa}</div>
-                    </td>
-                    <td data-col="pctFuera" data-val={g.pctFuera} class="py-3 px-4">
-                      <div class="flex items-center gap-2">
-                        <div class="grupo-bar-track shrink-0">
-                          <div class="grupo-bar-seg" data-pct={g.pctFuera}></div>
+        <div class="grid grid-cols-1 lg:grid-cols-[1.45fr_1fr] gap-6 items-start">
+          <div class="order-last lg:order-first">
+            <div class="datos-table-wrap">
+              <table class="w-full" data-sortable>
+                <thead>
+                  <tr class="border-b border-border/40 bg-muted/20">
+                    <th data-sort="grupo"    class="datos-sortable-th py-3 px-5 text-xs font-medium text-muted-foreground text-left whitespace-nowrap">Grupo<span class="datos-sort-ind"></span></th>
+                    <th data-sort="total"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Total<span class="datos-sort-ind"></span></th>
+                    <th data-sort="sinAlt"  class="datos-sortable-th py-3 px-4 text-xs font-medium text-right whitespace-nowrap datos-th--alert">Sin alt.<span class="datos-sort-ind"></span></th>
+                    <th data-sort="pctFuera" class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-left whitespace-nowrap">Sin act. en X<span class="datos-sort-ind"></span></th>
+                    <th data-sort="enX"     class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Activos X<span class="datos-sort-ind"></span></th>
+                    <th data-sort="bsky"    class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Bluesky<span class="datos-sort-ind"></span></th>
+                    <th data-sort="mstdn"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Mastodon<span class="datos-sort-ind"></span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {gruposStats.map((g) => (
+                    <tr class="border-b border-border/30 hover:bg-muted/20 transition-colors">
+                      <td data-col="grupo" class="py-3 px-5 text-left">
+                        <div class="text-sm font-medium">{g.label}</div>
+                        {CONGRESO_GRUPO_FULLNAMES[g.label] && (
+                          <div class="text-xs text-muted-foreground/60 font-normal mt-0.5">{CONGRESO_GRUPO_FULLNAMES[g.label]}</div>
+                        )}
+                      </td>
+                      <td data-col="total"  data-val={g.total} class="py-3 px-4 text-sm tabular-nums text-right text-muted-foreground">{g.total}</td>
+                      <td data-col="sinAlt" data-val={g.pctSinAlt} class={`py-3 px-4 text-right ${g.sinAlternativa > 0 ? 'datos-td--alert' : 'text-muted-foreground'}`}>
+                        <div class="grup-pct">{g.pctSinAlt}%</div>
+                        <div class="grup-abs">{g.sinAlternativa}</div>
+                      </td>
+                      <td data-col="pctFuera" data-val={g.pctFuera} class="py-3 px-4">
+                        <div class="flex items-center gap-2">
+                          <div class="grupo-bar-track shrink-0">
+                            <div class="grupo-bar-seg" data-pct={g.pctFuera}></div>
+                          </div>
+                          <span class="text-xs tabular-nums text-muted-foreground shrink-0">{g.pctFuera}%</span>
                         </div>
-                        <span class="text-xs tabular-nums text-muted-foreground shrink-0">{g.pctFuera}%</span>
-                      </div>
+                      </td>
+                      <td data-col="enX"   data-val={g.pctEnX}   class="py-3 px-4 text-right">
+                        <div class="grup-pct">{g.pctEnX}%</div>
+                        <div class="grup-abs">{g.enX}</div>
+                      </td>
+                      <td data-col="bsky"  data-val={g.pctBsky}  class="py-3 px-4 text-right">
+                        <div class="grup-pct font-semibold text-sky-400">{g.pctBsky}%</div>
+                        <div class="grup-abs">{g.conBluesky}</div>
+                      </td>
+                      <td data-col="mstdn" data-val={g.pctMstdn} class="py-3 px-4 text-right">
+                        <div class="grup-pct text-violet-400">{g.pctMstdn}%</div>
+                        <div class="grup-abs">{g.conMastodon}</div>
+                      </td>
+                    </tr>
+                  ))}
+                  <tr data-footer class="border-t border-border bg-muted/20">
+                    <td class="py-3 px-5 text-sm font-semibold">Total</td>
+                    <td class="py-3 px-4 text-sm tabular-nums font-semibold text-right text-muted-foreground">{congresoTotales.total}</td>
+                    <td class="py-3 px-4 text-right font-semibold datos-td--alert">
+                      <div class="grup-pct">{pct(congresoTotales.sinAlternativa, congresoTotales.base)}%</div>
+                      <div class="grup-abs">{congresoTotales.sinAlternativa}</div>
                     </td>
-                    <td data-col="enX"   data-val={g.pctEnX}   class="py-3 px-4 text-right">
-                      <div class="grup-pct">{g.pctEnX}%</div>
-                      <div class="grup-abs">{g.enX}</div>
+                    <td class="py-3 px-4"></td>
+                    <td class="py-3 px-4 text-right font-semibold">
+                      <div class="grup-pct">{pct(congresoTotales.enX, congresoTotales.base)}%</div>
+                      <div class="grup-abs">{congresoTotales.enX}</div>
                     </td>
-                    <td data-col="bsky"  data-val={g.pctBsky}  class="py-3 px-4 text-right">
-                      <div class="grup-pct font-semibold">{g.pctBsky}%</div>
-                      <div class="grup-abs">{g.conBluesky}</div>
+                    <td class="py-3 px-4 text-right font-semibold">
+                      <div class="grup-pct text-sky-400">{pct(congresoTotales.conBluesky, congresoTotales.base)}%</div>
+                      <div class="grup-abs">{congresoTotales.conBluesky}</div>
                     </td>
-                    <td data-col="mstdn" data-val={g.pctMstdn} class="py-3 px-4 text-right">
-                      <div class="grup-pct">{g.pctMstdn}%</div>
-                      <div class="grup-abs">{g.conMastodon}</div>
+                    <td class="py-3 px-4 text-right font-semibold">
+                      <div class="grup-pct text-violet-400">{pct(congresoTotales.conMastodon, congresoTotales.base)}%</div>
+                      <div class="grup-abs">{congresoTotales.conMastodon}</div>
                     </td>
                   </tr>
-                ))}
-                <tr data-footer class="border-t border-border bg-muted/20">
-                  <td class="py-3 px-5 text-sm font-semibold">Total</td>
-                  <td class="py-3 px-4 text-sm tabular-nums font-semibold text-right text-muted-foreground">{congresoTotales.total}</td>
-                  <td class="py-3 px-4 text-right font-semibold datos-td--alert">
-                    <div class="grup-pct">{pct(congresoTotales.sinAlternativa, congresoTotales.base)}%</div>
-                    <div class="grup-abs">{congresoTotales.sinAlternativa}</div>
-                  </td>
-                  <td class="py-3 px-4"></td>
-                  <td class="py-3 px-4 text-right font-semibold">
-                    <div class="grup-pct">{pct(congresoTotales.enX, congresoTotales.base)}%</div>
-                    <div class="grup-abs">{congresoTotales.enX}</div>
-                  </td>
-                  <td class="py-3 px-4 text-right font-semibold">
-                    <div class="grup-pct">{pct(congresoTotales.conBluesky, congresoTotales.base)}%</div>
-                    <div class="grup-abs">{congresoTotales.conBluesky}</div>
-                  </td>
-                  <td class="py-3 px-4 text-right font-semibold">
-                    <div class="grup-pct">{pct(congresoTotales.conMastodon, congresoTotales.base)}%</div>
-                    <div class="grup-abs">{congresoTotales.conMastodon}</div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
 
-        <!-- Gradiente ideológico -->
-        <div class="gradiente-wrap border border-border/40 rounded-lg p-4 bg-muted/10 w-full">
-          <p class="gradiente-title">Adopción de Bluesky por grupo (Congreso)</p>
-          <p class="gradiente-subtitle">% de diputados con cuenta en Bluesky. De izquierda a derecha ideológicamente.</p>
-          <div class="gradiente-chart">
-            {gruposGradiente.map(g => (
-              <div class="gradiente-row">
-                <span class="gradiente-label">{g.label}</span>
-                <div class="gradiente-bar-track">
-                  <div class="gradiente-bar-fill" style={`width:${g.pctBsky}%`}></div>
+          <!-- Gradiente ideológico -->
+          <div class="gradiente-wrap w-full bg-card/40 border border-border/40 rounded-lg p-5">
+            <p class="gradiente-title">Adopción de Bluesky por grupo (Congreso)</p>
+            <p class="gradiente-subtitle">% de diputados con cuenta en Bluesky. Ordenado de izquierda a derecha ideológicamente.</p>
+            <div class="gradiente-chart">
+              {gruposGradiente.map(g => (
+                <div class="gradiente-row">
+                  <span class="gradiente-label">{g.label}</span>
+                  <div class="gradiente-bar-track">
+                    <div class="gradiente-bar-fill" style={`width:${g.pctBsky}%`}></div>
+                  </div>
+                  <span class="gradiente-pct">{g.pctBsky}%</span>
                 </div>
-                <span class="gradiente-pct">{g.pctBsky}%</span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
-
-      </div>
       </div>
 
       <!-- Senado -->
       <div id="parl-panel-senado" class="parl-panel parl-panel--hidden">
-      <div class="datos-table-wrap">
-        <table class="w-full" data-sortable>
-          <thead>
-            <tr class="border-b border-border/40 bg-muted/20">
-              <th data-sort="grupo"    class="datos-sortable-th py-3 px-5 text-xs font-medium text-muted-foreground text-left whitespace-nowrap">Grupo<span class="datos-sort-ind"></span></th>
-              <th data-sort="total"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Total<span class="datos-sort-ind"></span></th>
-              <th data-sort="sinAlt"  class="datos-sortable-th py-3 px-4 text-xs font-medium text-right whitespace-nowrap datos-th--alert">Sin alternativa<span class="datos-sort-ind"></span></th>
-              <th data-sort="pctFuera" class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-left whitespace-nowrap">Sin actividad en X<span class="datos-sort-ind"></span></th>
-              <th data-sort="enX"     class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Activos X<span class="datos-sort-ind"></span></th>
-              <th data-sort="bsky"    class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Bluesky<span class="datos-sort-ind"></span></th>
-              <th data-sort="mstdn"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Mastodon<span class="datos-sort-ind"></span></th>
-            </tr>
-          </thead>
-          <tbody>
-            {senadoGruposStats.map((g) => (
-              <tr class="border-b border-border/30 hover:bg-muted/20 transition-colors">
-                <td data-col="grupo" class="py-3 px-5 text-left">
-                  <div class="text-sm font-medium">{g.label}</div>
-                  {SENADO_GRUPO_FULLNAMES[g.label] && (
-                    <div class="text-xs text-muted-foreground/60 font-normal mt-0.5">{SENADO_GRUPO_FULLNAMES[g.label]}</div>
-                  )}
-                </td>
-                <td data-col="total"  data-val={g.total} class="py-3 px-4 text-sm tabular-nums text-right text-muted-foreground">{g.total}</td>
-                <td data-col="sinAlt" data-val={g.pctSinAlt} class={`py-3 px-4 text-right ${g.sinAlternativa > 0 ? 'datos-td--alert' : 'text-muted-foreground'}`}>
-                  <div class="grup-pct">{g.pctSinAlt}%</div>
-                  <div class="grup-abs">{g.sinAlternativa}</div>
-                </td>
-                <td data-col="pctFuera" data-val={g.pctFuera} class="py-3 px-4">
-                  <div class="flex items-center gap-2">
-                    <div class="grupo-bar-track shrink-0">
-                      <div class="grupo-bar-seg" data-pct={g.pctFuera}></div>
-                    </div>
-                    <span class="text-xs tabular-nums text-muted-foreground shrink-0">{g.pctFuera}%</span>
-                  </div>
-                </td>
-                <td data-col="enX"   data-val={g.pctEnX}   class="py-3 px-4 text-right">
-                  <div class="grup-pct">{g.pctEnX}%</div>
-                  <div class="grup-abs">{g.enX}</div>
-                </td>
-                <td data-col="bsky"  data-val={g.pctBsky}  class="py-3 px-4 text-right">
-                  <div class="grup-pct font-semibold">{g.pctBsky}%</div>
-                  <div class="grup-abs">{g.conBluesky}</div>
-                </td>
-                <td data-col="mstdn" data-val={g.pctMstdn} class="py-3 px-4 text-right">
-                  <div class="grup-pct">{g.pctMstdn}%</div>
-                  <div class="grup-abs">{g.conMastodon}</div>
-                </td>
-              </tr>
-            ))}
-            <tr data-footer class="border-t border-border bg-muted/20">
-              <td class="py-3 px-5 text-sm font-semibold">Total</td>
-              <td class="py-3 px-4 text-sm tabular-nums font-semibold text-right text-muted-foreground">{senadoTotales.total}</td>
-              <td class="py-3 px-4 text-right font-semibold datos-td--alert">
-                <div class="grup-pct">{pct(senadoTotales.sinAlternativa, senadoTotales.base)}%</div>
-                <div class="grup-abs">{senadoTotales.sinAlternativa}</div>
-              </td>
-              <td class="py-3 px-4"></td>
-              <td class="py-3 px-4 text-right font-semibold">
-                <div class="grup-pct">{pct(senadoTotales.enX, senadoTotales.base)}%</div>
-                <div class="grup-abs">{senadoTotales.enX}</div>
-              </td>
-              <td class="py-3 px-4 text-right font-semibold">
-                <div class="grup-pct">{pct(senadoTotales.conBluesky, senadoTotales.base)}%</div>
-                <div class="grup-abs">{senadoTotales.conBluesky}</div>
-              </td>
-              <td class="py-3 px-4 text-right font-semibold">
-                <div class="grup-pct">{pct(senadoTotales.conMastodon, senadoTotales.base)}%</div>
-                <div class="grup-abs">{senadoTotales.conMastodon}</div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      </div>
-    </div>
+        <div class="datos-callout mb-6">
+          <p class="datos-callout-text">En el Senado se reproduce la misma fractura: la adopción de Bluesky alcanza el <strong>{senadoBskyMax.pctBsky}%</strong> en <strong>{senadoBskyMax.label}</strong> y el <strong>{pct(senadoGruposMap['ERC / EH Bildu']?.conBluesky ?? 0, senadoGruposMap['ERC / EH Bildu']?.base ?? 1)}%</strong> en <strong>ERC / EH Bildu</strong>, contrastando con el 0% en los senadores populares.</p>
+        </div>
 
+        <div class="grid grid-cols-1 lg:grid-cols-[1.45fr_1fr] gap-6 items-start">
+          <div class="order-last lg:order-first">
+            <div class="datos-table-wrap">
+              <table class="w-full" data-sortable>
+                <thead>
+                  <tr class="border-b border-border/40 bg-muted/20">
+                    <th data-sort="grupo"    class="datos-sortable-th py-3 px-5 text-xs font-medium text-muted-foreground text-left whitespace-nowrap">Grupo<span class="datos-sort-ind"></span></th>
+                    <th data-sort="total"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Total<span class="datos-sort-ind"></span></th>
+                    <th data-sort="sinAlt"  class="datos-sortable-th py-3 px-4 text-xs font-medium text-right whitespace-nowrap datos-th--alert">Sin alt.<span class="datos-sort-ind"></span></th>
+                    <th data-sort="pctFuera" class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-left whitespace-nowrap">Sin act. en X<span class="datos-sort-ind"></span></th>
+                    <th data-sort="enX"     class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Activos X<span class="datos-sort-ind"></span></th>
+                    <th data-sort="bsky"    class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Bluesky<span class="datos-sort-ind"></span></th>
+                    <th data-sort="mstdn"   class="datos-sortable-th py-3 px-4 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">Mastodon<span class="datos-sort-ind"></span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {senadoGruposStats.map((g) => (
+                    <tr class="border-b border-border/30 hover:bg-muted/20 transition-colors">
+                      <td data-col="grupo" class="py-3 px-5 text-left">
+                        <div class="text-sm font-medium">{g.label}</div>
+                        {SENADO_GRUPO_FULLNAMES[g.label] && (
+                          <div class="text-xs text-muted-foreground/60 font-normal mt-0.5">{SENADO_GRUPO_FULLNAMES[g.label]}</div>
+                        )}
+                      </td>
+                      <td data-col="total"  data-val={g.total} class="py-3 px-4 text-sm tabular-nums text-right text-muted-foreground">{g.total}</td>
+                      <td data-col="sinAlt" data-val={g.pctSinAlt} class={`py-3 px-4 text-right ${g.sinAlternativa > 0 ? 'datos-td--alert' : 'text-muted-foreground'}`}>
+                        <div class="grup-pct">{g.pctSinAlt}%</div>
+                        <div class="grup-abs">{g.sinAlternativa}</div>
+                      </td>
+                      <td data-col="pctFuera" data-val={g.pctFuera} class="py-3 px-4">
+                        <div class="flex items-center gap-2">
+                          <div class="grupo-bar-track shrink-0">
+                            <div class="grupo-bar-seg" data-pct={g.pctFuera}></div>
+                          </div>
+                          <span class="text-xs tabular-nums text-muted-foreground shrink-0">{g.pctFuera}%</span>
+                        </div>
+                      </td>
+                      <td data-col="enX"   data-val={g.pctEnX}   class="py-3 px-4 text-right">
+                        <div class="grup-pct">{g.pctEnX}%</div>
+                        <div class="grup-abs">{g.enX}</div>
+                      </td>
+                      <td data-col="bsky"  data-val={g.pctBsky}  class="py-3 px-4 text-right">
+                        <div class="grup-pct font-semibold text-sky-400">{g.pctBsky}%</div>
+                        <div class="grup-abs">{g.conBluesky}</div>
+                      </td>
+                      <td data-col="mstdn" data-val={g.pctMstdn} class="py-3 px-4 text-right">
+                        <div class="grup-pct text-violet-400">{g.pctMstdn}%</div>
+                        <div class="grup-abs">{g.conMastodon}</div>
+                      </td>
+                    </tr>
+                  ))}
+                  <tr data-footer class="border-t border-border bg-muted/20">
+                    <td class="py-3 px-5 text-sm font-semibold">Total</td>
+                    <td class="py-3 px-4 text-sm tabular-nums font-semibold text-right text-muted-foreground">{senadoTotales.total}</td>
+                    <td class="py-3 px-4 text-right font-semibold datos-td--alert">
+                      <div class="grup-pct">{pct(senadoTotales.sinAlternativa, senadoTotales.base)}%</div>
+                      <div class="grup-abs">{senadoTotales.sinAlternativa}</div>
+                    </td>
+                    <td class="py-3 px-4"></td>
+                    <td class="py-3 px-4 text-right font-semibold">
+                      <div class="grup-pct">{pct(senadoTotales.enX, senadoTotales.base)}%</div>
+                      <div class="grup-abs">{senadoTotales.enX}</div>
+                    </td>
+                    <td class="py-3 px-4 text-right font-semibold">
+                      <div class="grup-pct text-sky-400">{pct(senadoTotales.conBluesky, senadoTotales.base)}%</div>
+                      <div class="grup-abs">{senadoTotales.conBluesky}</div>
+                    </td>
+                    <td class="py-3 px-4 text-right font-semibold">
+                      <div class="grup-pct text-violet-400">{pct(senadoTotales.conMastodon, senadoTotales.base)}%</div>
+                      <div class="grup-abs">{senadoTotales.conMastodon}</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Gradiente ideológico (Senado) -->
+          <div class="gradiente-wrap w-full bg-card/40 border border-border/40 rounded-lg p-5">
+            <p class="gradiente-title">Adopción de Bluesky por grupo (Senado)</p>
+            <p class="gradiente-subtitle">% de senadores con cuenta en Bluesky. Ordenado de izquierda a derecha ideológicamente.</p>
+            <div class="gradiente-chart">
+              {senadoGruposGradiente.map(g => (
+                <div class="gradiente-row">
+                  <span class="gradiente-label">{g.label}</span>
+                  <div class="gradiente-bar-track">
+                    <div class="gradiente-bar-fill" style={`width:${g.pctBsky}%`}></div>
+                  </div>
+                  <span class="gradiente-pct">{g.pctBsky}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
   </div>
   </div>
 
   <!-- Panel: Metodología -->
   <div id="datos-panel-metodologia" class="datos-panel datos-panel--hidden">
-  <div class="text-left px-4 sm:px-6 max-w-screen-xl mx-auto pb-8 mt-6">
+  <div class="text-left max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-12 pb-8 mt-6">
     <div class="datos-meto datos-meto--panel">
       <h2 class="datos-meto-h2">Metodología</h2>
       <p class="datos-meto-lead">Criterios de inclusión, proceso de obtención y verificación de los datos.</p>
@@ -1188,7 +1228,7 @@ function kpiDash(p: number) {
           <ul class="datos-meto-ul">
             {[
               ["Base de los porcentajes", `Todos los porcentajes de esta página (adopción de X/Bluesky/Mastodon, actividad, "sin alternativa") se calculan sobre las ${totalesBase} entidades con presencia registrada en alguna red social. Las ${totales.sinNinguna} entidades sin ninguna cuenta quedan excluidas de estos cálculos, por resultar irrelevantes para el estudio de la elección entre plataformas, aunque siguen apareciendo listadas en las tablas y en el índice general.`],
-              ["Foto fija sin serie temporal", "Los datos reflejan la presencia en el momento de la última actualización. No existe serie histórica, por lo que los cambios en la adopción de plataformas son inferencias, no observaciones longitudinales."],
+              ["Serie temporal reciente", "Los datos de esta página reflejan la presencia en el momento de la última actualización. Desde junio de 2026 se conservan snapshots mensuales y un registro de altas y bajas (Gobierno, Congreso, Senado y resto de entidades) en el repositorio, pero la serie es aún corta y la cobertura creció en agosto de 2026, por lo que las comparaciones anteriores a esa fecha solo son válidas para las categorías ya existentes."],
               ["Presencia ≠ actividad real", "Tener cuenta registrada no equivale a usarla activamente, y estar activo en sentido técnico (haber publicado en los últimos 30 días) no implica alcance ni impacto comunicativo real. Los datos no incluyen métricas de audiencia ni engagement."],
               ["Cobertura de parlamentarios", "La identificación de cuentas personales depende de su aparición en las listas de «siguiendo» de cuentas semilla institucionales o de su localización por nombre. Pueden existir cuentas no registradas."],
               ["Cuentas en error o protegidas", `Las ${tw404Count} cuentas de X que devuelven error 4XX (${tw404Pct} % de las ${twTotal} registradas) pueden corresponder a cuentas suspendidas, eliminadas o privadas; no es posible distinguir entre estos casos. Adicionalmente, las cuentas privadas que devuelven respuesta vacía en lugar de error quedan registradas como inactivas sin posibilidad de identificarlas. El impacto conjunto es marginal.`],
@@ -1218,6 +1258,201 @@ function kpiDash(p: number) {
 </Layout>
 
 <style is:global>
+/* ── Estructura de paneles y tarjetas cohesivas ─────────────────── */
+.datos-card-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+@media (min-width: 640px) {
+  .datos-card-panel {
+    padding: 32px;
+  }
+}
+.datos-card-header {
+  margin-bottom: 24px;
+}
+.datos-card-title {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--sd-fg-2);
+  margin: 0 0 6px;
+}
+@media (min-width: 640px) {
+  .datos-card-title {
+    font-size: 22px;
+  }
+}
+.datos-card-subtitle {
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--sd-muted);
+  margin: 0;
+  max-width: 820px;
+}
+
+/* Cajas de universo y alcance */
+.datos-meta-box {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+}
+.datos-meta-box-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--sd-muted);
+  margin-bottom: 4px;
+}
+.datos-meta-box-val {
+  font-family: var(--font-sans);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--sd-fg-2);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  line-height: 1.1;
+}
+.datos-meta-box-pct {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--sd-muted);
+}
+.datos-meta-box-sub {
+  font-size: 12px;
+  color: var(--sd-muted);
+  margin-top: 6px;
+  margin-bottom: 0;
+}
+
+/* Tarjetas de plataforma */
+.datos-plat-card {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.datos-plat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.datos-plat-badge {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.datos-plat-badge--x { color: var(--sd-fg-2); }
+.datos-plat-badge--bsky { color: var(--sd-sky); }
+.datos-plat-badge--mstdn { color: var(--sd-mastodon); }
+.datos-plat-nature {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--sd-muted);
+}
+.datos-plat-kpi {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.datos-plat-num {
+  font-family: var(--font-sans);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.datos-plat-pct {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+}
+.datos-plat-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.datos-plat-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--sd-muted);
+}
+.datos-plat-stats {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.datos-plat-stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--sd-muted);
+}
+
+/* Tarjetas de alertas e impacto */
+.datos-highlight-card {
+  border-radius: 8px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.datos-highlight-card--alert {
+  background: color-mix(in srgb, var(--sd-rose-pink) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sd-rose-pink) 25%, transparent);
+}
+.datos-highlight-card--success {
+  background: color-mix(in srgb, var(--sd-sky) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sd-sky) 25%, transparent);
+}
+.datos-highlight-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.datos-highlight-stat {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.datos-highlight-title {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+.datos-highlight-desc {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--sd-muted);
+  margin: 0;
+}
+.datos-highlight-desc strong {
+  color: var(--sd-fg-2);
+}
+
 /* ── datos.astro ───────────────────────────────────────────────────── */
 
 /* Hero */
@@ -1228,7 +1463,7 @@ function kpiDash(p: number) {
 }
 
 .datos-hero-h1 {
-  font-family: 'Geist', system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-weight: 600;
   font-size: clamp(40px, 6vw, 64px);
   letter-spacing: -0.03em;
@@ -1262,7 +1497,7 @@ function kpiDash(p: number) {
 }
 
 .datos-hero-meta-text {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 13px;
   letter-spacing: 0.04em;
   color: rgba(246, 244, 239, 0.65);
@@ -1281,7 +1516,7 @@ function kpiDash(p: number) {
 }
 
 .datos-section-label {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1303,70 +1538,79 @@ function kpiDash(p: number) {
   font-size: 12px;
 }
 
-/* KPI cards con donuts */
+/* KPI metrics (editorial, sin tarjetas ni fondos de IA) */
 .datos-kpi-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  padding-bottom: 2rem;
+  gap: 16px 20px;
+  padding-bottom: 0.75rem;
 }
 
 @media (min-width: 640px) {
-  .datos-kpi-grid {
+  .datos-kpi-grid--4 {
     grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
+    gap: 24px;
+  }
+  .datos-kpi-grid--5 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (min-width: 900px) {
+  .datos-kpi-grid--5 {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 24px;
   }
 }
 
 .datos-kpi-card {
   background: transparent;
   border: none;
+  border-radius: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
+.dark .datos-kpi-card {
+  background: transparent;
+  border: none;
+}
 
 .datos-kpi-body {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .datos-kpi-text {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
 }
 
 .datos-kpi-donut {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   display: block;
 }
 
-@media (min-width: 640px) {
-  .datos-kpi-body { gap: 10px; }
-  .datos-kpi-donut {
-    width: 44px;
-    height: 44px;
-  }
-}
-
 .datos-kpi-desc {
-  font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 10px;
-  letter-spacing: 0.05em;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--sd-muted);
+  margin: 0;
+  line-height: 1.3;
 }
 
 .datos-kpi-num {
-  font-family: 'Geist', system-ui, sans-serif;
-  font-weight: 700;
-  font-size: 20px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 22px;
   letter-spacing: -0.02em;
   line-height: 1;
   color: var(--sd-fg-2);
@@ -1375,16 +1619,20 @@ function kpiDash(p: number) {
   flex-wrap: nowrap !important;
   align-items: baseline;
   gap: 1px;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  margin: 0;
 }
 @media (min-width: 640px) {
-  .datos-kpi-num { font-size: 26px; }
+  .datos-kpi-num { font-size: 24px; }
 }
 
 .datos-kpi-sub {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--sd-muted);
+  color: var(--sd-muted-2);
   margin-top: 2px;
+  margin-bottom: 0;
 }
 
 /* KPI num alert variant */
@@ -1394,24 +1642,24 @@ function kpiDash(p: number) {
 .datos-dist-desc {
   color: var(--sd-muted);
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 13.5px;
   text-align: left;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .dist-bar-row   { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 6px; }
-.dist-bar-label { font-size: 14px; font-weight: 500; }
+.dist-bar-label { font-family: var(--font-sans); font-size: 13.5px; font-weight: 500; color: var(--sd-fg-2); }
 .dist-bar-label--alert { color: var(--sd-rose-pink); }
-.dist-bar-label-note { font-weight: 400; color: var(--sd-muted); }
-.dist-bar-stats { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--sd-muted); flex-shrink: 0; }
+.dist-bar-label-note { font-weight: 400; color: var(--sd-muted); font-size: 12.5px; }
+.dist-bar-stats { font-size: 11.5px; font-family: var(--font-mono); color: var(--sd-muted); flex-shrink: 0; font-variant-numeric: tabular-nums; }
 
 .dist-bar-track {
   display: flex;
-  height: 6px;
+  height: 8px;
   width: 100%;
   overflow: hidden;
   background: var(--sd-line);
-  border-radius: 999px;
+  border-radius: 4px;
 }
 .dist-bar-seg   { height: 100%; width: 0; }
 
@@ -1468,7 +1716,7 @@ function kpiDash(p: number) {
 .cov-status--excluido { color: var(--sd-muted); }
 
 /* Comparativa por categoría */
-.cat-axis-label        { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--sd-muted); opacity: 0.4; }
+.cat-axis-label        { font-size: 12px; font-family: var(--font-mono); color: var(--sd-muted); opacity: 0.4; }
 .cat-axis-label--shift { transform: translateX(50%); }
 .cat-guide-line        { position: absolute; top: 0; bottom: 0; border-left: 1px dashed var(--sd-line); pointer-events: none; }
 
@@ -1476,25 +1724,25 @@ function kpiDash(p: number) {
 .grupo-bar-track { display: flex; height: 6px; width: 64px; overflow: hidden; background: var(--sd-line); flex-shrink: 0; border-radius: 999px; }
 .grupo-bar-seg   { height: 100%; width: 0; background: var(--sd-fg-2); opacity: 0.4; }
 
-.grup-pct { font-family: 'Geist', system-ui, sans-serif; font-size: 14px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.1; }
-.grup-abs { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--sd-muted); margin-top: 2px; }
+.grup-pct { font-family: var(--font-sans); font-size: 14px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.1; }
+.grup-abs { font-family: var(--font-mono); font-size: 10px; color: var(--sd-muted); margin-top: 2px; }
 
 /* Mapa de calor por categoría */
 .heatmap-wrap { overflow-x: auto; }
 .heatmap-grid {
   display: grid;
-  grid-template-columns: 8rem repeat(3, 1fr);
-  gap: 3px;
-  min-width: 380px;
+  grid-template-columns: 8.5rem repeat(3, 1fr);
+  gap: 4px;
+  min-width: 400px;
 }
 .heatmap-col-head {
   text-align: center;
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  padding: 0 4px 10px;
+  padding: 0 4px 8px;
 }
 .heatmap-col-head--x    { color: var(--sd-muted); }
 .heatmap-col-head--bsky { color: var(--sd-sky); }
@@ -1503,34 +1751,37 @@ function kpiDash(p: number) {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 4px 12px 4px 0;
+  padding: 4px 10px 4px 0;
 }
-.heatmap-row-name { font-size: 14px; font-weight: 500; line-height: 1.2; }
-.heatmap-row-n { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--sd-muted); margin-top: 2px; }
+.heatmap-row-name { font-size: 13.5px; font-weight: 500; line-height: 1.25; color: var(--sd-fg-2); }
+.heatmap-row-n { font-size: 10px; font-family: var(--font-mono); color: var(--sd-muted); margin-top: 2px; }
 .heatmap-cell {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 6px 4px;
+  padding: 5px 4px;
   text-align: center;
-  min-height: 40px;
-  border-radius: 6px;
+  min-height: 38px;
+  border-radius: 4px;
   border: 1px solid var(--border);
+  transition: transform 0.12s ease;
 }
 .heatmap-val {
-  font-family: 'Geist', system-ui, sans-serif;
-  font-weight: 700;
-  font-size: 15px;
-  letter-spacing: -0.02em;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 13.5px;
+  letter-spacing: -0.01em;
   color: var(--sd-fg-2);
   line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 .heatmap-sub {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
   color: var(--sd-muted);
-  margin-top: 1px;
+  margin-top: 2px;
+  opacity: 0.85;
 }
 
 /* ── Metodología ─────────────────────────────────────────────────── */
@@ -1544,7 +1795,7 @@ function kpiDash(p: number) {
 }
 
 .datos-meto-h2 {
-  font-family: 'Geist', system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-weight: 600;
   font-size: 28px;
   letter-spacing: -0.02em;
@@ -1569,7 +1820,7 @@ function kpiDash(p: number) {
 .datos-meto-section { }
 
 .datos-meto-h3 {
-  font-family: 'Geist', system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-weight: 600;
   font-size: 17px;
   letter-spacing: -0.01em;
@@ -1591,7 +1842,7 @@ function kpiDash(p: number) {
 .datos-meto-link:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 .datos-meto-code {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
   background: var(--sd-line);
   padding: 1px 5px;
@@ -1667,7 +1918,7 @@ function kpiDash(p: number) {
   gap: 4px;
   background: var(--muted);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 4px;
   padding: 3px;
 }
 
@@ -1681,7 +1932,7 @@ function kpiDash(p: number) {
   background: transparent;
   cursor: pointer;
   color: var(--sd-muted);
-  border-radius: 6px;
+  border-radius: 3px;
   transition: all 0.15s ease;
   white-space: nowrap;
 }
@@ -1695,7 +1946,7 @@ function kpiDash(p: number) {
   background: var(--sd-fg-2);
   color: var(--background);
   font-weight: 600;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: none;
 }
 
 /* ── Panels ──────────────────────────────────────────────────────── */
@@ -1709,19 +1960,17 @@ function kpiDash(p: number) {
   padding-top: 32px;
 }
 
-/* Callout editorial */
+/* Callout editorial (sin caja de fondo) */
 .datos-callout {
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--sd-sky);
-  padding: 8px 12px;
-  background: var(--muted);
-  margin: 8px 0 16px;
-  border-radius: 6px;
+  border-left: 2px solid var(--sd-sky);
+  padding: 4px 0 4px 12px;
+  background: transparent;
+  margin: 10px 0 18px;
 }
 .datos-callout-text {
   font-family: var(--font-sans);
-  font-size: 13px;
-  line-height: 1.4;
+  font-size: 13.5px;
+  line-height: 1.5;
   color: var(--sd-fg-2);
   margin: 0;
 }
@@ -1744,10 +1993,10 @@ function kpiDash(p: number) {
 
 /* Gradiente ideológico chart */
 .gradiente-wrap {
-  padding: 16px;
+  padding: 0;
 }
 .gradiente-title {
-  font-family: 'Geist', system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 600;
   color: var(--sd-fg-2);
@@ -1796,28 +2045,29 @@ function kpiDash(p: number) {
   text-align: right;
 }
 
-/* Banner migración funcional */
+/* Banner migración funcional (editorial, sin caja de fondo) */
 .sustfunc-banner {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 14px 20px;
-  background: rgba(0,133,255,0.05);
-  border: 1px solid rgba(0,133,255,0.18);
-  border-left: 3px solid var(--sd-sky);
-  border-radius: 6px;
+  gap: 14px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: transparent;
 }
 .sustfunc-num {
-  font-family: 'Geist', system-ui, sans-serif;
-  font-size: 36px;
+  font-family: var(--font-sans);
+  font-size: 28px;
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   color: var(--sd-sky);
   line-height: 1;
   flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 .sustfunc-text {
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--sd-fg-2);
   line-height: 1.4;
 }

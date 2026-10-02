@@ -9,6 +9,7 @@ import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ReportButton } from "@/components/ReportModal";
+import { JoinRequestButton } from "@/components/JoinRequestModal";
 
 import "@/styles/sd-app.css";
 
@@ -166,6 +167,7 @@ function normalizeData(data: any[], categoria: string) {
       twitter_activo:  twitterOnX(item.twitter, item.twitter_activo),
       bluesky:         item.bluesky  || null,
       bluesky_activo:  isActiveDate(item.bluesky_activo, BLUESKY_REF),
+      bluesky_eurosky: !!item.bluesky_eurosky,
       mastodon:        item.mastodon || null,
       mastodon_activo: isActiveDate(item.mastodon_activo, MASTODON_REF),
       email:           item.email    || null,
@@ -205,6 +207,77 @@ function getBadgeClass(state: BadgeState, platform: "x" | "b" | "m"): string {
   return `plataforma-badge plataforma-badge--${BADGE_PLATFORM_NAME[platform]}-${BADGE_STATE_SUFFIX[state]}`;
 }
 
+const LEGEND_GROUPS = [
+  {
+    name: "X",
+    key: "x",
+    badges: [
+      {
+        badgeClass: "plataforma-badge plataforma-badge--x-activo sd-badge-legend",
+        label: "𝕏",
+        tip: "X: Activo (< 30 días)",
+      },
+      {
+        badgeClass: "plataforma-badge plataforma-badge--x-inactivo sd-badge-legend",
+        label: "𝕏",
+        tip: "X: Inactivo",
+      },
+      {
+        badgeClass: "plataforma-badge plataforma-badge--x-vacio sd-badge-legend",
+        label: "𝕏",
+        tip: "X: Sin cuenta",
+      },
+    ],
+  },
+  {
+    name: "Bluesky",
+    key: "b",
+    badges: [
+      {
+        badgeClass: "plataforma-badge plataforma-badge--bluesky-eurosky sd-badge-legend",
+        label: "B",
+        tip: "Eurosky: En servidor / nodo europeo",
+      },
+      {
+        badgeClass: "plataforma-badge plataforma-badge--bluesky-activo sd-badge-legend",
+        label: "B",
+        tip: "Bluesky: Activo (< 30 días)",
+      },
+      {
+        badgeClass: "plataforma-badge plataforma-badge--bluesky-inactivo sd-badge-legend",
+        label: "B",
+        tip: "Bluesky: Inactivo",
+      },
+      {
+        badgeClass: "plataforma-badge plataforma-badge--bluesky-vacio sd-badge-legend",
+        label: "B",
+        tip: "Bluesky: Sin cuenta",
+      },
+    ],
+  },
+  {
+    name: "Mastodon",
+    key: "m",
+    badges: [
+      {
+        badgeClass: "plataforma-badge plataforma-badge--mastodon-activo sd-badge-legend",
+        label: "M",
+        tip: "Mastodon: Activo (< 30 días)",
+      },
+      {
+        badgeClass: "plataforma-badge plataforma-badge--mastodon-inactivo sd-badge-legend",
+        label: "M",
+        tip: "Mastodon: Inactivo",
+      },
+      {
+        badgeClass: "plataforma-badge plataforma-badge--mastodon-vacio sd-badge-legend",
+        label: "M",
+        tip: "Mastodon: Sin cuenta",
+      },
+    ],
+  },
+];
+
 function badgeProps(item: any, platform: "twitter" | "bluesky" | "mastodon") {
   if (platform === "twitter") {
     const state: BadgeState = !item.twitter ? "off" : item.twitter_activo ? "on" : "soft";
@@ -213,9 +286,10 @@ function badgeProps(item: any, platform: "twitter" | "bluesky" | "mastodon") {
       href: item.twitter ? `https://x.com/${item.twitter}` : undefined };
   }
   if (platform === "bluesky") {
+    const isEurosky = !!item.bluesky && !!item.bluesky_eurosky;
     const state: BadgeState = !item.bluesky ? "off" : item.bluesky_activo ? "on" : "soft";
-    return { state, platformKey: "b" as const, label: "B",
-      tip: !item.bluesky ? "Sin cuenta en Bluesky" : item.bluesky_activo ? `${item.bluesky} · activo` : `${item.bluesky} · inactivo`,
+    return { state, platformKey: "b" as const, label: "B", isEurosky,
+      tip: !item.bluesky ? "Sin cuenta en Bluesky" : isEurosky ? `${item.bluesky} · Eurosky (nodo europeo)` : item.bluesky_activo ? `${item.bluesky} · activo` : `${item.bluesky} · inactivo`,
       href: item.bluesky ? `https://bsky.app/profile/${item.bluesky}` : undefined };
   }
   const state: BadgeState = !item.mastodon ? "off" : item.mastodon_activo ? "on" : "soft";
@@ -224,10 +298,12 @@ function badgeProps(item: any, platform: "twitter" | "bluesky" | "mastodon") {
     href: mastodonHref(item.mastodon) };
 }
 
-const PlatformBadge = ({ label, href, state, platformKey, tip }: {
-  label: string; href?: string; state: BadgeState; platformKey: "x" | "b" | "m"; tip: string;
+const PlatformBadge = ({ label, href, state, platformKey, isEurosky, tip }: {
+  label: string; href?: string; state: BadgeState; platformKey: "x" | "b" | "m"; isEurosky?: boolean; tip: string;
 }) => {
-  const badgeClass = getBadgeClass(state, platformKey);
+  const badgeClass = isEurosky && state !== "off"
+    ? `plataforma-badge plataforma-badge--bluesky-eurosky${state === "soft" ? " plataforma-badge--eurosky-inactivo" : ""}`
+    : getBadgeClass(state, platformKey);
   const inner = href
     ? <a href={href} target="_blank" rel="noopener noreferrer" className={`${badgeClass} hover:opacity-70`}>{label}</a>
     : <span className={badgeClass}>{label}</span>;
@@ -238,23 +314,6 @@ const PlatformBadge = ({ label, href, state, platformKey, tip }: {
     </Tooltip>
   );
 };
-
-// ── Gráfico donut ──────────────────────────────────────────────────────────
-
-function MiniDonut({ pct, color }: { pct: number; color: string }) {
-  const radius = 13;
-  const circumference = 2 * Math.PI * radius;
-  const filledArc = (Math.max(0, Math.min(100, pct)) / 100) * circumference;
-  return (
-    <svg width={34} height={34} viewBox="0 0 34 34" className="sd-donut">
-      <circle cx={17} cy={17} r={radius} fill="none" stroke="var(--sd-line)" strokeWidth={4.5} />
-      <circle cx={17} cy={17} r={radius} fill="none" stroke={color} strokeWidth={4.5}
-        style={{ strokeDasharray: `${filledArc} ${circumference}`, transition: "stroke-dasharray 0.55s cubic-bezier(0.4,0,0.2,1)" }}
-        transform="rotate(-90 17 17)"
-      />
-    </svg>
-  );
-}
 
 // ── Tarjeta móvil ──────────────────────────────────────────────────────────
 
@@ -270,7 +329,8 @@ const MobileCard = ({ item }: { item: any }) => (
           <PlatformBadge key={key} {...badgeProps(item, key)} />
         ))}
       </div>
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-2">
+        <JoinRequestButton item={item} />
         <ReportButton item={item} />
       </div>
     </div>
@@ -281,7 +341,6 @@ const MobileCard = ({ item }: { item: any }) => (
 
 const TABS = [
   { value: "total",          label: "Total",                  group: "todas"   },
-  const isFirstRender = useRef(true);
   { value: "gobierno",       label: "Gobierno",               group: "estado"  },
   { value: "administracion", label: "Administración",         group: "estado"  },
   { value: "organismos",     label: "Organismos públicos",    group: "estado"  },
@@ -299,6 +358,7 @@ function CategoryTabs({ items, active, onSelect }: {
   items: typeof TABS; active: string; onSelect: (v: string) => void;
 }) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isFirstRender = useRef(true);
   const [showLeftIndicator, setShowLeftIndicator] = useState(false);
   const [showRightIndicator, setShowRightIndicator] = useState(false);
 
@@ -308,10 +368,6 @@ function CategoryTabs({ items, active, onSelect }: {
     const { scrollLeft, scrollWidth, clientWidth } = el;
     setShowLeftIndicator(scrollLeft > 2);
     setShowRightIndicator(scrollWidth - clientWidth - scrollLeft > 2);
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
   };
 
   useEffect(() => {
@@ -322,16 +378,32 @@ function CategoryTabs({ items, active, onSelect }: {
     window.addEventListener("resize", updateScrollIndicators);
     el.addEventListener("scroll", updateScrollIndicators);
 
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && el.scrollWidth > el.clientWidth) {
+        e.preventDefault();
+        el.scrollBy({
+          left: e.deltaY,
+          behavior: "smooth",
+        });
+      }
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+
     return () => {
       window.removeEventListener("resize", updateScrollIndicators);
       el.removeEventListener("scroll", updateScrollIndicators);
+      el.removeEventListener("wheel", onWheel);
     };
   }, [items]);
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     const el = scrollContainerRef.current;
     if (!el) return;
-    const activeBtn = el.querySelector('[aria-selected="true"]');
+    const activeBtn = el.querySelector<HTMLElement>('[aria-selected="true"]');
     if (activeBtn) {
       const btnRect = activeBtn.getBoundingClientRect();
       const elRect = el.getBoundingClientRect();
@@ -382,6 +454,7 @@ interface AppSectionProps {
 export function AppSection({ initialStats }: AppSectionProps) {
   const [activeTab,     setActiveTab]     = useState("total");
   const [searchQuery,   setSearchQuery]   = useState("");
+  const [quickFilter,   setQuickFilter]   = useState<"all" | "bsky" | "mastodon" | "sin-alt" | "fuera-x">("all");
   const [sortColumn,    setSortColumn]    = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [stats,         setStats]         = useState(initialStats);
@@ -389,6 +462,18 @@ export function AppSection({ initialStats }: AppSectionProps) {
   const [grupoFilter,   setGrupoFilter]   = useState<string | null>(null);
   const [visibleCount,  setVisibleCount]  = useState(100);
   const statsRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   const dataByCategory = useMemo(() => ({
     administracion: normalizeData(ageAdministracion, "Administración"),
@@ -428,7 +513,18 @@ export function AppSection({ initialStats }: AppSectionProps) {
   }, [rawData, grupoFilter, activeTab]);
 
   const filteredData = useMemo(() => {
-    const source = searchQuery ? allData : grupoFilteredData;
+    let source = searchQuery ? allData : grupoFilteredData;
+
+    if (quickFilter === "bsky") {
+      source = source.filter((item) => !!item.bluesky);
+    } else if (quickFilter === "mastodon") {
+      source = source.filter((item) => !!item.mastodon);
+    } else if (quickFilter === "sin-alt") {
+      source = source.filter((item) => item.twitter && !item.bluesky && !item.mastodon);
+    } else if (quickFilter === "fuera-x") {
+      source = source.filter((item) => !item.twitter_activo);
+    }
+
     if (!searchQuery) return source;
     const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
     const tokens = norm(searchQuery).split(/\s+/).filter(Boolean);
@@ -438,7 +534,7 @@ export function AppSection({ initialStats }: AppSectionProps) {
       const h = haystack(item);
       return tokens.every((t) => h.includes(t));
     });
-  }, [grupoFilteredData, allData, searchQuery]);
+  }, [grupoFilteredData, allData, searchQuery, quickFilter]);
 
   const sortedData = useMemo(() => {
     if (!sortColumn) return filteredData;
@@ -457,8 +553,8 @@ export function AppSection({ initialStats }: AppSectionProps) {
     });
   }, [filteredData, sortColumn, sortDirection]);
 
-  useEffect(() => { setGrupoFilter(null); }, [activeTab]);
-  useEffect(() => { setVisibleCount(100); }, [activeTab, searchQuery, grupoFilter, sortColumn, sortDirection]);
+  useEffect(() => { setGrupoFilter(null); setQuickFilter("all"); }, [activeTab]);
+  useEffect(() => { setVisibleCount(100); }, [activeTab, searchQuery, grupoFilter, quickFilter, sortColumn, sortDirection]);
 
   useEffect(() => {
     setStats(calculateStats(grupoFilteredData));
@@ -485,107 +581,132 @@ export function AppSection({ initialStats }: AppSectionProps) {
       : <span className="opacity-30 text-[10px] ml-0.5">↕</span>;
 
   const detalleLabel = DETALLE_LABEL[activeTab] ?? "Detalle";
-
-  const third = Math.ceil(TABS.length / 3);
-  const half  = Math.ceil(TABS.length / 2);
-  const total = stats.enX + stats.fueraDeX;
-  const base  = total - stats.sinNinguna;
-  const pctX   = base > 0 ? Math.round((stats.enX           / base) * 100) : 0;
-  const pctB   = base > 0 ? Math.round((stats.conBluesky    / base) * 100) : 0;
-  const pctM   = base > 0 ? Math.round((stats.conMastodon   / base) * 100) : 0;
-  const pctSin = base > 0 ? Math.round((stats.sinAlternativa / base) * 100) : 0;
   const activeLabel = TABS.find(t => t.value === activeTab)?.label ?? "Total";
+  const isFiltered = searchQuery.trim().length > 0 || quickFilter !== "all" || !!grupoFilter;
+
+  // Estadísticas calculadas sobre los filtros actualmente aplicados
+  const filterAppliedStats = useMemo(() => {
+    return calculateStats(filteredData);
+  }, [filteredData]);
+
+  const fTotal = filteredData.length;
+  const fBase  = fTotal - filterAppliedStats.sinNinguna;
+  const fPctX   = fBase > 0 ? Math.round((filterAppliedStats.enX            / fBase) * 100) : 0;
+  const fPctB   = fBase > 0 ? Math.round((filterAppliedStats.conBluesky    / fBase) * 100) : 0;
+  const fPctM   = fBase > 0 ? Math.round((filterAppliedStats.conMastodon   / fBase) * 100) : 0;
+  const fPctSin = fBase > 0 ? Math.round((filterAppliedStats.sinAlternativa / fBase) * 100) : 0;
 
   return (
     <TooltipProvider>
       <div className="sd-app w-full">
 
-
-        {/* ── Búsqueda ─────────────────────────────────────────── */}
-        <div className="sd-search-wrap px-6 sm:px-14 pt-5 pb-5">
-          <div className="sd-search-bar">
-            <Search className="sd-search-icon h-4 w-4" />
-            <input type="text" inputMode="search"
-              placeholder="Buscar entidad, ministerio, partido…"
-              value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-              autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck={false}
-              className="sd-search-input"
-            />
-            <span className="sd-search-shortcut hidden sm:inline">⌘ K</span>
-          </div>
-        </div>
-
-
-        {/* ── Pestañas ─────────────────────────────────────────── */}
-        <div className="sd-tabs-wrap px-6 sm:px-14 pt-4 pb-3">
+        {/* ── 1. Selector de categoría ─────────────────────────── */}
+        <div className="sd-tabs-wrap max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-12 pt-4 pb-2">
           <CategoryTabs items={TABS} active={activeTab} onSelect={setActiveTab} />
         </div>
 
-        {/* ── Estadísticas de la categoría ─────────────────────── */}
-        <div className="sd-stats-section px-6 sm:px-14 py-4 pb-8">
-          <div className="sd-stats-heading">
-            {activeLabel} <span>· {total} entidades</span>
+        {/* ── 3. Barra unificada: Buscador + Filtros rápidos interactivos ── */}
+        <div className="sd-toolbar-wrap max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-12 pt-3 pb-4">
+          <div className="sd-toolbar">
+            <div className="sd-search-bar">
+              <Search className="sd-search-icon h-4 w-4" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                inputMode="search"
+                placeholder="Buscar entidad, ministerio, partido…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="none"
+                spellCheck={false}
+                className="sd-search-input"
+              />
+              {searchQuery ? (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="sd-search-clear"
+                  aria-label="Limpiar búsqueda"
+                >
+                  ✕
+                </button>
+              ) : (
+                <span className="sd-search-shortcut hidden sm:inline">⌘ K</span>
+              )}
+            </div>
+
+            <div className="sd-quick-filters" role="group" aria-label="Filtros rápidos">
+              <button
+                type="button"
+                className={`sd-filter-chip ${quickFilter === "all" ? "sd-filter-chip--active" : ""}`}
+                onClick={() => setQuickFilter("all")}
+              >
+                Todas
+              </button>
+              <button
+                type="button"
+                className={`sd-filter-chip ${quickFilter === "bsky" ? "sd-filter-chip--active sd-filter-chip--sky" : ""}`}
+                onClick={() => setQuickFilter(f => f === "bsky" ? "all" : "bsky")}
+              >
+                <span className="sd-dot sd-dot--sky" />
+                Con Bluesky
+              </button>
+              <button
+                type="button"
+                className={`sd-filter-chip ${quickFilter === "mastodon" ? "sd-filter-chip--active sd-filter-chip--mastodon" : ""}`}
+                onClick={() => setQuickFilter(f => f === "mastodon" ? "all" : "mastodon")}
+              >
+                <span className="sd-dot sd-dot--mastodon" />
+                Con Mastodon
+              </button>
+              <button
+                type="button"
+                className={`sd-filter-chip ${quickFilter === "sin-alt" ? "sd-filter-chip--active sd-filter-chip--alert" : ""}`}
+                onClick={() => setQuickFilter(f => f === "sin-alt" ? "all" : "sin-alt")}
+              >
+                <span className="sd-dot sd-dot--alert" />
+                Sin alternativa
+              </button>
+              <button
+                type="button"
+                className={`sd-filter-chip ${quickFilter === "fuera-x" ? "sd-filter-chip--active" : ""}`}
+                onClick={() => setQuickFilter(f => f === "fuera-x" ? "all" : "fuera-x")}
+              >
+                Fuera de X
+              </button>
+            </div>
           </div>
-          <div ref={statsRef} className="sd-stats-grid sd-stats-reveal grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-0">
-            <div className="hidden sm:block sd-grid-divider sd-grid-divider-q1" />
-            <div className="hidden sm:block sd-grid-divider sd-grid-divider-half" />
-            <div className="hidden sm:block sd-grid-divider sd-grid-divider-q3" />
-
-            <div className="sd-stat-item sm:pr-6">
-              <MiniDonut pct={pctX} color="#1a1a1a" />
-              <div className="sd-stat-content">
-                <div className="sd-stat-value">{pctX}%</div>
-                <div className="sd-stat-label">En X · {stats.enX}</div>
-              </div>
-            </div>
-
-            <div className="sd-stat-item sm:px-6">
-              <MiniDonut pct={pctB} color="var(--sd-sky)" />
-              <div className="sd-stat-content">
-                <div className="sd-stat-value">{pctB}%</div>
-                <div className="sd-stat-label">Bluesky · {stats.conBluesky}</div>
-              </div>
-            </div>
-
-            <div className="sd-stat-item sm:px-6">
-              <MiniDonut pct={pctM === 0 && stats.conMastodon > 0 ? 1 : pctM} color="var(--sd-mastodon)" />
-              <div className="sd-stat-content">
-                <div className="sd-stat-value">{pctM === 0 && stats.conMastodon > 0 ? "< 1" : pctM}%</div>
-                <div className="sd-stat-label">Mastodon · {stats.conMastodon}</div>
-              </div>
-            </div>
-
-            <div className="sd-stat-item sm:pl-6">
-              <MiniDonut pct={pctSin} color="var(--sd-rose-pink)" />
-              <div className="sd-stat-content">
-                <div className="sd-stat-value">{pctSin}%</div>
-                <div className="sd-stat-label sd-stat-label--alert">Sin alternativa · {stats.sinAlternativa}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Leyenda ──────────────────────────────────────────── */}
-        <div className="sd-platform-legend px-6 sm:px-14 pb-3 pt-4 flex flex-wrap gap-x-5 gap-y-2">
-          {([
-            { platformKey: "x" as const, label: "𝕏", text: "X activo/inactivo/sin cuenta"        },
-            { platformKey: "b" as const, label: "B",  text: "Bluesky activo/inactivo/sin cuenta"  },
-            { platformKey: "m" as const, label: "M",  text: "Mastodon activo/inactivo/sin cuenta" },
-          ]).map(({ platformKey, label, text }) => (
-            <span key={platformKey} className="sd-legend-entry">
-              <span className={getBadgeClass("on",   platformKey)}>{label}</span>
-              <span className={getBadgeClass("soft", platformKey)}>{label}</span>
-              <span className={getBadgeClass("off",  platformKey)}>{label}</span>
-              <span>{text}</span>
-            </span>
-          ))}
         </div>
 
         {/* ── Resultados ───────────────────────────────────────── */}
         <div className="sd-results">
 
           {/* Móvil */}
-          <div className="sd-cards md:hidden px-4 pt-2">
+          <div className="sd-cards md:hidden max-w-screen-xl mx-auto px-4 sm:px-8 pt-2">
+            <details className="sd-mobile-legend-details mb-3">
+              <summary className="sd-mobile-legend-summary">
+                <span>Leyenda de estados y logos</span>
+                <ChevronDown className="h-3.5 w-3.5 inline ml-1" />
+              </summary>
+              <div className="sd-mobile-legend-content pt-2 pb-1 space-y-2 text-xs">
+                <div className="flex items-center gap-3.5 flex-wrap">
+                  {LEGEND_GROUPS.map((group) => (
+                    <div key={group.key} className="flex items-center gap-1.5">
+                      <span className="font-mono text-[11px] text-muted-foreground mr-0.5">{group.name}:</span>
+                      <div className="flex items-center gap-0.5">
+                        {group.badges.map((b, bIdx) => (
+                          <span key={bIdx} className={b.badgeClass} title={b.tip}>{b.label}</span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+              </div>
+            </details>
+
             {filteredData.length > 0 ? (() => {
               const LIMIT = 40;
               const shown = searchQuery ? filteredData : filteredData.slice(0, LIMIT);
@@ -613,12 +734,35 @@ export function AppSection({ initialStats }: AppSectionProps) {
           </div>
 
           {/* Escritorio */}
-          <div className="sd-table-wrap hidden md:block px-6 sm:px-14">
+          <div className="sd-table-wrap hidden md:block max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-12">
             <div className="sd-table-frame">
               <div className="sd-table-topbar">
                 <span className="sd-table-count">
-                  <strong>{sortedData.length}</strong> de <strong>{searchQuery ? allData.length : grupoFilteredData.length}</strong> entidades
+                  <strong>{sortedData.length}</strong> {sortedData.length === 1 ? "entidad" : "entidades"}
+                  {(quickFilter !== "all" || searchQuery || grupoFilter) && (
+                    <span className="sd-table-count-sub"> (de {searchQuery ? allData.length : grupoFilteredData.length})</span>
+                  )}
                 </span>
+
+                <div className="sd-table-legend-complete hidden md:flex items-center gap-3.5 flex-wrap">
+                  {LEGEND_GROUPS.map((group) => (
+                    <div key={group.key} className="flex items-center gap-1">
+                      <span className="font-mono text-[10.5px] text-muted-foreground mr-0.5">{group.name}:</span>
+                      <div className="flex items-center gap-0.5">
+                        {group.badges.map((b, bIdx) => (
+                          <Tooltip key={bIdx}>
+                            <TooltipTrigger asChild>
+                              <span className={`${b.badgeClass} cursor-help`}>{b.label}</span>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="text-xs">
+                              {b.tip}
+                            </TooltipContent>
+                          </Tooltip>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <Table className="sd-table">
@@ -655,7 +799,7 @@ export function AppSection({ initialStats }: AppSectionProps) {
                         {key === "twitter" ? "𝕏" : key === "bluesky" ? "B" : "M"} <SortIcon col={key} />
                       </TableHead>
                     ))}
-                    <TableHead className="sd-table-header sd-col-actions" />
+                    <TableHead className="sd-table-header sd-col-action text-right">Pedir migración</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -686,9 +830,12 @@ export function AppSection({ initialStats }: AppSectionProps) {
                           <PlatformBadge {...badgeProps(item, key)} />
                         </TableCell>
                       ))}
-                      <TableCell className="sd-cell-actions">
-                        <div className="sd-row-actions">
-                          <ReportButton item={item} />
+                      <TableCell className="sd-cell-action">
+                        <div className="sd-cell-action-inner">
+                          <JoinRequestButton item={item} />
+                          <div className="sd-flag-outside">
+                            <ReportButton item={item} />
+                          </div>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -712,6 +859,53 @@ export function AppSection({ initialStats }: AppSectionProps) {
                   )}
                 </TableBody>
               </Table>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Barra fija inferior con estadísticas siempre visible ── */}
+        <div className="sd-fixed-bottom-bar">
+          <div className="max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-12">
+            <div className="sd-cat-strip sd-cat-strip--bottom-fixed">
+              <div className="sd-cat-strip-info">
+                <span className="sd-cat-strip-name">
+                  {isFiltered ? "Filtros aplicados" : activeLabel}
+                </span>
+                <span className="sd-cat-strip-sep">·</span>
+                <span className="sd-cat-strip-count">
+                  <strong>{fTotal}</strong> {fTotal === 1 ? "entidad" : "entidades"}
+                  {isFiltered && (
+                    <span className="sd-cat-strip-sub"> (de {allData.length})</span>
+                  )}
+                </span>
+              </div>
+
+              <div ref={statsRef} className="sd-cat-strip-metrics sd-stats-reveal">
+                <div className="sd-cat-metric" title={`${filterAppliedStats.enX} con actividad en X (< 30 días)`}>
+                  <span className="sd-dot sd-dot--x" />
+                  <span className="sd-cat-metric-name max-sm:hidden">En X:</span>
+                  <span className="sd-cat-metric-pct">{fPctX}%</span>
+                  <span className="sd-cat-metric-abs max-sm:hidden">({filterAppliedStats.enX})</span>
+                </div>
+                <div className="sd-cat-metric" title={`${filterAppliedStats.conBluesky} con cuenta en Bluesky`}>
+                  <span className="sd-dot sd-dot--sky" />
+                  <span className="sd-cat-metric-name max-sm:hidden">Bluesky:</span>
+                  <span className="sd-cat-metric-pct">{fPctB}%</span>
+                  <span className="sd-cat-metric-abs max-sm:hidden">({filterAppliedStats.conBluesky})</span>
+                </div>
+                <div className="sd-cat-metric" title={`${filterAppliedStats.conMastodon} con cuenta en Mastodon`}>
+                  <span className="sd-dot sd-dot--mastodon" />
+                  <span className="sd-cat-metric-name max-sm:hidden">Mastodon:</span>
+                  <span className="sd-cat-metric-pct">{fPctM === 0 && filterAppliedStats.conMastodon > 0 ? "< 1" : fPctM}%</span>
+                  <span className="sd-cat-metric-abs max-sm:hidden">({filterAppliedStats.conMastodon})</span>
+                </div>
+                <div className="sd-cat-metric sd-cat-metric--alert" title={`${filterAppliedStats.sinAlternativa} con presencia en X pero sin Bluesky ni Mastodon`}>
+                  <span className="sd-dot sd-dot--alert" />
+                  <span className="sd-cat-metric-name max-sm:hidden">Sin alternativa:</span>
+                  <span className="sd-cat-metric-pct">{fPctSin}%</span>
+                  <span className="sd-cat-metric-abs max-sm:hidden">({filterAppliedStats.sinAlternativa})</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

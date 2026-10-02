@@ -56,15 +56,15 @@ export function ReportButton({ item }: Props) {
 
   return (
     <>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-6 w-6 opacity-20 hover:opacity-50 transition-opacity"
+      <button
+        type="button"
+        className="sd-report-btn"
         onClick={() => setOpen(true)}
-        title="Reportar dato incorrecto"
+        title={`Reportar corrección sobre ${item.nombre}`}
+        aria-label="Reportar dato o corrección"
       >
-        <Flag className="h-3 w-3 text-muted-foreground" />
-      </Button>
+        <Flag className="h-3 w-3" />
+      </button>
       <ReportModal item={item} open={open} onOpenChange={setOpen} />
     </>
   );

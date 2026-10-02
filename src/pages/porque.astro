@@ -12,7 +12,7 @@ import Topbar from "@/components/Topbar.astro";
   <!-- Hero oscuro -->
   <div class="porque-hero">
     <Topbar dark active="por qué" />
-    <div class="max-w-screen-xl mx-auto px-6 sm:px-14 pt-10 pb-14">
+    <div class="max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-12 pt-10 pb-14">
       <h1 class="porque-hero-h1">
         ¿Por qué{" "}
         <em class="porque-hero-h1-em">importa?</em>
@@ -23,10 +23,10 @@ import Topbar from "@/components/Topbar.astro";
     </div>
   </div>
 
-  <div class="max-w-screen-xl mx-auto px-6 sm:px-14">
+  <div class="max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-12">
     <div class="porque-layout">
 
-      <!-- Columna izquierda: artículo -->
+      <!-- Columna central: artículo -->
       <div class="porque-body space-y-8 mt-12 pb-16 text-sm leading-relaxed">
 
         <section class="space-y-3">
@@ -107,28 +107,21 @@ import Topbar from "@/components/Topbar.astro";
             </li>
           </ol>
         </section>
+        <section class="space-y-3 porque-refs-section pt-6 border-t border-[var(--sd-line)]">
+          <p class="porque-refs-label">Para más información</p>
+          <ul class="porque-refs-list grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <li><a href="https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX%3A32022R2065" target="_blank" rel="noopener">Reglamento de Servicios Digitales (DSA) — EUR-Lex ↗</a></li>
+            <li><a href="https://ec.europa.eu/commission/presscorner/detail/en/ip_23_6709" target="_blank" rel="noopener">Procedimiento formal UE contra X — Comisión Europea, dic. 2023 ↗</a></li>
+            <li><a href="https://www.tchap.gouv.fr/" target="_blank" rel="noopener">Tchap — Mensajería federada del gobierno francés ↗</a></li>
+            <li><a href="https://www.zendis.de/en" target="_blank" rel="noopener">ZenDiS — Centro para la Soberanía Digital (Alemania) ↗</a></li>
+            <li><a href="https://www.w3.org/TR/activitypub/" target="_blank" rel="noopener">Especificación ActivityPub — W3C ↗</a></li>
+            <li><a href="https://atproto.com/guides/overview" target="_blank" rel="noopener">Documentación AT Protocol — atproto.com ↗</a></li>
+            <li><a href="https://dustycloud.org/blog/how-decentralized-is-bluesky-really/" target="_blank" rel="noopener">«How decentralized is Bluesky?» — Christine Lemmer-Webber ↗</a></li>
+            <li><a href="https://ec.social-network.europa.eu/@EUCommission" target="_blank" rel="noopener">Comisión Europea en Mastodon ↗</a></li>
+          </ul>
+        </section>
 
       </div>
-
-      <!-- Columna derecha: logo + referencias -->
-      <aside class="porque-sidebar">
-        <div class="porque-sidebar-inner">
-          <img src="/og-image.png" alt="" class="porque-sidebar-img" />
-          <div class="porque-refs">
-            <p class="porque-refs-label">Para más información</p>
-            <ul class="porque-refs-list">
-              <li><a href="https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX%3A32022R2065" target="_blank" rel="noopener">Reglamento de Servicios Digitales (DSA) — EUR-Lex</a></li>
-              <li><a href="https://ec.europa.eu/commission/presscorner/detail/en/ip_23_6709" target="_blank" rel="noopener">Procedimiento formal UE contra X — Comisión Europea, dic. 2023</a></li>
-              <li><a href="https://www.tchap.gouv.fr/" target="_blank" rel="noopener">Tchap — Mensajería federada del gobierno francés</a></li>
-              <li><a href="https://www.zendis.de/en" target="_blank" rel="noopener">ZenDiS — Centro para la Soberanía Digital (Alemania)</a></li>
-              <li><a href="https://www.w3.org/TR/activitypub/" target="_blank" rel="noopener">Especificación ActivityPub — W3C</a></li>
-              <li><a href="https://atproto.com/guides/overview" target="_blank" rel="noopener">Documentación AT Protocol — atproto.com</a></li>
-              <li><a href="https://dustycloud.org/blog/how-decentralized-is-bluesky-really/" target="_blank" rel="noopener">«How decentralized is Bluesky?» — Christine Lemmer-Webber</a></li>
-              <li><a href="https://ec.social-network.europa.eu/@EUCommission" target="_blank" rel="noopener">Comisión Europea en Mastodon</a></li>
-            </ul>
-          </div>
-        </div>
-      </aside>
 
     </div>
   </div>
@@ -145,7 +138,7 @@ import Topbar from "@/components/Topbar.astro";
 
 
 .porque-hero-h1 {
-  font-family: 'Geist', system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-weight: 600;
   font-size: clamp(32px, 5vw, 60px);
   letter-spacing: -0.03em;
@@ -171,41 +164,12 @@ import Topbar from "@/components/Topbar.astro";
 }
 
 .porque-layout {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0;
-  align-items: start;
-}
-
-@media (min-width: 1024px) {
-  .porque-layout {
-    grid-template-columns: 1fr 280px;
-    gap: 64px;
-  }
+  max-width: 760px;
+  margin: 0 auto;
 }
 
 .porque-body {
   min-width: 0;
-}
-
-.porque-sidebar {
-  display: none;
-}
-
-@media (min-width: 1024px) {
-  .porque-sidebar {
-    display: block;
-    padding-top: 48px;
-    padding-bottom: 64px;
-  }
-}
-
-.porque-sidebar-inner {
-  position: sticky;
-  top: 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
 }
 
 .porque-refs {
@@ -215,7 +179,7 @@ import Topbar from "@/components/Topbar.astro";
 }
 
 .porque-refs-label {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -256,7 +220,7 @@ import Topbar from "@/components/Topbar.astro";
 }
 
 .porque-h2 {
-  font-family: 'Geist', system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-weight: 600;
   font-size: 20px;
   letter-spacing: -0.015em;
@@ -264,7 +228,7 @@ import Topbar from "@/components/Topbar.astro";
 }
 
 .porque-fn-ref {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 600;
   color: var(--sd-muted);
@@ -290,7 +254,7 @@ import Topbar from "@/components/Topbar.astro";
   gap: 10px;
 }
 .porque-footnotes-list li {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   line-height: 1.65;
   color: var(--sd-muted);

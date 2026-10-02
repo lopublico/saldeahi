@@ -37,13 +37,14 @@ function normalizeItem(item: any) {
     twitter:         item.twitter  || null,
     twitter_activo:  twitterOnX(item.twitter, item.twitter_activo),
     bluesky_activo:  isActiveDate(item.bluesky_activo, BLUESKY_REF),
+    bluesky_eurosky: !!item.bluesky_eurosky,
     mastodon_activo: isActiveDate(item.mastodon_activo, MASTODON_REF),
     mastodon:        item.mastodon || null,
     bluesky:         item.bluesky  || null,
   };
 }
 
-// Datos completos para el índice interactivo
+// Datos completos para el índice interactivo y las estadísticas unificadas
 const allData = [
   ...ageData.map(normalizeItem),
   ...organosData.map(normalizeItem),
@@ -55,41 +56,22 @@ const allData = [
   ...universidadesData.map(normalizeItem),
 ];
 
-// Para el hero: solo instituciones (sin diputados, senadores ni ministros individuales)
-const institucionesHero = [
-  ...ageData.map(normalizeItem),
-  ...organosData.map(normalizeItem),
-  ...partidosData.map(normalizeItem),
-  ...autonomiasData.map(normalizeItem),
-  ...universidadesData.map(normalizeItem),
-];
-
-const total = institucionesHero.length;
-let enX = 0, conBluesky = 0, conMastodon = 0, sinAlternativa = 0, sinNinguna = 0;
-for (const item of institucionesHero) {
+const total = allData.length;
+let enX = 0, conBluesky = 0, conMastodon = 0,
+    conAlternativa = 0, sinAlternativa = 0, sinNinguna = 0;
+for (const item of allData) {
   if (item.twitter_activo) enX++;
   if (item.bluesky)  conBluesky++;
   if (item.mastodon) conMastodon++;
-  if (item.twitter && !item.bluesky && !item.mastodon) sinAlternativa++;
+  if (item.bluesky || item.mastodon) conAlternativa++;
+  else if (item.twitter) sinAlternativa++;
   if (!item.twitter && !item.bluesky && !item.mastodon) sinNinguna++;
 }
+const fueraDeX = total - enX;
 // Base de las estadísticas de elección de plataforma: se excluyen las entidades
 // sin presencia en ninguna red (no participaron en la "elección" entre X/Bluesky/Mastodon).
 // Siguen apareciendo en el índice, solo quedan fuera de estos porcentajes.
 const base = total - sinNinguna;
-
-// Stats completas para AppSection
-let enXTotal = 0, conBlueskyTotal = 0, conMastodonTotal = 0,
-    conAlternativaTotal = 0, sinAlternativaTotal = 0, sinNingunaTotal = 0;
-for (const item of allData) {
-  if (item.twitter_activo) enXTotal++;
-  if (item.bluesky)  conBlueskyTotal++;
-  if (item.mastodon) conMastodonTotal++;
-  if (item.bluesky || item.mastodon) conAlternativaTotal++;
-  else if (item.twitter) sinAlternativaTotal++;
-  if (!item.twitter && !item.bluesky && !item.mastodon) sinNingunaTotal++;
-}
-const fueraDeXTotal = allData.length - enXTotal;
 
 const pctX   = base > 0 ? Math.round((enX            / base) * 100) : 0;
 const pctB   = base > 0 ? Math.round((conBluesky     / base) * 100) : 0;
@@ -114,15 +96,15 @@ const updatedDate = lastUpdate.twitter
   <div class="sd-hero">
     <Topbar dark active="índice" />
 
-    <div class="sd-hero-inner max-w-screen-xl mx-auto px-6 sm:px-14 pt-12 pb-10 sm:pt-14 sm:pb-12">
+    <div class="sd-hero-inner max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-12 pt-12 pb-10 sm:pt-14 sm:pb-12">
 
       <!-- Headline -->
-      <h1 class="sd-hero-h1 text-5xl sm:text-7xl lg:text-[88px]">
+      <h1 class="sd-hero-h1 text-4xl sm:text-6xl lg:text-[76px]">
         <span class="sd-hero-h1-num">{enX}</span>
         {" "}de{" "}
         <span class="sd-hero-h1-denom">{base}</span>
         <br class="max-sm:hidden" />
-        {" "}instituciones públicas
+        {" "}instituciones y representantes
         <br />
         <span class="sd-hero-h1-serif">
 siguen publicando en 
@@ -158,18 +140,24 @@ siguen publicando en
 
       <!-- Última actualización -->
       <div class="sd-hero-date">
-        <p class="sd-hero-date-title">Última actualización: {updatedDate}</p>
+        <div class="sd-hero-date-line">
+          <span class="sd-hero-date-title">Última actualización: {updatedDate}</span>
+          <span class="sd-hero-date-sep">·</span>
+          <a href="https://zenodo.org/records/20692749" target="_blank" rel="noopener" class="sd-hero-date-link">
+            Descarga de datos ↗
+          </a>
+          <span class="sd-hero-date-sep">·</span>
+          <a href="/datos#metodologia" class="sd-hero-date-link">Metodología y criterios ↗</a>
+        </div>
         <p class="sd-hero-date-desc">
-          Por institución entendemos: la Presidencia del Gobierno, ministerios y secretarías de Estado, delegaciones del Gobierno, Fuerzas Armadas y Fuerzas y Cuerpos de Seguridad del Estado, el sector público institucional estatal según el Inventario de Entes de la IGAE (organismos autónomos, agencias, autoridades independientes, entidades públicas empresariales, fundaciones y sociedades mercantiles estatales), órganos constitucionales, partidos con representación parlamentaria, comunidades autónomas —presidencias, gobiernos, asambleas y sus organismos autonómicos— y universidades públicas.
-          Una entidad se considera activa si publicó en los últimos 30 días antes de esta fecha.
-          Los porcentajes de esta página excluyen las {sinNinguna} entidades sin presencia en ninguna red social: no participan de la elección entre X, Bluesky y Mastodon, aunque sí aparecen listadas en el índice. <a href="/datos" class="sd-hero-date-link">Más detalle en metodología</a>.
+          Monitorización de {total} instituciones públicas del Estado, autonomías, partidos y representantes. Actividad registrada en los últimos 30 días.
         </p>
       </div>
     </div>
   </div>
 
   <!-- ── BANDA DE ESTADÍSTICAS ────────────────────────────────────── -->
-  <div class="sd-stat-band max-w-screen-xl mx-auto px-6 sm:px-14">
+  <div class="sd-stat-band max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-12">
     <div class="sd-sband-grid grid grid-cols-2 md:grid-cols-4 py-9 gap-8 md:gap-0">
       <!-- Divisores verticales (desktop) -->
       <div class="hidden md:block sd-sband-divider sd-sband-divider-q1"></div>
@@ -177,88 +165,88 @@ siguen publicando en
       <div class="hidden md:block sd-sband-divider sd-sband-divider-q3"></div>
 
       <!-- Col 1: X -->
-      <div class="sd-sband-col md:pr-8">
+      <div class="sd-sband-col md:px-4 lg:px-6">
         <div class="sd-sband-label">Con cuenta en X</div>
         <div class="sd-sband-num-row">
           <svg class="sd-sband-donut" width="42" height="42" viewBox="0 0 42 42">
-            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-line)" stroke-width="5"/>
-            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="#1a1a1a" stroke-width="5"
+            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-line)" stroke-width="3.5"/>
+            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-fg-2)" stroke-width="3.5"
               stroke-dasharray={donutDash(pctX)}
               class="sd-sband-donut-x"
               transform="rotate(-90 21 21)"
             />
           </svg>
-          <span class="sd-sband-num text-4xl md:text-[46px]">{pctX}&#x202F;%</span>
+          <span class="sd-sband-num">{pctX}&#x202F;%</span>
         </div>
-        <div class="sd-sband-sub">{enX} de {base} instituciones</div>
+        <div class="sd-sband-sub">{enX} de {base} entidades</div>
       </div>
 
       <!-- Col 2: Bluesky -->
-      <div class="sd-sband-col md:px-8">
+      <div class="sd-sband-col md:px-4 lg:px-6">
         <div class="sd-sband-label">Con cuenta en Bluesky</div>
         <div class="sd-sband-num-row">
           <svg class="sd-sband-donut" width="42" height="42" viewBox="0 0 42 42">
-            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-line)" stroke-width="5"/>
-            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-sky)" stroke-width="5"
+            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-line)" stroke-width="3.5"/>
+            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-sky)" stroke-width="3.5"
               stroke-dasharray={donutDash(pctB)}
               transform="rotate(-90 21 21)"
             />
           </svg>
-          <span class="sd-sband-num text-4xl md:text-[46px]">{pctB}&#x202F;%</span>
+          <span class="sd-sband-num">{pctB}&#x202F;%</span>
         </div>
-        <div class="sd-sband-sub">{conBluesky} instituciones</div>
+        <div class="sd-sband-sub">{conBluesky} entidades</div>
       </div>
 
       <!-- Col 3: Mastodon -->
-      <div class="sd-sband-col md:px-8">
+      <div class="sd-sband-col md:px-4 lg:px-6">
         <div class="sd-sband-label">Con cuenta en Mastodon</div>
         <div class="sd-sband-num-row">
           <svg class="sd-sband-donut" width="42" height="42" viewBox="0 0 42 42">
-            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-line)" stroke-width="5"/>
-            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-mastodon)" stroke-width="5"
+            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-line)" stroke-width="3.5"/>
+            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-mastodon)" stroke-width="3.5"
               stroke-dasharray={donutDash(pctM === 0 && conMastodon > 0 ? 1 : pctM)}
               transform="rotate(-90 21 21)"
             />
           </svg>
-          <span class="sd-sband-num text-4xl md:text-[46px]">
+          <span class="sd-sband-num">
             {pctM === 0 ? '< 1' : pctM}&#x202F;%
           </span>
         </div>
-        <div class="sd-sband-sub">{conMastodon} instituciones</div>
+        <div class="sd-sband-sub">{conMastodon} entidades</div>
       </div>
 
       <!-- Col 4: Sin alternativa -->
-      <div class="sd-sband-col md:pl-8">
+      <div class="sd-sband-col md:px-4 lg:px-6">
         <div class="sd-sband-label">Sin alternativa a X</div>
         <div class="sd-sband-num-row">
           <svg class="sd-sband-donut" width="42" height="42" viewBox="0 0 42 42">
-            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-line)" stroke-width="5"/>
-            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(  --sd-rose-pink)" stroke-width="5"
+            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-line)" stroke-width="3.5"/>
+            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-rose-pink)" stroke-width="3.5"
               stroke-dasharray={donutDash(pctSin)}
               transform="rotate(-90 21 21)"
             />
           </svg>
-          <span class="sd-sband-num text-4xl md:text-[46px]">{pctSin}&#x202F;%</span>
+          <span class="sd-sband-num">{pctSin}&#x202F;%</span>
         </div>
         <div class="sd-sband-sub sd-sband-sub--em">
-          {sinAlternativa} instituciones
+          {sinAlternativa} entidades
         </div>
       </div>
     </div>
   </div>
 
   <!-- ── ÍNDICE (tabla interactiva) ──────────────────────────────── -->
-  <div class="sd-index max-w-screen-xl mx-auto pb-16 pt-4" transition:persist="app-section">
+  <div class="sd-index max-w-screen-xl mx-auto pb-16 pt-4">
     <AppSection
       client:load
       initialStats={{
-        enX: enXTotal,
-        fueraDeX: fueraDeXTotal,
-        conBluesky: conBlueskyTotal,
-        conMastodon: conMastodonTotal,
-        conAlternativa: conAlternativaTotal,
-        sinAlternativa: sinAlternativaTotal,
-        sinNinguna: sinNingunaTotal,
+        enX,
+        fueraDeX,
+        conBluesky,
+        conMastodon,
+        conAlternativa,
+        sinAlternativa,
+        sinNinguna,
       }}
     />
   </div>
@@ -320,9 +308,9 @@ siguen publicando en
 
 
 .sd-hero-h1 {
-  font-family: 'Geist', system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-weight: 600;
-  line-height: 1.03;
+  line-height: 1.04;
   letter-spacing: -0.035em;
   color: #fff;
   margin: 0;
@@ -330,16 +318,18 @@ siguen publicando en
 }
 
 .sd-hero-h1-num {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-weight: 500;
   letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
 }
 
 .sd-hero-h1-denom {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-weight: 500;
   letter-spacing: -0.03em;
   color: rgba(255,255,255,0.45);
+  font-variant-numeric: tabular-nums;
 }
 
 .sd-hero-h1-serif {
@@ -358,35 +348,50 @@ siguen publicando en
 .sd-hero-manifesto {
   font-family: 'Lora', Georgia, serif;
   font-style: italic;
-  font-size: 19px;
+  font-size: 18px;
   line-height: 1.55;
   color: rgba(246,244,239,0.85);
   margin: 0;
 }
 
-/* ── Dark stat sidebar ─────────────────────────────────────────── */
+/* ── Dark stat sidebar (Editorial HUD panel inspired by SatMap in blog) ── */
 .sd-dark-stats {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
+  font-family: var(--font-mono);
+  font-size: 12px;
   line-height: 1;
   color: rgba(246,244,239,0.75);
   letter-spacing: 0.02em;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 6px;
+  padding: 12px 18px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .sd-dark-stat-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255,255,255,0.12);
-  padding: 11px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  padding: 9px 0;
   gap: 16px;
+}
+.sd-dark-stat-row:first-child {
+  padding-top: 2px;
+}
+.sd-dark-stat-row:last-child {
+  border-bottom: none;
+  padding-bottom: 2px;
 }
 
 .sd-dark-stat-label {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
   color: rgba(246,244,239,0.7);
+  font-size: 12px;
 }
 
 .sd-dark-stat-label--strong {
@@ -394,13 +399,14 @@ siguen publicando en
 }
 
 .sd-dark-stat-accent {
-  width: 10px;
-  height: 10px;
+  width: 7px;
+  height: 7px;
   display: inline-block;
   flex-shrink: 0;
+  border-radius: 50%;
 }
 
-.sd-dark-stat-accent--outline  { background: transparent; border: 1.5px solid rgba(246,244,239,0.38); }
+.sd-dark-stat-accent--outline  { background: transparent; border: 1.5px solid rgba(246,244,239,0.45); }
 .sd-dark-stat-accent--sky      { background: var(--sd-sky); }
 .sd-dark-stat-accent--mastodon { background: var(--sd-mastodon); }
 .sd-dark-stat-accent--rose     { background: var(--sd-rose-pink); }
@@ -409,45 +415,64 @@ siguen publicando en
   color: #fff;
   font-weight: 500;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
 /* ── Hero date footer ──────────────────────────────────────────── */
 .sd-hero-date {
-  margin-top: 28px;
+  margin-top: 22px;
   padding-top: 14px;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.sd-hero-date-line {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .sd-hero-date-title {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.08em;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: rgba(246,244,239,0.55);
   margin: 0;
 }
 
+.sd-hero-date-sep {
+  color: rgba(246,244,239,0.3);
+  font-size: 11px;
+}
+
 .sd-hero-date-link {
-  color: rgba(246,244,239,0.65);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(246,244,239,0.7);
   text-decoration: underline;
   text-underline-offset: 2px;
+  transition: color 0.14s ease;
 }
 .sd-hero-date-link:hover {
-  color: rgba(246,244,239,0.9);
+  color: #fff;
 }
 
 .sd-hero-date-desc {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  color: rgba(246,244,239,0.42);
-  margin: 6px 0 0;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: rgba(246,244,239,0.45);
+  margin: 4px 0 0;
   letter-spacing: 0.01em;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 /* ── Stat-band ─────────────────────────────────────────────────── */
 .sd-stat-band {
+  border-top: 1px solid var(--sd-line);
   border-bottom: 1px solid var(--sd-line);
+  background: var(--background);
 }
 
 .sd-sband-grid {
@@ -456,8 +481,8 @@ siguen publicando en
 
 .sd-sband-divider {
   position: absolute;
-  top: 36px;
-  bottom: 36px;
+  top: 24px;
+  bottom: 24px;
   width: 1px;
   background: var(--sd-line);
 }
@@ -467,23 +492,29 @@ siguen publicando en
 .sd-sband-divider-q3   { left: 75%; }
 
 .sd-sband-col {
-  /* column container */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .sd-sband-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
   letter-spacing: 0.06em;
   color: var(--sd-muted);
   text-transform: uppercase;
-  margin-bottom: 12px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  text-align: center;
 }
 
 .sd-sband-num-row {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .sd-sband-donut {
@@ -492,18 +523,22 @@ siguen publicando en
 }
 
 .sd-sband-num {
-  font-family: 'Geist', sans-serif;
+  font-family: var(--font-sans);
   font-weight: 600;
-  letter-spacing: -0.03em;
+  font-size: 38px;
+  letter-spacing: -0.025em;
   line-height: 1;
   color: var(--sd-fg-2);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
 .sd-sband-sub {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
   color: var(--sd-muted);
+  letter-spacing: 0.01em;
 }
 
 .sd-sband-sub--em {
