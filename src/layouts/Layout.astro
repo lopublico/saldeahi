@@ -62,13 +62,7 @@ const ogImageSquare = `${siteBase}/og-image-square.jpg`;
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image"       content={ogImage} />
 
-    <!-- Fuentes: Inter (sans) + Lora (serif). Commit Mono se carga localmente -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Fuentes de marca (Commit Mono + Inter + Lora): autoalojadas vía @fontsource, ver src/styles/global.css -->
     <ClientRouter />
   </head>
 
@@ -82,7 +76,7 @@ const ogImageSquare = `${siteBase}/og-image-square.jpg`;
       <div class="lo-footer-inner">
         <a class="lo-footer-cred" href="https://lopublico.es" target="_blank" rel="noopener">
           <span>Parte de</span>
-          <img src="/logos/logo0.png" alt="LoPúblico" width="16" height="16" />
+          <img src="/logos/lopublico.png" alt="LoPúblico" width="16" height="16" />
           <b>LoPublico.es</b>
         </a>
         <span class="lo-footer-sep">·</span>
