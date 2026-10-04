@@ -8,6 +8,35 @@
   NODE_VERSION   = "22"
   PYTHON_VERSION = "3.11"
 
-[[edge_functions]]
-  path = "/api/report"
-  function = "report"
+
+# MANTENIMIENTO: descomentar este bloque y desplegar para que NINGUNA url sea accesible (todas redirigen, de forma temporal, a /mantenimiento/).
+# Los estáticos que usa la propia página de mantenimiento se dejan pasar; el orden importa (gana la primera regla que coincide).
+# [[redirects]]
+#   from = "/_astro/*"
+#   to = "/_astro/:splat"
+#   status = 200
+#   force = true
+
+# [[redirects]]
+#   from = "/logos/*"
+#   to = "/logos/:splat"
+#   status = 200
+#   force = true
+
+# [[redirects]]
+#   from = "/favicon.png"
+#   to = "/favicon.png"
+#   status = 200
+#   force = true
+
+# [[redirects]]
+#   from = "/mantenimiento/*"
+#   to = "/mantenimiento/:splat"
+#   status = 200
+#   force = true
+
+# [[redirects]]
+#   from = "/*"
+#   to = "/mantenimiento/"
+#   status = 302
+#   force = true

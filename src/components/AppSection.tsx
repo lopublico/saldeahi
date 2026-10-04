@@ -1,13 +1,6 @@
-import { useState, useMemo, useEffect, useRef, Fragment } from "react";
-import {
-  Table, TableBody, TableCell, TableHead,
-  TableHeader, TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Search, ChevronUp, ChevronDown } from "lucide-react";
-import {
-  Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Fragment } from "preact";
+import { useState, useMemo, useEffect, useRef } from "preact/hooks";
+import { Icono } from "@/components/Icono";
 import { ReportButton } from "@/components/ReportModal";
 import { JoinRequestButton } from "@/components/JoinRequestModal";
 
@@ -305,14 +298,9 @@ const PlatformBadge = ({ label, href, state, platformKey, isEurosky, tip }: {
     ? `plataforma-badge plataforma-badge--bluesky-eurosky${state === "soft" ? " plataforma-badge--eurosky-inactivo" : ""}`
     : getBadgeClass(state, platformKey);
   const inner = href
-    ? <a href={href} target="_blank" rel="noopener noreferrer" className={`${badgeClass} hover:opacity-70`}>{label}</a>
-    : <span className={badgeClass}>{label}</span>;
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>{inner}</TooltipTrigger>
-      <TooltipContent side="top" className="text-xs">{tip}</TooltipContent>
-    </Tooltip>
-  );
+    ? <a href={href} target="_blank" rel="noopener noreferrer" className={`${badgeClass} hover:opacity-70`} data-lp-tip={tip}>{label}</a>
+    : <span className={badgeClass} data-lp-tip={tip}>{label}</span>;
+  return inner;
 };
 
 // ── Tarjeta móvil ──────────────────────────────────────────────────────────
@@ -440,6 +428,10 @@ function CategoryTabs({ items, active, onSelect }: {
     </div>
   );
 }
+
+// El detalle («Ministerio») no aporta nada si el propio nombre ya lo dice («Ministerio de Defensa»)
+const sinTildes = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const repiteNombre = (nombre: string, detalle: string) => sinTildes(nombre).includes(sinTildes(detalle));
 
 // ── Componente principal ───────────────────────────────────────────────────
 
@@ -577,7 +569,7 @@ export function AppSection({ initialStats }: AppSectionProps) {
 
   const SortIcon = ({ col }: { col: string }) =>
     sortColumn === col
-      ? sortDirection === "asc" ? <ChevronUp className="h-3 w-3 inline ml-0.5" /> : <ChevronDown className="h-3 w-3 inline ml-0.5" />
+      ? sortDirection === "asc" ? <Icono nombre="chevron-up" tam={12} className="inline ml-0.5" /> : <Icono nombre="chevron-down" tam={12} className="inline ml-0.5" />
       : <span className="opacity-30 text-[10px] ml-0.5">↕</span>;
 
   const detalleLabel = DETALLE_LABEL[activeTab] ?? "Detalle";
@@ -597,7 +589,7 @@ export function AppSection({ initialStats }: AppSectionProps) {
   const fPctSin = fBase > 0 ? Math.round((filterAppliedStats.sinAlternativa / fBase) * 100) : 0;
 
   return (
-    <TooltipProvider>
+    <>
       <div className="sd-app w-full">
 
         {/* ── 1. Selector de categoría ─────────────────────────── */}
@@ -609,7 +601,7 @@ export function AppSection({ initialStats }: AppSectionProps) {
         <div className="sd-toolbar-wrap max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-12 pt-3 pb-4">
           <div className="sd-toolbar">
             <div className="sd-search-bar">
-              <Search className="sd-search-icon h-4 w-4" />
+              <Icono nombre="search" tam={16} className="sd-search-icon" />
               <input
                 ref={searchInputRef}
                 type="text"
@@ -640,14 +632,14 @@ export function AppSection({ initialStats }: AppSectionProps) {
             <div className="sd-quick-filters" role="group" aria-label="Filtros rápidos">
               <button
                 type="button"
-                className={`sd-filter-chip ${quickFilter === "all" ? "sd-filter-chip--active" : ""}`}
+                className={`lp-chip ${quickFilter === "all" ? "is-active" : ""}`}
                 onClick={() => setQuickFilter("all")}
               >
                 Todas
               </button>
               <button
                 type="button"
-                className={`sd-filter-chip ${quickFilter === "bsky" ? "sd-filter-chip--active sd-filter-chip--sky" : ""}`}
+                className={`lp-chip ${quickFilter === "bsky" ? "is-active sd-filter-chip--sky" : ""}`}
                 onClick={() => setQuickFilter(f => f === "bsky" ? "all" : "bsky")}
               >
                 <span className="sd-dot sd-dot--sky" />
@@ -655,7 +647,7 @@ export function AppSection({ initialStats }: AppSectionProps) {
               </button>
               <button
                 type="button"
-                className={`sd-filter-chip ${quickFilter === "mastodon" ? "sd-filter-chip--active sd-filter-chip--mastodon" : ""}`}
+                className={`lp-chip ${quickFilter === "mastodon" ? "is-active sd-filter-chip--mastodon" : ""}`}
                 onClick={() => setQuickFilter(f => f === "mastodon" ? "all" : "mastodon")}
               >
                 <span className="sd-dot sd-dot--mastodon" />
@@ -663,7 +655,7 @@ export function AppSection({ initialStats }: AppSectionProps) {
               </button>
               <button
                 type="button"
-                className={`sd-filter-chip ${quickFilter === "sin-alt" ? "sd-filter-chip--active sd-filter-chip--alert" : ""}`}
+                className={`lp-chip ${quickFilter === "sin-alt" ? "is-active sd-filter-chip--alert" : ""}`}
                 onClick={() => setQuickFilter(f => f === "sin-alt" ? "all" : "sin-alt")}
               >
                 <span className="sd-dot sd-dot--alert" />
@@ -671,7 +663,7 @@ export function AppSection({ initialStats }: AppSectionProps) {
               </button>
               <button
                 type="button"
-                className={`sd-filter-chip ${quickFilter === "fuera-x" ? "sd-filter-chip--active" : ""}`}
+                className={`lp-chip ${quickFilter === "fuera-x" ? "is-active" : ""}`}
                 onClick={() => setQuickFilter(f => f === "fuera-x" ? "all" : "fuera-x")}
               >
                 Fuera de X
@@ -688,7 +680,7 @@ export function AppSection({ initialStats }: AppSectionProps) {
             <details className="sd-mobile-legend-details mb-3">
               <summary className="sd-mobile-legend-summary">
                 <span>Leyenda de estados y logos</span>
-                <ChevronDown className="h-3.5 w-3.5 inline ml-1" />
+                <Icono nombre="chevron-down" tam={14} className="inline ml-1" />
               </summary>
               <div className="sd-mobile-legend-content pt-2 pb-1 space-y-2 text-xs">
                 <div className="flex items-center gap-3.5 flex-wrap">
@@ -727,8 +719,8 @@ export function AppSection({ initialStats }: AppSectionProps) {
                 </div>
               );
             })() : (
-              <div className="sd-no-results">
-                Sin resultados{searchQuery ? <> para <strong>"{searchQuery}"</strong></> : ""}
+              <div className="lp-vacio">
+                <p className="lp-vacio-titulo">Sin resultados{searchQuery ? <> para <strong>"{searchQuery}"</strong></> : ""}</p>
               </div>
             )}
           </div>
@@ -750,14 +742,7 @@ export function AppSection({ initialStats }: AppSectionProps) {
                       <span className="font-mono text-[10.5px] text-muted-foreground mr-0.5">{group.name}:</span>
                       <div className="flex items-center gap-0.5">
                         {group.badges.map((b, bIdx) => (
-                          <Tooltip key={bIdx}>
-                            <TooltipTrigger asChild>
-                              <span className={`${b.badgeClass} cursor-help`}>{b.label}</span>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="text-xs">
-                              {b.tip}
-                            </TooltipContent>
-                          </Tooltip>
+                          <span key={bIdx} className={`${b.badgeClass} cursor-help`} data-lp-tip={b.tip}>{b.label}</span>
                         ))}
                       </div>
                     </div>
@@ -765,13 +750,13 @@ export function AppSection({ initialStats }: AppSectionProps) {
                 </div>
               </div>
 
-              <Table className="sd-table">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="sd-table-header sd-col-name" onClick={() => handleSort("nombre")}>
+              <div data-slot="table-container" className="relative w-full overflow-x-auto"><table className="sd-table w-full caption-bottom text-sm">
+                <thead>
+                  <tr className="hover:bg-muted/50 border-b transition-colors">
+                    <th className="h-10 px-2 text-left align-middle font-medium whitespace-nowrap sd-table-header sd-col-name" onClick={() => handleSort("nombre")}>
                       Nombre <SortIcon col="nombre" />
-                    </TableHead>
-                    <TableHead className="sd-table-header sd-col-detail hidden lg:table-cell"
+                    </th>
+                    <th className="h-10 px-2 text-left align-middle font-medium whitespace-nowrap sd-table-header sd-col-detail hidden lg:table-cell"
                       onClick={uniqueGroups.length === 0 ? () => handleSort("detalle") : undefined}
                       style={{ cursor: uniqueGroups.length > 0 ? "default" : undefined }}
                     >
@@ -788,77 +773,66 @@ export function AppSection({ initialStats }: AppSectionProps) {
                               <option key={g} value={g}>{g}</option>
                             ))}
                           </select>
-                          <ChevronDown className={`sd-col-select-icon${grupoFilter ? " sd-col-select-icon--active" : ""}`} />
+                          <Icono nombre="chevron-down" tam={14} className={`sd-col-select-icon${grupoFilter ? " sd-col-select-icon--active" : ""}`} />
                         </span>
                       ) : (
                         <>{detalleLabel} <SortIcon col="detalle" /></>
                       )}
-                    </TableHead>
+                    </th>
                     {(["twitter", "bluesky", "mastodon"] as const).map((key) => (
-                      <TableHead key={key} className="sd-table-header sd-col-platform" onClick={() => handleSort(key)}>
+                      <th key={key} className="h-10 px-2 align-middle font-medium whitespace-nowrap sd-table-header sd-col-platform" onClick={() => handleSort(key)} data-lp-tip={key === "twitter" ? "X (Twitter): cuenta y actividad en los últimos 30 días" : key === "bluesky" ? "Bluesky: cuenta y actividad en los últimos 30 días" : "Mastodon: cuenta y actividad en los últimos 30 días"} aria-label={key === "twitter" ? "X (Twitter)" : key === "bluesky" ? "Bluesky" : "Mastodon"}>
                         {key === "twitter" ? "𝕏" : key === "bluesky" ? "B" : "M"} <SortIcon col={key} />
-                      </TableHead>
+                      </th>
                     ))}
-                    <TableHead className="sd-table-header sd-col-action text-right">Pedir migración</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                    <th className="h-10 px-2 align-middle font-medium whitespace-nowrap sd-table-header sd-col-action text-right">Pedir migración</th>
+                  </tr>
+                </thead>
+                <tbody>
                   {sortedData.length > 0 ? sortedData.slice(0, visibleCount).map((item, i) => (
-                    <TableRow key={`${item.categoria}·${item.nombre}·${i}`} className="sd-data-row group">
-                      <TableCell className="sd-cell-name">
-                        <div className="sd-entity-name">{item.nombre}</div>
-                      </TableCell>
-                      <TableCell className="sd-cell-detail hidden lg:table-cell">
+                    <tr className="hover:bg-muted/50 border-b transition-colors" key={`${item.categoria}·${item.nombre}·${i}`} className="sd-data-row group">
+                      <td className="p-2 align-middle whitespace-nowrap sd-cell-name">
+                        <div className="sd-entity-name" translate="no">{item.nombre}</div>
+                      </td>
+                      <td className="p-2 align-middle whitespace-nowrap sd-cell-detail hidden lg:table-cell">
                         {item.grupoShort ? (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="sd-group-tag">{item.grupoShort}</span>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="text-xs">{item.grupoFull}</TooltipContent>
-                          </Tooltip>
-                        ) : item.detalle ? (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="sd-entity-detail">{item.detalle}</div>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="text-xs max-w-[260px] text-left">{item.detalle}</TooltipContent>
-                          </Tooltip>
+                          <span className="sd-group-tag" data-lp-tip={item.grupoFull}>{item.grupoShort}</span>
+                        ) : item.detalle && !repiteNombre(item.nombre, item.detalle) ? (
+                          <div className="sd-entity-detail" translate="no" data-lp-tip={item.detalle}>{item.detalle}</div>
                         ) : null}
-                      </TableCell>
+                      </td>
                       {(["twitter", "bluesky", "mastodon"] as const).map((key) => (
-                        <TableCell key={key} className="sd-cell-platform">
+                        <td key={key} className="p-2 align-middle whitespace-nowrap sd-cell-platform">
                           <PlatformBadge {...badgeProps(item, key)} />
-                        </TableCell>
+                        </td>
                       ))}
-                      <TableCell className="sd-cell-action">
+                      <td className="p-2 align-middle whitespace-nowrap sd-cell-action">
                         <div className="sd-cell-action-inner">
                           <JoinRequestButton item={item} />
                           <div className="sd-flag-outside">
                             <ReportButton item={item} />
                           </div>
                         </div>
-                      </TableCell>
-                    </TableRow>
+                      </td>
+                    </tr>
                   )) : (
-                    <TableRow>
-                      <TableCell colSpan={6}>
+                    <tr className="hover:bg-muted/50 border-b transition-colors">
+                      <td colSpan={6} className="p-2 align-middle whitespace-nowrap">
                         <div className="sd-empty-state">No se encontraron resultados</div>
-                      </TableCell>
-                    </TableRow>
+                      </td>
+                    </tr>
                   )}
                   {sortedData.length > visibleCount && (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-3">
-                        <Button variant="outline" size="sm"
-                          className="text-xs text-foreground border-border hover:bg-muted"
+                    <tr className="hover:bg-muted/50 border-b transition-colors">
+                      <td colSpan={6} className="px-2 py-3 align-middle whitespace-nowrap text-center">
+                        <button type="button" className="lp-btn lp-btn--outline lp-btn--sm"
                           onClick={() => setVisibleCount(c => c + 200)}>
                           Mostrar más ({visibleCount} de {sortedData.length})
-                        </Button>
-                      </TableCell>
-                    </TableRow>
+                        </button>
+                      </td>
+                    </tr>
                   )}
-                </TableBody>
-              </Table>
+                </tbody>
+              </table></div>
             </div>
           </div>
         </div>
@@ -911,6 +885,6 @@ export function AppSection({ initialStats }: AppSectionProps) {
         </div>
 
       </div>
-    </TooltipProvider>
+    </>
   );
 }

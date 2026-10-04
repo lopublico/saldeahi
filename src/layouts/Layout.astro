@@ -1,189 +1,56 @@
 ---
+import { datasetDe } from '@lopublico/ui/seo.js';
 import "../styles/global.css";
 import "@/styles/sd-app.css";
-import { ClientRouter } from 'astro:transitions';
-import lastUpdateData from "@/data/lastUpdate.json";
+import BaseLayout from "@lopublico/ui/Layout.astro";
 
 const {
   title       = "Sal de ahí",
   description = "Los gobiernos democráticos siguen habitando espacios gobernados por oligarcas.",
   image       = "/og-image.png",
-  active      = "índice",
+  landing     = false,
 } = Astro.props;
-
-const lu = lastUpdateData as any;
-const lastUpdateISO = [lu.twitter, lu.bluesky, lu.mastodon].filter(Boolean).sort().at(-1) ?? "";
-const lastUpdate = lastUpdateISO
-  ? new Date(lastUpdateISO + "T00:00:00Z")
-      .toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })
-  : "";
 
 const siteBase  = Astro.site?.toString().replace(/\/$/, '') ?? 'https://saldeahi.lopublico.es';
 const canonical = new URL(Astro.url.pathname, siteBase).toString();
+// La cabecera la pone cada página (Topbar), porque va sobre el hero oscuro
 const ogImage   = image.startsWith('http') ? image : `${siteBase}${image}`;
-const ogImageSquare = `${siteBase}/og-image-square.jpg`;
 ---
 
-<!doctype html>
-<html lang="es" class="h-full antialiased" prefix="og: https://ogp.me/ns#">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <link rel="icon" href="/favicon.png" sizes="any" />
-    <link rel="canonical" href={canonical} />
-
-    <title>{title}</title>
-    <meta name="description" content={description} />
-
-    <!-- OpenGraph -->
-    <meta property="og:type"        content="website" />
-    <meta property="og:url"         content={canonical} />
-    <meta property="og:title"       content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:image"        content={ogImage} />
-    <meta property="og:image:secure_url" content={ogImage} />
-    <meta property="og:image:type"   content="image/png" />
-    <meta property="og:image:width"  content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt"    content={title} />
-    <meta property="og:image"        content={ogImageSquare} />
-    <meta property="og:image:secure_url" content={ogImageSquare} />
-    <meta property="og:image:type"   content="image/jpeg" />
-    <meta property="og:image:width"  content="1024" />
-    <meta property="og:image:height" content="1024" />
-    <meta property="og:image:alt"    content={title} />
-    <meta property="og:locale"       content="es_ES" />
-    <meta property="og:site_name"    content="Sal de ahí - Lo Público" />
-
-    <!-- Twitter / X -->
-    <meta name="twitter:card"        content="summary_large_image" />
-    <meta name="twitter:url"         content={canonical} />
-    <meta name="twitter:title"       content={title} />
-    <meta name="twitter:description" content={description} />
-    <meta name="twitter:image"       content={ogImage} />
-
-    <!-- Fuentes de marca (Commit Mono + Inter + Lora): autoalojadas vía @fontsource, ver src/styles/global.css -->
-    <ClientRouter />
-  </head>
-
-  <body class="min-h-svh overflow-x-clip grid grid-cols-[minmax(0,1fr)] grid-rows-[1fr_auto] bg-background text-foreground">
-
-    <main class="relative pb-16">
-      <slot />
-    </main>
-
-    <footer class="lo-footer">
-      <div class="lo-footer-inner">
-        <a class="lo-footer-cred" href="https://lopublico.es" target="_blank" rel="noopener">
-          <span>Parte de</span>
-          <img src="/logos/lopublico.png" alt="LoPúblico" width="16" height="16" />
-          <b>LoPublico.es</b>
-        </a>
-        <span class="lo-footer-sep">·</span>
-        <a href="https://creativecommons.org/publicdomain/zero/1.0/deed.es" class="lo-footer-license" target="_blank" rel="noopener license" title="Licencia de Dominio Público Creative Commons Zero 1.0">CC0 1.0</a>
-        <span class="lo-footer-sep">·</span>
-        <a class="lo-footer-link" href="/datos">Datos</a>
-      </div>
-    </footer>
-
-  </body>
-</html>
-
-<style is:global>
-.lo-footer {
-  position: relative;
-  z-index: 50;
-  width: 100%;
-  flex: none;
-  margin-top: auto;
-  padding: 10px 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-top: 1px solid #27272a;
-  background: #000000;
-}
-
-.lo-footer-inner {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-  font-family: var(--font-sans);
-  font-size: 13px;
-  color: #ffffff;
-  line-height: 1.4;
-}
-
-.lo-footer-inner a {
-  color: #ffffff;
-  text-decoration: none;
-  transition: opacity 0.15s ease;
-}
-
-.lo-footer-inner a:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.lo-footer-cred {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  color: #ffffff;
-}
-
-.lo-footer-cred img {
-  border-radius: 3px;
-  display: block;
-}
-
-.lo-footer-cred b {
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.lo-footer-sep {
-  color: #71717a;
-  font-weight: 700;
-  user-select: none;
-}
-
-.lo-footer-author {
-  color: #d4d4d8;
-}
-
-.lo-footer-author a {
-  font-weight: 600;
-  color: #ffffff;
-}
-
-.lo-footer-license {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  color: #ffffff;
-  padding: 1px 6px;
-  background: #18181b;
-  border: 1px solid #27272a;
-  border-radius: 4px;
-}
-
-.lo-footer-link {
-  font-weight: 600;
-  color: #ffffff;
-}
-
-@media (max-width: 640px) {
-  .lo-footer {
-    padding: 10px 14px;
-  }
-  .lo-footer-inner {
-    font-size: 12px;
-    gap: 10px;
-  }
-}
-</style>
+<BaseLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  siteName="Sal de ahí - Lo Público"
+  twitterUrl
+  imagenes={[
+    { url: ogImage, width: 1200, height: 630, tipo: "image/png", alt: title, secure: true },
+    { url: `${siteBase}/og-image-square.jpg`, width: 1024, height: 1024, tipo: "image/jpeg", alt: title, secure: true },
+  ]}
+  dataset={Astro.url.pathname === '/' ? datasetDe('sal-de-ahi', { descripcion: description, url: canonical }) : undefined}
+  faviconTipo="image/png"
+  landing={landing}
+  viewport="width=device-width, initial-scale=1, viewport-fit=cover"
+  htmlAttrs={{ class: "h-full antialiased", prefix: "og: https://ogp.me/ns#" }}
+  bodyClass="min-h-svh overflow-x-clip grid grid-cols-[minmax(0,1fr)] grid-rows-[1fr_auto] bg-background text-foreground"
+  mainClass="relative pb-16"
+  pie={{ enlaces: [{ href: "/datos", texto: "Datos" }] }}
+  reporte={{
+    proyecto: "sal-de-ahi",
+    endpoint: import.meta.env.PUBLIC_REPORT_ENDPOINT || "https://lopublico-reportes.report-erratum.workers.dev",
+    sitekey: import.meta.env.PUBLIC_TURNSTILE_SITEKEY || "0x4AAAAAAFJ4NSzh_dBY0vQ5",
+    titulo: "Reportar dato incorrecto",
+    subtitulo: "Lo revisaremos y actualizaremos los datos si procede",
+    pideFuente: false,
+    categorias: [
+      { value: "twitter", label: "X / Twitter", pideValor: true, placeholder: "@handle" },
+      { value: "bluesky", label: "Bluesky", pideValor: true, placeholder: "handle.bsky.social" },
+      { value: "mastodon", label: "Mastodon", pideValor: true, placeholder: "https://mastodon.social/@handle" },
+      { value: "suspendida", label: "La cuenta está suspendida o no existe" },
+      { value: "falta", label: "Falta una cuenta que no aparece" },
+      { value: "otro", label: "Otro" },
+    ],
+  }}
+>
+  <slot />
+</BaseLayout>

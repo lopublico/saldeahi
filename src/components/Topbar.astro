@@ -1,169 +1,22 @@
 ---
+// Cabecera de Sal de ahí: envoltorio fino sobre el SiteHeader compartido (@lopublico/ui).
+// `dark` la deja transparente sobre el hero oscuro; `active` marca el enlace actual.
+import SiteHeader from "@lopublico/ui/SiteHeader.astro";
 interface Props {
   dark?: boolean;
   active?: string;
 }
-const { dark = false, active = 'índice' } = Astro.props;
+const { dark = false, active = "índice" } = Astro.props;
 ---
 
-<div class={`topbar ${dark ? 'topbar--dark' : ''}`}>
-  <div class="topbar-inner max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-12">
-
-    <!-- Logo + tool name (Lo público design system: tool-title-row) -->
-    <a href="/" class="tool-title-row">
-      <div class="tool-logo">
-        <img src="/logos/saldeahi.png" alt="">
-      </div>
-      <div class="tool-title-text">
-        <span class="tool-title-name">Sal de ahí</span>
-        <span class="tool-title-parent">Lo público</span>
-      </div>
-    </a>
-
-    <!-- Nav -->
-    <nav class="topbar-nav">
-      <a href="/"                      class={`topbar-nav-link ${active === 'índice'  ? 'is-active' : ''}`}>Índice</a>
-      <a href="/datos"                 class={`topbar-nav-link ${active === 'datos'   ? 'is-active' : ''}`}>Datos</a>
-      <a href="/porque"                class={`topbar-nav-link ${active === 'por qué' ? 'is-active' : ''}`}>Por qué</a>
-      <a href="https://lopublico.es"   class="topbar-nav-link topbar-nav-link--ext" target="_blank" rel="noopener" title="Ir a LoPúblico">
-        <span>LoPúblico</span>
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="ext-ico">
-          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-          <polyline points="15 3 21 3 21 9"></polyline>
-          <line x1="10" y1="14" x2="21" y2="3"></line>
-        </svg>
-      </a>
-    </nav>
-
-  </div>
-</div>
-
-<style is:global>
-/* ═══════════════════════════════════════════════════════════════════
-   Topbar – shared across all pages
-   tool-title-row pattern from Lo público design system
-═══════════════════════════════════════════════════════════════════ */
-
-.topbar {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  color: var(--sd-fg-2);
-}
-
-.topbar-inner {
-  padding-top: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-@media (max-width: 767px) {
-  .topbar-inner {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    padding-top: 12px;
-  }
-  .tool-title-name { font-size: 17px; }
-  .tool-title-parent { font-size: 13px; }
-  .tool-title-text { height: 38px; }
-  .topbar-nav { gap: 2px; flex-wrap: wrap; }
-  .topbar-nav-link { font-size: 12px; padding: 4px 8px; }
-}
-
-/* ── Cabecera de subproyecto de Lo Público ───────────────────────────
-   Misma estructura que Las Cortes y sus bienes (parlamentarios):
-   logo propio con borde + título + «Lo público» debajo, y enlaces propios. */
-.topbar { border-bottom: 1px solid #d4d4d4; }
-.topbar-inner { height: 64px; padding-top: 0; }
-
-.tool-title-row {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
-  flex-shrink: 0;
-}
-
-.tool-logo {
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-  display: block;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #d4d4d4;
-}
-.tool-logo img { width: 100%; height: 100%; object-fit: cover; }
-
-.tool-title-text {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 2px;
-  height: 40px;
-  padding-left: 12px;
-  border-left: 1px solid #d4d4d4;
-}
-
-.tool-title-name {
-  font-family: var(--font-sans);
-  font-weight: 700;
-  font-size: 16px;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-  color: var(--sd-fg-2);
-  text-decoration: none;
-}
-
-.tool-title-parent {
-  font-family: var(--font-sans);
-  font-style: normal;
-  font-weight: 500;
-  font-size: 12.5px;
-  line-height: 1.15;
-  color: var(--sd-muted);
-  text-decoration: none;
-}
-
-/* ── Enlaces ─────────────────────────────────────────────────────── */
-.topbar-nav { display: flex; align-items: center; gap: 4px; min-width: 0; }
-
-.topbar-nav-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  font-family: var(--font-sans);
-  font-size: 13.5px;
-  font-weight: 500;
-  text-decoration: none;
-  color: var(--sd-muted);
-  border-radius: 8px;
-  transition: color 130ms ease, background-color 130ms ease;
-  white-space: nowrap;
-}
-.topbar-nav-link:hover { color: var(--sd-fg-2); background: rgba(0, 0, 0, 0.05); }
-.topbar-nav-link.is-active { color: var(--sd-fg-2); background: rgba(0, 0, 0, 0.08); font-weight: 600; }
-
-.topbar-nav-link--ext { gap: 4px; }
-.topbar-nav-link--ext .ext-ico { opacity: 0.65; transition: opacity 130ms ease, transform 130ms ease; flex-shrink: 0; }
-.topbar-nav-link--ext:hover .ext-ico { opacity: 1; transform: translate(1px, -1px); }
-
-@media (max-width: 767px) {
-  .topbar-inner { height: auto; flex-direction: column; align-items: flex-start; gap: 10px; padding: 12px 0; }
-  .topbar-nav { flex-wrap: wrap; gap: 2px; }
-  .topbar-nav-link { font-size: 12.5px; padding: 4px 8px; }
-}
-
-/* ── Variante oscura (todas las páginas de saldeahi la usan sobre el hero negro) ── */
-.topbar--dark                        { color: rgba(246,244,239,0.85); border-bottom-color: rgba(246,244,239,0.14); }
-.topbar--dark .tool-logo             { border-color: rgba(246,244,239,0.2); }
-.topbar--dark .tool-title-name       { color: rgba(246,244,239,0.95); }
-.topbar--dark .tool-title-parent     { color: rgba(246,244,239,0.55); }
-.topbar--dark .tool-title-text       { border-left-color: rgba(246,244,239,0.2); }
-.topbar--dark .topbar-nav-link       { color: rgba(246,244,239,0.6); }
-.topbar--dark .topbar-nav-link:hover { background: rgba(255,255,255,0.1); color: rgba(246,244,239,1); }
-.topbar--dark .topbar-nav-link.is-active { color: rgba(246,244,239,1); background: rgba(255,255,255,0.14); }
-</style>
+<SiteHeader
+  nombre="Sal de ahí"
+  logo="/logos/saldeahi.png"
+  tono={dark ? "oscuro" : "claro"}
+  enlaces={[
+    { href: "/", texto: "Índice", activo: active === "índice" },
+    { href: "/datos", texto: "Datos", activo: active === "datos" },
+    { href: "/porque", texto: "Por qué", activo: active === "por qué" },
+    { href: "https://lopublico.es", texto: "LoPúblico", externo: true, imagen: "/logos/lopublico.png" },
+  ]}
+/>

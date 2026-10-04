@@ -270,11 +270,7 @@ Estas copias son **locales** (gitignored, no se versionan en el repo). El histor
 
 Cualquier persona puede reportar un dato incorrecto directamente desde la web: el icono de bandera en cada fila abre un formulario que crea un issue en GitHub automáticamente.
 
-Variables de entorno necesarias en Netlify:
-- `RECAPTCHA_SECRET` — secret key de reCAPTCHA v3
-- `GITHUB_TOKEN` — token con permiso `issues:write`
-- `GITHUB_REPO` — `usuario/repo`
-- `PUBLIC_RECAPTCHA_SITE_KEY` — site key pública (incluida en el build)
+El formulario es el `ReportDialog` de `@lopublico/ui`, que envía los datos al worker de reportes compartido (`servicios/reportes` en el repo `lopublico/ui`): verifica con Cloudflare Turnstile y crea el issue en este repositorio. Variables opcionales de la web: `PUBLIC_REPORT_ENDPOINT` y `PUBLIC_TURNSTILE_SITEKEY`.
 
 ---
 

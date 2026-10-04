@@ -1,4 +1,4 @@
-import { Download, ExternalLink } from "lucide-react";
+import { Icono } from "@/components/Icono";
 
 // Zenodo no sirve los ficheros a través del DOI de concepto (solo la página HTML
 // redirige a la última versión), así que las descargas necesitan el ID de la versión
@@ -35,10 +35,10 @@ export function ExportButton({ dark = false }: { dark?: boolean }) {
   const dim = { ...s, opacity: 0.6 };
   return (
     <div style={{ display: "flex", flexWrap: "wrap" as const, gap: "8px", alignItems: "center" }}>
-      <a href={ZENODO_CSV}  target="_blank" rel="noopener" style={s} download><Download size={12} />CSV</a>
-      <a href={ZENODO_JSON} target="_blank" rel="noopener" style={s} download><Download size={12} />JSON</a>
-      <a href={ZENODO_XLSX} target="_blank" rel="noopener" style={s} download><Download size={12} />Excel</a>
-      <a href={ZENODO_LATEST} target="_blank" rel="noopener" style={dim}><ExternalLink size={12} />Zenodo</a>
+      <a href={ZENODO_CSV}  target="_blank" rel="noopener" style={s} download><Icono nombre="download" tam={12} />CSV</a>
+      <a href={ZENODO_JSON} target="_blank" rel="noopener" style={s} download><Icono nombre="download" tam={12} />JSON</a>
+      <a href={ZENODO_XLSX} target="_blank" rel="noopener" style={s} download><Icono nombre="download" tam={12} />Excel</a>
+      <a href={ZENODO_LATEST} target="_blank" rel="noopener" style={dim}><Icono nombre="external-link" tam={12} />Zenodo</a>
     </div>
   );
 }

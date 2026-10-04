@@ -1,4 +1,5 @@
 ---
+import Pagina404 from "@lopublico/ui/Pagina404.astro";
 import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
 ---
@@ -8,89 +9,21 @@ import Topbar from "@/components/Topbar.astro";
   description="Página no encontrada. Esta página ha decidido salir de ahí."
   active=""
 >
-  <div class="sd-404-container">
-    <Topbar dark active="" />
-
-    <div class="max-w-screen-xl mx-auto px-6 sm:px-14 py-16 sm:py-24 flex-1 flex flex-col justify-center">
-      <div class="max-w-2xl">
-        <h1 class="sd-404-h1">
-          Esta página ha decidido <br class="hidden sm:inline" />
-          <span class="sd-404-serif">salir de ahí.</span>
-        </h1>
-
-        <p class="sd-404-lead">
-          El enlace que has seguido no existe, ha cambiado de dirección o simplemente ya no está disponible.
-        </p>
-
-        <div class="sd-404-links">
-          <a href="/" class="xbtn xbtn--dark xbtn--primary">
-            ← Volver al índice
-          </a>
-          <a href="/datos" class="xbtn xbtn--dark">
-            Consultar los datos
-          </a>
-          <a href="/porque" class="xbtn xbtn--dark">
-            ¿Por qué importa?
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
+  <Pagina404
+    tono="oscuro"
+    texto="El enlace que has seguido no existe, ha cambiado de dirección o simplemente ya no está disponible."
+    acciones={[
+      { href: "/", texto: "← Volver al índice" },
+      { href: "/datos", texto: "Consultar los datos" },
+      { href: "/porque", texto: "¿Por qué importa?" },
+    ]}
+  >
+    <Topbar slot="cabecera" dark active="" />
+    <Fragment slot="titulo">Esta página ha decidido <span class="sd-404-serif">salir de ahí.</span></Fragment>
+  </Pagina404>
 </Layout>
 
 <style>
-  .sd-404-container {
-    background: #0e0e0e;
-    color: #f6f4ef;
-    min-height: 100%;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .sd-404-h1 {
-    font-family: var(--font-sans);
-    font-weight: 600;
-    font-size: clamp(36px, 5.5vw, 68px);
-    letter-spacing: -0.03em;
-    line-height: 1.05;
-    margin: 0 0 24px;
-    color: #fff;
-  }
-
-  .sd-404-serif {
-    font-family: 'Lora', Georgia, serif;
-    font-style: italic;
-    font-weight: 500;
-    color: #f6f4ef;
-  }
-
-  .sd-404-lead {
-    font-family: 'Lora', Georgia, serif;
-    font-style: italic;
-    font-size: clamp(16px, 2.2vw, 20px);
-    line-height: 1.6;
-    color: rgba(246, 244, 239, 0.72);
-    margin: 0 0 36px;
-    max-width: 560px;
-  }
-
-  .sd-404-links {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .xbtn--primary {
-    background: #f6f4ef;
-    color: #0e0e0e !important;
-    border-color: #f6f4ef;
-    font-weight: 600;
-  }
-  .xbtn--primary:hover {
-    background: rgba(246, 244, 239, 0.88);
-    color: #0e0e0e !important;
-    border-color: rgba(246, 244, 239, 0.88);
-  }
+  .sd-404-serif { font-family: 'Lora', Georgia, serif; font-style: italic; font-weight: 500; color: #f6f4ef; }
+  :global(.lp-404-texto) { font-family: 'Lora', Georgia, serif; font-style: italic; }
 </style>

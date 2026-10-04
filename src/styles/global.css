@@ -1,24 +1,8 @@
-@import "@fontsource/inter/400.css";
-@import "@fontsource/inter/500.css";
-@import "@fontsource/inter/600.css";
-@import "@fontsource/inter/700.css";
-@import "@fontsource/lora/400.css";
-@import "@fontsource/lora/500.css";
-@import "@fontsource/lora/600.css";
-@import "@fontsource/lora/400-italic.css";
-@import "@fontsource/lora/500-italic.css";
-@import "@fontsource/commit-mono/latin.css";
-@import "@fontsource/commit-mono/latin-italic.css";
 
 /* ──────────────────────────────────────────────────────────
    Tailwind v4 + (opcional) extras
    ────────────────────────────────────────────────────────── */
 @import "tailwindcss";
-
-/* Si usas animaciones utilitarias adicionales: */
-@import "tw-animate-css";
-/* Si tu preset de shadcn trae hoja de estilos base: */
-@import "shadcn/tailwind.css";
 
 /* ──────────────────────────────────────────────────────────
    Modo oscuro (Tailwind v4): por clase .dark en <html>
@@ -49,44 +33,18 @@
   --color-foreground: var(--foreground);
 
   --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
 
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
 
   --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
 
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
 
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-
-  --color-destructive: var(--destructive);
-
   --color-border: var(--border);
-  --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Opcionales (charts / sidebar) */
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
 }
 
 /* ──────────────────────────────────────────────────────────
@@ -100,48 +58,21 @@
   --foreground: #1a1a1a;
 
   --card: #ffffff;
-  --card-foreground: #1a1a1a;
-
-  --popover: #ffffff;
-  --popover-foreground: #1a1a1a;
 
   --primary: #1a1a1a;
   --primary-foreground: #ffffff;
 
   --secondary: #f5f5f5;
-  --secondary-foreground: #1a1a1a;
 
   --muted: #f5f5f5;
-  --muted-foreground: #888888;
-
-  --accent: #f5f5f5;
-  --accent-foreground: #1a1a1a;
-
-  --destructive: #dc2626;
+  --muted-foreground: #6b6b6b;
 
   --border: #eeeeee;
-  --input:  #eeeeee;
   --ring:   #a3a3a3;
-
-  /* Opcionales: si no usas charts, puedes eliminarlos */
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6   0.118 184.704);
-  --chart-3: oklch(0.398 0.07  227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-
-  --sidebar: #fafafa;
-  --sidebar-foreground: #1a1a1a;
-  --sidebar-primary: #1a1a1a;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f5f5f5;
-  --sidebar-accent-foreground: #1a1a1a;
-  --sidebar-border: #eeeeee;
-  --sidebar-ring: #a3a3a3;
 
   /* Tokens de diseño "sal de ahí" (paleta editorial blog) */
   --hero-h: 340px;
-  --sd-sky: #0284c7;
+  --sd-sky: #0369a1;
   --sd-sky-ink: #0369a1;
   --sd-sky-soft: rgba(2, 132, 199, 0.15);
   --sd-mastodon: #7c3aed;
@@ -153,9 +84,9 @@
   --sd-fg: #1a1a1a;
   --sd-fg-2: #1a1a1a;
   --sd-muted: #606060;
-  --sd-muted-2: #888888;
+  --sd-muted-2: #6b6b6b;
   --sd-rose: #fca5a5;
-  --sd-rose-pink: #e11d48;
+  --sd-rose-pink: #be123c;
   --sd-red-soft: rgba(225, 29, 72, 0.12);
 }
 
@@ -169,9 +100,6 @@
 
   /* Superficies */
   --card: #1f1f1f;
-  --card-foreground: #e0e0e0;
-  --popover: #1f1f1f;
-  --popover-foreground: #e0e0e0;
 
   /* Acciones / énfasis */
   --primary: #e0e0e0;
@@ -179,26 +107,14 @@
 
   /* Escalas neutras */
   --secondary: #1f1f1f;
-  --secondary-foreground: #e0e0e0;
   --muted: #1f1f1f;
   --muted-foreground: #808080;
-  --accent: #1f1f1f;
-  --accent-foreground: #e0e0e0;
 
   /* Bordes / inputs / ring */
   --border: #242424;
-  --input:  #242424;
   --ring:   #5a5a5a;
 
   /* Sidebar */
-  --sidebar: #1f1f1f;
-  --sidebar-foreground: #e0e0e0;
-  --sidebar-primary: #1f1f1f;
-  --sidebar-primary-foreground: #e0e0e0;
-  --sidebar-accent: #1f1f1f;
-  --sidebar-accent-foreground: #e0e0e0;
-  --sidebar-border: #242424;
-  --sidebar-ring: #5a5a5a;
 
   /* Tokens de diseño "sal de ahí" en modo oscuro */
   --sd-fg:   #e0e0e0;
@@ -254,7 +170,6 @@
   --color-slate-700: oklch(0.20 0 0);
 }
 
-
 /* Wordmark "sal de ahí" con la X tachada */
 .sd-wordmark {
   font-family: var(--font-sans);
@@ -289,6 +204,38 @@
 .sd-rule { border: none; border-top: 1px solid var(--sd-fg-2); }
 .sd-rule.thin { border-top-color: var(--sd-line); }
 /* Objetivos táctiles: en pantallas táctiles, los enlaces pequeños del pie ganan área pulsable */
-@media (pointer: coarse) {
-  .lo-footer a { padding-block: 8px; }
+
+/* Puente con @lopublico/ui (ver ui/tokens.css): los componentes compartidos leen --lp-*, aquí se apuntan a los tokens de esta web */
+:root, .dark {
+  --lp-fg: var(--sd-fg);
+  --lp-fg-2: var(--sd-fg-2);
+  --lp-fg-3: var(--sd-muted);
+  --lp-muted: var(--sd-muted);
+  --lp-muted-2: var(--sd-muted-2);
+  --lp-line: var(--sd-line);
+  --lp-line-strong: var(--sd-line-strong);
+  --lp-surface-card: var(--card);
+  --lp-surface-subtle: var(--muted);
+  --lp-hover-bg: var(--muted);
+  --lp-solid: var(--primary);
+  --lp-solid-fg: var(--primary-foreground);
+  --lp-solid-hover: color-mix(in srgb, var(--primary) 88%, transparent);
+  --lp-soft: var(--secondary);
+  --lp-soft-hover: color-mix(in srgb, var(--secondary) 80%, var(--sd-fg));
+  --lp-focus: var(--ring);
+  /* Radios: los del contrato común de ui (3 · 6 · 8 px), para que cajas, badges y tooltips coincidan con el resto de portales */
+  --lp-radius-sm: 3px;
+  --lp-radius: 6px;
+  --lp-radius-lg: 8px;
+  --lp-radius-full: 9999px;
+  --lp-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --lp-info: var(--sd-sky-ink);        --lp-info-soft: var(--sd-sky-soft);
+  --lp-ok: #2f8f68;                    --lp-ok-soft: rgba(47, 143, 104, 0.12);
+  --lp-warn: var(--sd-ochre);          --lp-warn-soft: rgba(217, 119, 6, 0.12);
+  --lp-alert-soft: var(--sd-red-soft);
+  --lp-page-max: 1280px;
+  --lp-page-pad: 48px;
+  --lp-font-sans: var(--font-sans);
+  --lp-font-mono: var(--font-mono);
+  --lp-alert: var(--sd-rose-pink);
 }

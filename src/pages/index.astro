@@ -1,4 +1,5 @@
 ---
+import Donut from "@lopublico/ui/Donut.astro";
 import Layout from "../layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
 import { AppSection } from "@/components/AppSection";
@@ -80,8 +81,6 @@ const pctSin = base > 0 ? Math.round((sinAlternativa / base) * 100) : 0;
 const pctSinNinguna = total > 0 ? Math.round((sinNinguna / total) * 100) : 0;
 
 // Donut math para stat-band
-const DONUT_R = 15, DONUT_C = 2 * Math.PI * DONUT_R;
-const donutDash = (pct: number) => `${(Math.max(0, Math.min(100, pct)) / 100) * DONUT_C} ${DONUT_C}`;
 
 const updatedDate = lastUpdate.twitter
   ? new Date(lastUpdate.twitter + "T00:00:00Z").toLocaleDateString("es-ES", {
@@ -168,14 +167,7 @@ siguen publicando en
       <div class="sd-sband-col md:px-4 lg:px-6">
         <div class="sd-sband-label">Con cuenta en X</div>
         <div class="sd-sband-num-row">
-          <svg class="sd-sband-donut" width="42" height="42" viewBox="0 0 42 42">
-            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-line)" stroke-width="3.5"/>
-            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-fg-2)" stroke-width="3.5"
-              stroke-dasharray={donutDash(pctX)}
-              class="sd-sband-donut-x"
-              transform="rotate(-90 21 21)"
-            />
-          </svg>
+          <Donut sectores={[{ etiqueta: "", valor: pctX, color: "var(--sd-fg-2)" }]} maximo={100} tam={42} grosor={3.5} leyenda={false} decorativo class="sd-sband-donut" />
           <span class="sd-sband-num">{pctX}&#x202F;%</span>
         </div>
         <div class="sd-sband-sub">{enX} de {base} entidades</div>
@@ -185,13 +177,7 @@ siguen publicando en
       <div class="sd-sband-col md:px-4 lg:px-6">
         <div class="sd-sband-label">Con cuenta en Bluesky</div>
         <div class="sd-sband-num-row">
-          <svg class="sd-sband-donut" width="42" height="42" viewBox="0 0 42 42">
-            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-line)" stroke-width="3.5"/>
-            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-sky)" stroke-width="3.5"
-              stroke-dasharray={donutDash(pctB)}
-              transform="rotate(-90 21 21)"
-            />
-          </svg>
+          <Donut sectores={[{ etiqueta: "", valor: pctB, color: "var(--sd-sky)" }]} maximo={100} tam={42} grosor={3.5} leyenda={false} decorativo class="sd-sband-donut" />
           <span class="sd-sband-num">{pctB}&#x202F;%</span>
         </div>
         <div class="sd-sband-sub">{conBluesky} entidades</div>
@@ -201,13 +187,7 @@ siguen publicando en
       <div class="sd-sband-col md:px-4 lg:px-6">
         <div class="sd-sband-label">Con cuenta en Mastodon</div>
         <div class="sd-sband-num-row">
-          <svg class="sd-sband-donut" width="42" height="42" viewBox="0 0 42 42">
-            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-line)" stroke-width="3.5"/>
-            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-mastodon)" stroke-width="3.5"
-              stroke-dasharray={donutDash(pctM === 0 && conMastodon > 0 ? 1 : pctM)}
-              transform="rotate(-90 21 21)"
-            />
-          </svg>
+          <Donut sectores={[{ etiqueta: "", valor: pctM === 0 && conMastodon > 0 ? 1 : pctM, color: "var(--sd-mastodon)" }]} maximo={100} tam={42} grosor={3.5} leyenda={false} decorativo class="sd-sband-donut" />
           <span class="sd-sband-num">
             {pctM === 0 ? '< 1' : pctM}&#x202F;%
           </span>
@@ -219,13 +199,7 @@ siguen publicando en
       <div class="sd-sband-col md:px-4 lg:px-6">
         <div class="sd-sband-label">Sin alternativa a X</div>
         <div class="sd-sband-num-row">
-          <svg class="sd-sband-donut" width="42" height="42" viewBox="0 0 42 42">
-            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-line)" stroke-width="3.5"/>
-            <circle cx="21" cy="21" r={DONUT_R} fill="none" stroke="var(--sd-rose-pink)" stroke-width="3.5"
-              stroke-dasharray={donutDash(pctSin)}
-              transform="rotate(-90 21 21)"
-            />
-          </svg>
+          <Donut sectores={[{ etiqueta: "", valor: pctSin, color: "var(--sd-rose-pink)" }]} maximo={100} tam={42} grosor={3.5} leyenda={false} decorativo class="sd-sband-donut" />
           <span class="sd-sband-num">{pctSin}&#x202F;%</span>
         </div>
         <div class="sd-sband-sub sd-sband-sub--em">
